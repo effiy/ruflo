@@ -1,3 +1,15 @@
+---
+title: "Performance Benchmarking Module"
+tags: ["performance", "benchmarking", "vitest", "regression", "Flash-Attention", "memory", "statistics"]
+category: "@claude-flow/performance"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/performance
 
 [![npm version](https://img.shields.io/npm/v/@claude-flow/performance.svg)](https://www.npmjs.com/package/@claude-flow/performance)
@@ -8,7 +20,15 @@
 
 > Comprehensive performance benchmarking module for Claude Flow V3 - statistical analysis, memory tracking, regression detection, and Flash Attention validation.
 
-## Features
+---
+
+## 💡 概述
+
+「待补充」
+
+---
+
+## ⚡ 功能
 
 - **Statistical Benchmarking** - Mean, median, P95, P99, standard deviation, outlier removal
 - **Memory Tracking** - Heap, RSS, external, and array buffer monitoring
@@ -18,36 +38,51 @@
 - **Flash Attention Validation** - Validate 2.49x-7.47x speedup targets
 - **Multiple Output Formats** - Console, JSON, and programmatic access
 
-## Installation
+---
 
-```bash
-npm install @claude-flow/performance
-```
+## 📊 指标
 
-## Quick Start
+### V3 Performance Targets
 
 ```typescript
-import { benchmark, BenchmarkRunner, V3_PERFORMANCE_TARGETS } from '@claude-flow/performance';
+import { V3_PERFORMANCE_TARGETS, meetsTarget } from '@claude-flow/performance';
 
-// Single benchmark
-const result = await benchmark('vector-search', async () => {
-  await index.search(queryVector, 10);
-}, {
-  iterations: 100,
-  warmup: 10
-});
+// Built-in targets
+V3_PERFORMANCE_TARGETS = {
+  // Startup Performance
+  'cli-cold-start': 500,        // <500ms (5x faster)
+  'cli-warm-start': 100,        // <100ms
+  'mcp-server-init': 400,       // <400ms (4.5x faster)
+  'agent-spawn': 200,           // <200ms (4x faster)
 
-console.log(`Mean: ${result.mean}ms, P99: ${result.p99}ms`);
+  // Memory Operations
+  'vector-search': 1,           // <1ms (150x faster)
+  'hnsw-indexing': 10,          // <10ms
+  'memory-write': 5,            // <5ms (10x faster)
+  'cache-hit': 0.1,             // <0.1ms
 
-// Check against target
-if (result.mean <= V3_PERFORMANCE_TARGETS['vector-search']) {
-  console.log('Target met!');
-}
+  // Swarm Coordination
+  'agent-coordination': 50,     // <50ms
+  'task-decomposition': 20,     // <20ms
+  'consensus-latency': 100,     // <100ms (5x faster)
+  'message-throughput': 0.1,    // <0.1ms per message
+
+  // SONA Learning
+  'sona-adaptation': 0.05       // <0.05ms
+};
+
+// Check if target is met
+const { met, target, ratio } = meetsTarget('vector-search', 0.8);
+// { met: true, target: 1, ratio: 0.8 }
 ```
 
-## API Reference
+---
 
-### Single Benchmark
+## 🏛️ 设计
+
+### API Reference
+
+#### Single Benchmark
 
 ```typescript
 import { benchmark } from '@claude-flow/performance';
@@ -87,7 +122,7 @@ const result = await benchmark(
 }
 ```
 
-### Benchmark Suite
+#### Benchmark Suite
 
 ```typescript
 import { BenchmarkRunner } from '@claude-flow/performance';
@@ -117,7 +152,7 @@ runner.printResults();
 const json = runner.toJSON();
 ```
 
-### Comparison & Regression Detection
+#### Comparison & Regression Detection
 
 ```typescript
 import { compareResults, printComparisonReport } from '@claude-flow/performance';
@@ -143,41 +178,7 @@ for (const comp of comparisons) {
 }
 ```
 
-### V3 Performance Targets
-
-```typescript
-import { V3_PERFORMANCE_TARGETS, meetsTarget } from '@claude-flow/performance';
-
-// Built-in targets
-V3_PERFORMANCE_TARGETS = {
-  // Startup Performance
-  'cli-cold-start': 500,        // <500ms (5x faster)
-  'cli-warm-start': 100,        // <100ms
-  'mcp-server-init': 400,       // <400ms (4.5x faster)
-  'agent-spawn': 200,           // <200ms (4x faster)
-
-  // Memory Operations
-  'vector-search': 1,           // <1ms (150x faster)
-  'hnsw-indexing': 10,          // <10ms
-  'memory-write': 5,            // <5ms (10x faster)
-  'cache-hit': 0.1,             // <0.1ms
-
-  // Swarm Coordination
-  'agent-coordination': 50,     // <50ms
-  'task-decomposition': 20,     // <20ms
-  'consensus-latency': 100,     // <100ms (5x faster)
-  'message-throughput': 0.1,    // <0.1ms per message
-
-  // SONA Learning
-  'sona-adaptation': 0.05       // <0.05ms
-};
-
-// Check if target is met
-const { met, target, ratio } = meetsTarget('vector-search', 0.8);
-// { met: true, target: 1, ratio: 0.8 }
-```
-
-### Formatting Utilities
+#### Formatting Utilities
 
 ```typescript
 import { formatBytes, formatTime } from '@claude-flow/performance';
@@ -192,7 +193,54 @@ formatBytes(1048576);       // '1.00 MB'
 formatBytes(1073741824);    // '1.00 GB'
 ```
 
-## Running Benchmarks
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Related Packages
+
+- [@claude-flow/memory](../memory) - Memory operations to benchmark
+- [@claude-flow/swarm](../swarm) - Swarm coordination to benchmark
+- [@claude-flow/neural](../neural) - Neural operations to benchmark
+
+---
+
+## 🚀 快速开始
+
+### Installation
+
+```bash
+npm install @claude-flow/performance
+```
+
+### Quick Start
+
+```typescript
+import { benchmark, BenchmarkRunner, V3_PERFORMANCE_TARGETS } from '@claude-flow/performance';
+
+// Single benchmark
+const result = await benchmark('vector-search', async () => {
+  await index.search(queryVector, 10);
+}, {
+  iterations: 100,
+  warmup: 10
+});
+
+console.log(`Mean: ${result.mean}ms, P99: ${result.p99}ms`);
+
+// Check against target
+if (result.mean <= V3_PERFORMANCE_TARGETS['vector-search']) {
+  console.log('Target met!');
+}
+```
+
+### Running Benchmarks
 
 ```bash
 # Run all benchmarks
@@ -205,7 +253,7 @@ npm run bench:attention
 npm run bench:startup
 ```
 
-## Example Benchmark File
+### Example Benchmark File
 
 ```typescript
 // benchmarks/memory.bench.ts
@@ -225,7 +273,17 @@ describe('Memory Benchmarks', () => {
 });
 ```
 
-## TypeScript Types
+---
+
+## ⚙️ 技术栈
+
+### Dependencies
+
+- `@ruvector/attention` - Flash Attention implementation
+- `@ruvector/sona` - SONA learning engine
+- `vitest` - Test/benchmark runner
+
+### TypeScript Types
 
 ```typescript
 import type {
@@ -238,18 +296,6 @@ import type {
   PerformanceTarget
 } from '@claude-flow/performance';
 ```
-
-## Dependencies
-
-- `@ruvector/attention` - Flash Attention implementation
-- `@ruvector/sona` - SONA learning engine
-- `vitest` - Test/benchmark runner
-
-## Related Packages
-
-- [@claude-flow/memory](../memory) - Memory operations to benchmark
-- [@claude-flow/swarm](../swarm) - Swarm coordination to benchmark
-- [@claude-flow/neural](../neural) - Neural operations to benchmark
 
 ## License
 

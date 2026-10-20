@@ -1,36 +1,84 @@
+---
+title: "RuVector NPM Package API Documentation"
+tags: ["ruvector", "npm", "api", "vector-database", "mcp", "hooks", "ast-analysis", "diff-analysis"]
+category: "@claude-flow/cli/src/ruvector"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # RuVector NPM Package API Documentation
 
 Version: 0.1.95
 Package: `ruvector`
 Repository: https://github.com/ruvnet/ruvector
 
-## Overview
+---
+
+## 💡 概述
 
 RuVector is a high-performance vector database for Node.js with automatic native/WASM fallback. It provides self-learning intelligence for Claude Code with Q-learning optimization, vector memory, and automatic agent routing.
 
-## Installation
+---
 
-```bash
-npm install ruvector
-```
+## ⚡ 功能
 
-## MCP Server Integration
+### MCP Tools Overview
 
-Add to Claude Code:
+#### Core Routing Functions
+- `hooks_route` - Routes a task to the best agent based on learned patterns
+- `hooks_route_enhanced` - Enhanced routing using AST complexity, coverage, and diff analysis signals
 
-```bash
-claude mcp add ruvector-mcp -- npx ruvector mcp-server
-```
+#### AST Analysis Functions
+- `hooks_ast_analyze` - Parses file AST and extracts symbols, imports, and complexity metrics
+- `hooks_ast_complexity` - Calculates cyclomatic and cognitive complexity metrics for files
+
+#### Diff Analysis Functions
+- `hooks_diff_analyze` - Analyzes git diff with semantic embeddings and risk scoring
+- `hooks_diff_classify` - Classifies change type based on diff patterns
+
+#### Coverage Analysis Functions
+- `hooks_coverage_route` - Gets coverage-aware agent routing for a file
+- `hooks_coverage_suggest` - Suggests tests for files based on coverage data
+
+#### Graph Analysis Functions
+- `hooks_graph_mincut` - Finds optimal code boundaries using MinCut algorithm (Stoer-Wagner)
+- `hooks_graph_cluster` - Detects code communities using spectral or Louvain clustering
+
+#### Additional MCP Tools
+
+**Memory Functions:** `hooks_remember`, `hooks_recall`
+
+**Learning Functions:** `hooks_learn`, `hooks_batch_learn`, `hooks_learning_config`, `hooks_learning_stats`
+
+**Trajectory Functions:** `hooks_trajectory_begin`, `hooks_trajectory_step`, `hooks_trajectory_end`
+
+**Security Functions:** `hooks_security_scan`
+
+**Neural Functions:** `hooks_attention_info`, `hooks_gnn_info`, `hooks_rag_context`
 
 ---
 
-## Hooks API Reference
+## 📊 指标
 
-The hooks API provides 30+ MCP tools for intelligent agent routing, code analysis, and self-learning capabilities.
+### Performance Characteristics
 
-### Core Routing Functions
+| Operation | Latency | Notes |
+|-----------|---------|-------|
+| ONNX inference | ~400ms | Initial embedding |
+| HNSW search | ~0.045ms | 8,800x faster than inference |
+| Memory cache | ~0.01ms | 40,000x speedup |
+| Native Rust | <0.5ms | p50 latency |
+| WASM fallback | 10-50ms | Universal compatibility |
 
-#### `hooks_route`
+---
+
+## 🏛️ 设计
+
+### Core Routing: `hooks_route`
 
 Routes a task to the best agent based on learned patterns.
 
@@ -55,33 +103,9 @@ interface RouteResult {
 }
 ```
 
-**Example Usage:**
-```javascript
-// MCP Tool Call
-const result = await mcp.call('hooks_route', {
-  task: 'implement user authentication',
-  file: 'src/auth/login.ts'
-});
-
-// CLI Usage
-npx ruvector hooks route "implement user login"
-```
-
-**Error Handling:**
-- Returns default agent mapping if no patterns learned
-- Falls back to file extension-based routing if task unclear
-
----
-
-#### `hooks_route_enhanced`
+### Enhanced Routing: `hooks_route_enhanced`
 
 Enhanced routing using AST complexity, coverage, and diff analysis signals.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `task` | string | Yes | Task description |
-| `file` | string | No | File context for analysis |
 
 **Return Type:**
 ```typescript
@@ -99,26 +123,7 @@ interface EnhancedRouteResult {
 }
 ```
 
-**Example Usage:**
-```javascript
-const result = await mcp.call('hooks_route_enhanced', {
-  task: 'refactor authentication module',
-  file: 'src/auth/handlers.ts'
-});
-```
-
----
-
-### AST Analysis Functions
-
-#### `hooks_ast_analyze`
-
-Parses file AST and extracts symbols, imports, and complexity metrics.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `file` | string | Yes | File path to analyze |
+### AST Analysis: `hooks_ast_analyze`
 
 **Return Type:**
 ```typescript
@@ -168,70 +173,7 @@ interface ImportInfo {
 }
 ```
 
-**Example Usage:**
-```javascript
-const analysis = await mcp.call('hooks_ast_analyze', {
-  file: 'src/api/routes.ts'
-});
-
-// CLI Usage
-npx ruvector hooks ast-analyze src/api/routes.ts --json
-```
-
-**Error Handling:**
-- Returns `{ success: false, error: message }` if file not found
-- Falls back to regex-based analysis if tree-sitter unavailable
-
----
-
-#### `hooks_ast_complexity`
-
-Calculates cyclomatic and cognitive complexity metrics for files.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `files` | string[] | Yes | Array of file paths to analyze |
-| `threshold` | number | No | Warn if complexity exceeds (default: 10) |
-
-**Return Type:**
-```typescript
-interface ComplexityResult {
-  success: boolean;
-  files: Array<{
-    file: string;
-    complexity: number;
-    functions: Array<{
-      name: string;
-      complexity: number;
-      exceeds: boolean;
-    }>;
-  }>;
-  warnings: string[];
-  averageComplexity: number;
-}
-```
-
-**Example Usage:**
-```javascript
-const result = await mcp.call('hooks_ast_complexity', {
-  files: ['src/auth/*.ts'],
-  threshold: 15
-});
-```
-
----
-
-### Diff Analysis Functions
-
-#### `hooks_diff_analyze`
-
-Analyzes git diff with semantic embeddings and risk scoring.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `commit` | string | No | Commit hash (defaults to staged changes) |
+### Diff Analysis: `hooks_diff_analyze`
 
 **Return Type:**
 ```typescript
@@ -270,278 +212,10 @@ interface DiffHunk {
 }
 ```
 
-**Example Usage:**
-```javascript
-// Analyze staged changes
-const staged = await mcp.call('hooks_diff_analyze', {});
-
-// Analyze specific commit
-const commit = await mcp.call('hooks_diff_analyze', {
-  commit: 'abc123'
-});
-
-// CLI Usage
-npx ruvector hooks diff-analyze --json
-npx ruvector hooks diff-analyze abc123 --json
-```
-
-**Error Handling:**
-- Returns empty analysis if no changes found
-- Handles merge commits and binary files gracefully
-
----
-
-#### `hooks_diff_classify`
-
-Classifies change type based on diff patterns.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `commit` | string | No | Commit hash (defaults to HEAD) |
-
-**Return Type:**
-```typescript
-interface ClassifyResult {
-  success: boolean;
-  category: 'feature' | 'bugfix' | 'refactor' | 'docs' | 'test' | 'config' | 'unknown';
-  confidence: number;
-  indicators: string[];  // Patterns that led to classification
-}
-```
-
-**Example Usage:**
-```javascript
-const classification = await mcp.call('hooks_diff_classify', {
-  commit: 'HEAD~1'
-});
-```
-
----
-
-### Coverage Analysis Functions
-
-#### `hooks_coverage_route`
-
-Gets coverage-aware agent routing for a file.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `file` | string | Yes | File to analyze |
-
-**Return Type:**
-```typescript
-interface CoverageRouteResult {
-  success: boolean;
-  file: string;
-  route: boolean;          // Whether to route to tester
-  reason: string;          // Explanation
-  coverage: number;        // Coverage percentage (0-100)
-  weights: {
-    coder: number;         // Weight for coder agent
-    tester: number;        // Weight for tester agent
-    reviewer: number;      // Weight for reviewer agent
-  };
-}
-```
-
-**Example Usage:**
-```javascript
-const routing = await mcp.call('hooks_coverage_route', {
-  file: 'src/services/auth.ts'
-});
-
-// CLI Usage
-npx ruvector hooks coverage-route src/services/auth.ts
-```
-
-**Error Handling:**
-- Returns default weights if no coverage report found
-- Searches common locations: coverage/, .nyc_output/, lcov.info
-
----
-
-#### `hooks_coverage_suggest`
-
-Suggests tests for files based on coverage data.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `files` | string[] | Yes | Files to analyze |
-
-**Return Type:**
-```typescript
-interface TestSuggestion {
-  file: string;
-  testFile: string;           // Suggested test file path
-  reason: string;
-  priority: 'high' | 'medium' | 'low';
-  coverage: number;           // Current coverage %
-  uncoveredFunctions: string[];
-}
-
-interface SuggestResult {
-  success: boolean;
-  suggestions: TestSuggestion[];
-  overall: {
-    lines: number;
-    functions: number;
-    branches: number;
-  };
-}
-```
-
-**Example Usage:**
-```javascript
-const suggestions = await mcp.call('hooks_coverage_suggest', {
-  files: ['src/api/*.ts', 'src/services/*.ts']
-});
-```
-
----
-
-### Graph Analysis Functions
-
-#### `hooks_graph_mincut`
-
-Finds optimal code boundaries using MinCut algorithm (Stoer-Wagner).
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `files` | string[] | Yes | Files to analyze for module boundaries |
-
-**Return Type:**
-```typescript
-interface Partition {
-  groups: string[][];    // Two groups of files
-  cutWeight: number;     // Weight of edges between groups
-  modularity: number;    // Modularity score
-}
-
-interface MinCutResult {
-  success: boolean;
-  partition: Partition;
-  bridges: Array<{       // Critical connections
-    from: string;
-    to: string;
-  }>;
-  articulationPoints: string[];  // Critical nodes
-}
-```
-
-**Example Usage:**
-```javascript
-const boundaries = await mcp.call('hooks_graph_mincut', {
-  files: ['src/**/*.ts']
-});
-
-// CLI Usage
-npx ruvector hooks graph-mincut src/**/*.ts
-```
-
-**Error Handling:**
-- Requires at least 2 connected files
-- Returns empty partition for disconnected graphs
-
----
-
-#### `hooks_graph_cluster`
-
-Detects code communities using spectral or Louvain clustering.
-
-**Input Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `files` | string[] | Yes | Files to analyze |
-| `method` | string | No | 'spectral' or 'louvain' (default: 'louvain') |
-| `clusters` | number | No | Number of clusters for spectral (default: 3) |
-
-**Return Type:**
-```typescript
-interface ClusterResult {
-  success: boolean;
-  method: string;
-  clusters: Map<string, number>;  // file -> cluster ID
-  numClusters: number;
-  modularity: number;
-  // For spectral method only:
-  eigenvalues?: number[];
-  coordinates?: Map<string, number[]>;
-}
-```
-
-**Example Usage:**
-```javascript
-// Louvain community detection (automatic cluster count)
-const louvain = await mcp.call('hooks_graph_cluster', {
-  files: ['src/**/*.ts'],
-  method: 'louvain'
-});
-
-// Spectral clustering (specify cluster count)
-const spectral = await mcp.call('hooks_graph_cluster', {
-  files: ['src/**/*.ts'],
-  method: 'spectral',
-  clusters: 5
-});
-
-// CLI Usage
-npx ruvector hooks graph-cluster src/**/*.ts --method louvain
-npx ruvector hooks graph-cluster src/**/*.ts --method spectral --clusters 5
-```
-
----
-
-## Additional MCP Tools
-
-### Memory Functions
-
-| Tool | Description |
-|------|-------------|
-| `hooks_remember` | Store context in vector memory |
-| `hooks_recall` | Search vector memory for relevant context |
-
-### Learning Functions
-
-| Tool | Description |
-|------|-------------|
-| `hooks_learn` | Combined learning: record experience and get recommendation |
-| `hooks_batch_learn` | Record multiple experiences in batch |
-| `hooks_learning_config` | Configure learning algorithms (9 algorithms available) |
-| `hooks_learning_stats` | Get learning statistics |
-
-### Trajectory Functions
-
-| Tool | Description |
-|------|-------------|
-| `hooks_trajectory_begin` | Begin tracking execution trajectory |
-| `hooks_trajectory_step` | Add step to current trajectory |
-| `hooks_trajectory_end` | End trajectory with quality score |
-
-### Security Functions
-
-| Tool | Description |
-|------|-------------|
-| `hooks_security_scan` | Parallel vulnerability pattern detection |
-
-### Neural Functions
-
-| Tool | Description |
-|------|-------------|
-| `hooks_attention_info` | Get available attention mechanisms |
-| `hooks_gnn_info` | Get GNN layer capabilities |
-| `hooks_rag_context` | RAG-enhanced context retrieval |
-
----
-
-## Programmatic API
-
-### VectorDB
+### Programmatic API
 
 ```typescript
+// VectorDB
 import { VectorDb } from 'ruvector';
 
 const db = new VectorDb({
@@ -564,54 +238,18 @@ const results = await db.search({
   threshold: 0.7
 });
 
-// Get
+// Get / Delete
 const doc = await db.get('doc1');
-
-// Delete
 await db.delete('doc1');
-```
 
-### Core Modules
-
-```typescript
-// AST Parser
+// Core Modules
 import { getCodeParser } from 'ruvector/dist/core/ast-parser';
-const parser = getCodeParser();
-await parser.init();
-const analysis = await parser.analyze('file.ts');
-
-// Diff Embeddings
 import diffEmbeddings from 'ruvector/dist/core/diff-embeddings';
-const commit = await diffEmbeddings.analyzeCommit('HEAD');
-const similar = await diffEmbeddings.findSimilarCommits(diff, 50, 5);
-
-// Coverage Router
 import coverage from 'ruvector/dist/core/coverage-router';
-const data = coverage.getFileCoverage('file.ts');
-const tests = coverage.suggestTests(['file.ts']);
-
-// Graph Algorithms
 import graph from 'ruvector/dist/core/graph-algorithms';
-const g = graph.buildGraph(nodes, edges);
-const partition = graph.minCut(g);
-const clusters = graph.louvainCommunities(g);
 ```
 
----
-
-## Performance Characteristics
-
-| Operation | Latency | Notes |
-|-----------|---------|-------|
-| ONNX inference | ~400ms | Initial embedding |
-| HNSW search | ~0.045ms | 8,800x faster than inference |
-| Memory cache | ~0.01ms | 40,000x speedup |
-| Native Rust | <0.5ms | p50 latency |
-| WASM fallback | 10-50ms | Universal compatibility |
-
----
-
-## Environment Variables
+### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -622,7 +260,37 @@ const clusters = graph.louvainCommunities(g);
 
 ---
 
-## CLI Commands
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+- [npm Package](https://www.npmjs.com/package/ruvector)
+- [GitHub Repository](https://github.com/ruvnet/ruvector)
+- [Hooks Documentation](https://github.com/ruvnet/ruvector/blob/main/npm/packages/ruvector/HOOKS.md)
+
+---
+
+## 🚀 快速开始
+
+### Installation
+
+```bash
+npm install ruvector
+```
+
+### MCP Server Integration
+
+Add to Claude Code:
+
+```bash
+claude mcp add ruvector-mcp -- npx ruvector mcp-server
+```
+
+### CLI Commands
 
 ```bash
 # Initialize hooks
@@ -655,7 +323,9 @@ npx ruvector hooks import backup.json --merge
 
 ---
 
-## Dependencies
+## ⚙️ 技术栈
+
+### Dependencies
 
 - `@modelcontextprotocol/sdk`: ^1.0.0
 - `@ruvector/attention`: ^0.1.3
@@ -663,11 +333,3 @@ npx ruvector hooks import backup.json --merge
 - `@ruvector/gnn`: ^0.1.22
 - `@ruvector/sona`: ^0.1.4
 - `@xenova/transformers`: ^2.17.2
-
----
-
-## Links
-
-- [npm Package](https://www.npmjs.com/package/ruvector)
-- [GitHub Repository](https://github.com/ruvnet/ruvector)
-- [Hooks Documentation](https://github.com/ruvnet/ruvector/blob/main/npm/packages/ruvector/HOOKS.md)

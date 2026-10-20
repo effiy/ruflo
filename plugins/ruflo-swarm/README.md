@@ -1,15 +1,22 @@
+---
+title: "ruflo-swarm"
+tags: ["swarm", "multi-agent", "coordination", "topology", "hive-mind", "consensus"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-swarm
+
+## 💡 概述
 
 Agent teams, swarm coordination, Monitor streams, and worktree isolation.
 
-## Install
-
-```
-/plugin marketplace add ruvnet/ruflo
-/plugin install ruflo-swarm@ruflo
-```
-
-## What's Included
+## ⚡ 功能
 
 - **Agent Teams**: TeamCreate, SendMessage, and Task tool integration for multi-agent coordination
 - **Topologies**: hierarchical, mesh, hierarchical-mesh, ring, star, adaptive
@@ -18,16 +25,7 @@ Agent teams, swarm coordination, Monitor streams, and worktree isolation.
 - **Hive-Mind Consensus**: Byzantine, Raft, Gossip, CRDT, and Quorum strategies
 - **Anti-Drift**: hierarchical topology with specialized strategy for tight coordination
 
-## Requires
-
-- `ruflo-core` plugin (provides MCP server)
-
-## Compatibility
-
-- **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
-- **Verification:** `bash plugins/ruflo-swarm/scripts/smoke.sh` is the contract.
-
-## MCP surface (12 tools)
+### MCP surface (12 tools)
 
 | Family | Count | Tools |
 |--------|------:|-------|
@@ -36,7 +34,7 @@ Agent teams, swarm coordination, Monitor streams, and worktree isolation.
 
 Sources: `v3/@claude-flow/cli/src/mcp-tools/swarm-tools.ts:71, 145, 208, 270` and `agent-tools.ts:182, 287, 319, 356, 395, 451, 573, 651`.
 
-## Built-in Claude Code coordination tools
+### Built-in Claude Code coordination tools
 
 This plugin pairs with Claude Code's native multi-agent tools (no MCP needed):
 
@@ -45,30 +43,47 @@ This plugin pairs with Claude Code's native multi-agent tools (no MCP needed):
 | `Task` | Spawn a sub-agent (use `name:` for addressability + `run_in_background: true` for parallel execution) |
 | `SendMessage` | Inter-agent comms (named agents only) |
 | `TaskCreate / TaskList / TaskGet / TaskUpdate / TaskOutput / TaskStop` | Shared task tracker for swarm pipelines |
-| `Monitor` | Live-stream events from a long-running process (`persistent: true`) — primary wake signal for /loop |
+| `Monitor` | Live-stream events from a long-running process (`persistent: true`) -- primary wake signal for /loop |
 | `EnterWorktree / ExitWorktree` | Git worktree isolation per agent |
 
-## Anti-drift defaults (per CLAUDE.md)
+### Anti-drift defaults (per CLAUDE.md)
 
 For coding swarms, the canonical defaults that prevent agent drift:
 
 | Setting | Value | Rationale |
 |---------|-------|-----------|
 | `topology` | `hierarchical` | Coordinator catches divergence |
-| `maxAgents` | 6–8 | Smaller team = less drift |
+| `maxAgents` | 6-8 | Smaller team = less drift |
 | `strategy` | `specialized` | Clear roles, no overlap |
 | `consensus` | `raft` | Leader maintains authoritative state |
 | `memory` | `hybrid` | SQLite + AgentDB for both fast + durable |
 
 For 10+ agent teams, use `hierarchical-mesh` (queen + peer communication).
 
-## Namespace coordination
+---
+
+## 📊 指标
+
+### Requires
+
+- `ruflo-core` plugin (provides MCP server)
+
+### Compatibility
+
+- **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
+- **Verification:** `bash plugins/ruflo-swarm/scripts/smoke.sh` is the contract.
+
+---
+
+## 🏛️ 设计
+
+### Namespace coordination
 
 This plugin owns the `swarm-state` AgentDB namespace (kebab-case, follows the convention from [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
 `swarm-state` indexes active swarms, agent assignments, and topology snapshots. Accessed via `memory_*` (namespace-routed).
 
-## Live swarm pane (Claude Code mod, early access)
+### Live swarm pane (Claude Code mod, early access)
 
 With Claude Code function hooks on (`CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`, or the engine's own rollout), the plugin's
 hooks module (`hooks/register.ts`) draws a pane beside the transcript. Without function hooks nothing loads, and the
@@ -104,13 +119,27 @@ Tests run on the engine's own kit: `claude plugin test plugins/ruflo-swarm` (run
 first if you want `tsc -p plugins/ruflo-swarm` to typecheck). The pure readers also run under vitest:
 `npx vitest run --root plugins/ruflo-swarm tests/parse.spec.ts`.
 
-## Toasts (ADR-477)
+### Toasts (ADR-477)
 
-ruflo-swarm draws its toasts through the shared toast policy (one copy of `hooks/toast-policy.ts`, kept identical across the ruflo mods by `scripts/sync-toast-policy.mjs`): a level prefix (`›` info, `✓` ok, `⚠` warn, `✗` error), one clean line of at most 120 characters with secrets masked, an identical toast not repeated for a minute, and at most four a minute per source (errors are held and counted, never dropped). `Next: …` (when the prompt box cannot be filled) is `info`; a subagent whose turn ends in anything but an answer or an abort is an `error`; a loop that fails the same call three times running is a `warn` ("keeps failing …").
+ruflo-swarm draws its toasts through the shared toast policy (one copy of `hooks/toast-policy.ts`, kept identical across the ruflo mods by `scripts/sync-toast-policy.mjs`): a level prefix (`›` info, `✓` ok, `⚠` warn, `✗` error), one clean line of at most 120 characters with secrets masked, an identical toast not repeated for a minute, and at most four a minute per source (errors are held and counted, never dropped). `Next: ...` (when the prompt box cannot be filled) is `info`; a subagent whose turn ends in anything but an answer or an abort is an `error`; a loop that fails the same call three times running is a `warn` ("keeps failing ...").
 
-The person's choice is the console's **Settings → Interface and updates → Toasts**: `all`, `important` (warnings and errors) or `off`, and a mute chip per source. Every toast, drawn or not, is kept as a digest the console shows on its Events page, flagged with what became of it; without the console nothing is written and the defaults apply.
+The person's choice is the console's **Settings -> Interface and updates -> Toasts**: `all`, `important` (warnings and errors) or `off`, and a mute chip per source. Every toast, drawn or not, is kept as a digest the console shows on its Events page, flagged with what became of it; without the console nothing is written and the defaults apply.
 
-## Verification
+### Architecture Decisions
+
+- [`ADR-0001` -- ruflo-swarm plugin contract (12-tool MCP surface, anti-drift defaults, Monitor streaming, smoke as contract)](./docs/adrs/0001-swarm-contract.md)
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Verification
 
 ```bash
 bash plugins/ruflo-swarm/scripts/smoke.sh
@@ -119,12 +148,33 @@ CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin test plugins/ruflo-swarm
 CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin validate --strict plugins/ruflo-swarm
 ```
 
-## Architecture Decisions
+### Related Plugins
 
-- [`ADR-0001` — ruflo-swarm plugin contract (12-tool MCP surface, anti-drift defaults, Monitor streaming, smoke as contract)](./docs/adrs/0001-swarm-contract.md)
+- `ruflo-agentdb` -- namespace convention owner
+- `ruflo-autopilot` -- owns the 270s cache-aware /loop heartbeat for long-running swarms
+- `ruflo-intelligence` -- `hooks_route` powers swarm agent recommendation per task
 
-## Related Plugins
+### Install
 
-- `ruflo-agentdb` — namespace convention owner
-- `ruflo-autopilot` — owns the 270s cache-aware /loop heartbeat for long-running swarms
-- `ruflo-intelligence` — `hooks_route` powers swarm agent recommendation per task
+```
+/plugin marketplace add ruvnet/ruflo
+/plugin install ruflo-swarm@ruflo
+```
+
+---
+
+## 🚀 快速开始
+
+```
+/plugin install ruflo-swarm@ruflo
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Claude Code Task/SendMessage tools
+- Git worktrees
+- MCP tools (swarm_*, agent_*)
+- AgentDB
+- Consensus protocols (Byzantine, Raft, Gossip, CRDT, Quorum)

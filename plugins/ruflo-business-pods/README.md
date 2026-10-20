@@ -1,3 +1,18 @@
+---
+title: "ruflo-business-pods"
+tags: ["business-pods", "function-hooks", "mod", "guard"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
+# ruflo-business-pods
+
+## 💡 概述
 
 ## As a mod
 
@@ -10,3 +25,43 @@ Function hooks (ADR-445 pattern, `hooks/register.ts`) that need no model call, n
 Options (`userConfig`): `guard` (on/off, default on).
 
 Test: `claude plugin validate plugins/ruflo-business-pods && claude plugin test plugins/ruflo-business-pods && bash plugins/ruflo-business-pods/scripts/smoke.sh`.
+
+## ⚡ 功能
+
+「待补充」
+
+---
+
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
+
+「待补充」
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+「待补充」
+
+---
+
+## ⚙️ 技术栈
+
+「待补充」

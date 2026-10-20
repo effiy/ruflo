@@ -1,24 +1,34 @@
+---
+title: "ruflo-ddd"
+tags: ["ddd", "domain-driven-design", "plugin"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # ruflo-ddd
+
+## 💡 概述
 
 Domain-Driven Design scaffolding -- bounded contexts, aggregate roots, domain events, and anti-corruption layers.
 
-## Overview
-
 Transforms business domains into well-structured bounded contexts with aggregate roots, value objects, domain events, repositories, and anti-corruption layers. Stores the domain model as a navigable graph in AgentDB with hierarchical nodes and causal edges for context dependencies.
 
-## Installation
+---
 
-```bash
-claude --plugin-dir plugins/ruflo-ddd
-```
+## ⚡ 功能
 
-## Agents
+### Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
 | `domain-modeler` | sonnet | Map domains to bounded contexts, design aggregates with invariants, define domain events, generate ACL interfaces |
 
-## Skills
+### Skills
 
 | Skill | Usage | Description |
 |-------|-------|-------------|
@@ -26,7 +36,7 @@ claude --plugin-dir plugins/ruflo-ddd
 | `ddd-aggregate` | `/ddd-aggregate <context> <aggregate-name>` | Scaffold an aggregate root with entity, value objects, repository, events, and test stubs |
 | `ddd-validate` | `/ddd-validate` | Detect cross-context import violations and aggregate invariant issues |
 
-## Commands (6 subcommands)
+### Commands (6 subcommands)
 
 ```bash
 # Context management
@@ -42,7 +52,19 @@ ddd validate                 # Check domain boundary violations
 ddd map                      # Visualize context map with relationships
 ```
 
-## Directory Structure per Context
+---
+
+## 📊 指标
+
+### Context Relationships
+
+Detected via import analysis: upstream/downstream, ACL, shared kernel, published language. Boundary violations (direct cross-context imports) are flagged by `ddd validate`.
+
+---
+
+## 🏛️ 设计
+
+### Directory Structure per Context
 
 ```
 src/<context-name>/
@@ -57,44 +79,22 @@ src/<context-name>/
   index.ts              # Public API of the context
 ```
 
-## Context Relationships
-
-Detected via import analysis: upstream/downstream, ACL, shared kernel, published language. Boundary violations (direct cross-context imports) are flagged by `ddd validate`.
-
-## Compatibility
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
 - **Verification:** `bash plugins/ruflo-ddd/scripts/smoke.sh` is the contract.
 
-## Namespace coordination
+### Namespace coordination
 
-This plugin owns the `ddd-patterns` AgentDB namespace (kebab-case, follows the convention from [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
+This plugin owns the `ddd-patterns` AgentDB namespace (kebab-case, follows the convention from [ruflo-agentdb ADR-0001 SS"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
 `ddd-patterns` stores reusable bounded-context shapes, aggregate templates, and event vocabularies for cross-project reuse. Accessed via `memory_*` tools (namespace-routed).
 
-## Verification
+### Architecture Decisions
 
-```bash
-bash plugins/ruflo-ddd/scripts/smoke.sh
-# Expected: "13 passed, 0 failed"
-```
+- [`ADR-0001` -- ruflo-ddd plugin contract](./docs/adrs/0001-ddd-contract.md)
 
-## Architecture Decisions
-
-- [`ADR-0001` — ruflo-ddd plugin contract](./docs/adrs/0001-ddd-contract.md)
-
-## Related Plugins
-
-- `ruflo-agentdb` — namespace convention owner; backing store for the domain graph
-- `ruflo-adr` -- Document domain decisions as Architecture Decision Records
-- `ruflo-sparc` -- Architecture phase leverages DDD bounded context patterns
-- `ruflo-migrations` -- Align migration boundaries with aggregate roots
-
-## License
-
-MIT
-
-## As a mod
+### As a mod
 
 Since this version the plugin is also a function-hook mod (ADR-445 pattern; needs Claude Code 2.1.287 or later). It never calls the network or spawns a process, and it only tightens: it can refuse a call, never allow one.
 
@@ -103,9 +103,7 @@ Since this version the plugin is also a function-hook mod (ADR-445 pattern; need
 - **Status file**: `.claude-flow/ddd-mod/status.json` (`{version, updatedMs, guard, blocked}`), written at session start and when a call is blocked.
 - **Option**: `guard` (`on` | `off`, default `on`) in the plugin's `userConfig`.
 
-Test it: `claude plugin test plugins/ruflo-ddd` and `bash plugins/ruflo-ddd/scripts/smoke.sh`.
-
-## Native Codex hooks
+### Native Codex hooks
 
 The separate `.codex-plugin/plugin.json` selects `hooks/codex-hooks.json`, replacing
 the Claude-only module entry for Codex. Claude's manifest and `register.ts` remain
@@ -141,3 +139,62 @@ Its explicit native plugin install replaces the cached root atomically even at t
 same version. An owned projection must therefore refresh its upstream source
 generation and explicitly reinstall it; refreshing a marketplace catalog alone
 is not installation proof. No foreign cache entry should be edited in place.
+
+---
+
+## 📁 目录
+
+```
+plugins/ruflo-ddd/
+├── docs/
+│   └── adrs/
+│       └── 0001-ddd-contract.md
+├── hooks/
+│   ├── codex-hooks.json
+│   └── register.ts
+├── scripts/
+│   ├── smoke.sh
+│   ├── build-codex-mod-hooks.mjs
+│   └── sync-mod-screen.mjs
+└── README.md
+```
+
+---
+
+## 🔗 资源
+
+- [ADR-0001 -- ruflo-ddd plugin contract](./docs/adrs/0001-ddd-contract.md)
+- [ruflo-agentdb ADR-0001 -- Namespace convention](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)
+
+### Related Plugins
+
+- `ruflo-agentdb` -- namespace convention owner; backing store for the domain graph
+- `ruflo-adr` -- Document domain decisions as Architecture Decision Records
+- `ruflo-sparc` -- Architecture phase leverages DDD bounded context patterns
+- `ruflo-migrations` -- Align migration boundaries with aggregate roots
+
+---
+
+## 🚀 快速开始
+
+```bash
+claude --plugin-dir plugins/ruflo-ddd
+```
+
+### Verification
+
+```bash
+bash plugins/ruflo-ddd/scripts/smoke.sh
+# Expected: "13 passed, 0 failed"
+```
+
+Test it: `claude plugin test plugins/ruflo-ddd` and `bash plugins/ruflo-ddd/scripts/smoke.sh`.
+
+---
+
+## ⚙️ 技术栈
+
+- `@claude-flow/cli` v3.6+
+- AgentDB (namespace-routed storage)
+- Claude Code 2.1.287+
+- MIT License

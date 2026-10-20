@@ -1,8 +1,22 @@
+---
+title: "V3 MCP Tools"
+tags: ["MCP", "tools", "ADR-005", "API", "agent", "swarm", "memory", "config"]
+category: "mcp/tools"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # V3 MCP Tools - ADR-005: MCP-First API Design
 
 This directory contains the MCP-first tool implementations following **ADR-005: MCP-First API Design**. CLI commands should call these MCP tools rather than directly implementing functionality.
 
-## Overview
+---
+
+## 💡 概述
 
 The MCP-first architecture ensures that:
 - **CLI commands are thin wrappers** around MCP tool calls
@@ -11,9 +25,13 @@ The MCP-first architecture ensures that:
 - **Consistent interfaces** using JSON Schema validation
 - **Performance optimized** with proper caching and timeout handling
 
-## Tool Categories
+---
 
-### 1. Agent Tools (`agent-tools.ts`)
+## ⚡ 功能
+
+### Tool Categories
+
+#### 1. Agent Tools (`agent-tools.ts`)
 
 MCP tools for agent lifecycle operations:
 
@@ -38,7 +56,7 @@ const result = await spawnAgentTool.handler({
 console.log(`Agent spawned: ${result.agentId}`);
 ```
 
-### 2. Swarm Tools (`swarm-tools.ts`)
+#### 2. Swarm Tools (`swarm-tools.ts`)
 
 MCP tools for swarm coordination operations:
 
@@ -65,7 +83,7 @@ const result = await initSwarmTool.handler({
 console.log(`Swarm initialized: ${result.swarmId}`);
 ```
 
-### 3. Memory Tools (`memory-tools.ts`)
+#### 3. Memory Tools (`memory-tools.ts`)
 
 MCP tools for memory operations (AgentDB integration):
 
@@ -91,7 +109,7 @@ const result = await searchMemoryTool.handler({
 console.log(`Found ${result.total} relevant memories`);
 ```
 
-### 4. Config Tools (`config-tools.ts`)
+#### 4. Config Tools (`config-tools.ts`)
 
 MCP tools for configuration management:
 
@@ -120,11 +138,11 @@ if (!result.valid) {
 }
 ```
 
-## Central Exports (`index.ts`)
+### Central Exports (`index.ts`)
 
 The `index.ts` file provides convenient functions for working with tools:
 
-### `getAllTools()`
+#### `getAllTools()`
 
 Get all MCP tools for registration:
 
@@ -135,7 +153,7 @@ const tools = getAllTools();
 server.registerTools(tools);
 ```
 
-### `getToolsByCategory(category)`
+#### `getToolsByCategory(category)`
 
 Get tools by category:
 
@@ -146,7 +164,7 @@ const agentTools = getToolsByCategory('agent');
 const memoryTools = getToolsByCategory('memory');
 ```
 
-### `getToolByName(name)`
+#### `getToolByName(name)`
 
 Get a specific tool:
 
@@ -159,7 +177,7 @@ if (spawnTool) {
 }
 ```
 
-### `getToolsByTag(tag)`
+#### `getToolsByTag(tag)`
 
 Get tools by tag:
 
@@ -170,7 +188,7 @@ const lifecycleTools = getToolsByTag('lifecycle');
 const agentdbTools = getToolsByTag('agentdb');
 ```
 
-### `getToolStats()`
+#### `getToolStats()`
 
 Get tool statistics:
 
@@ -183,7 +201,7 @@ console.log(`Categories: ${stats.categories.join(', ')}`);
 console.log(`Cacheable tools: ${stats.cacheable}`);
 ```
 
-### `validateToolRegistration()`
+#### `validateToolRegistration()`
 
 Validate all tools:
 
@@ -196,7 +214,7 @@ if (!validation.valid) {
 }
 ```
 
-## CLI Integration Pattern
+### CLI Integration Pattern
 
 CLI commands should follow this pattern:
 
@@ -223,9 +241,28 @@ async function cliSpawnAgent(args: SpawnArgs) {
 }
 ```
 
-## Tool Implementation Guidelines
+---
 
-### 1. Input Validation
+## 📊 指标
+
+### Tool Statistics
+
+Current implementation includes:
+
+- **13 MCP tools** total
+- **4 categories**: agent, swarm, memory, config
+- **10 cacheable tools** for performance
+- **0 deprecated tools**
+- **All tools** with Zod validation
+- **All tools** with stub implementations ready for integration
+
+---
+
+## 🏛️ 设计
+
+### Tool Implementation Guidelines
+
+#### 1. Input Validation
 
 All tools use **Zod schemas** for input validation:
 
@@ -238,7 +275,7 @@ const spawnAgentSchema = z.object({
 });
 ```
 
-### 2. Handler Implementation
+#### 2. Handler Implementation
 
 Handlers should:
 - Accept validated input and optional context
@@ -266,7 +303,7 @@ async function handleSpawnAgent(
 }
 ```
 
-### 3. Tool Definition
+#### 3. Tool Definition
 
 Tool definitions include:
 - Name (using `/` separator for namespacing)
@@ -295,9 +332,9 @@ export const spawnAgentTool: MCPTool = {
 };
 ```
 
-## Performance Optimization
+### Performance Optimization
 
-### Caching
+#### Caching
 
 Tools that query data should enable caching:
 
@@ -309,7 +346,7 @@ export const listAgentsTool: MCPTool = {
 };
 ```
 
-### Timeouts
+#### Timeouts
 
 Tools with long-running operations should specify timeouts:
 
@@ -320,7 +357,16 @@ export const scaleSwarmTool: MCPTool = {
 };
 ```
 
-## Testing
+### Architecture Compliance
+
+This implementation follows:
+
+- **ADR-005**: MCP-First API Design
+- **ADR-006**: Unified Memory Service (memory tools integrate with AgentDB)
+- **ADR-002**: Domain-Driven Design (tools organized by domain)
+- **ADR-007**: Event Sourcing (tool calls can be tracked)
+
+### Testing
 
 Tools should be tested with:
 
@@ -347,7 +393,7 @@ describe('agent/spawn', () => {
 });
 ```
 
-## Future Integration Points
+### Future Integration Points
 
 Each tool includes TODO comments marking where actual service integration should occur:
 
@@ -367,27 +413,28 @@ When implementing actual services:
 4. Update tests to use real services
 5. Update performance targets
 
-## Architecture Compliance
+---
 
-This implementation follows:
+## 📁 目录
 
-- **ADR-005**: MCP-First API Design
-- **ADR-006**: Unified Memory Service (memory tools integrate with AgentDB)
-- **ADR-002**: Domain-Driven Design (tools organized by domain)
-- **ADR-007**: Event Sourcing (tool calls can be tracked)
+「待补充」
 
-## Tool Statistics
+---
 
-Current implementation includes:
+## 🔗 资源
 
-- **13 MCP tools** total
-- **4 categories**: agent, swarm, memory, config
-- **10 cacheable tools** for performance
-- **0 deprecated tools**
-- **All tools** with Zod validation
-- **All tools** with stub implementations ready for integration
+### Related Files
 
-## Next Steps
+- `/workspaces/claude-flow/v3/mcp/types.ts` - MCP type definitions
+- `/workspaces/claude-flow/v3/mcp/server.ts` - MCP server implementation
+- `/workspaces/claude-flow/v3/mcp/tool-registry.ts` - Tool registration system
+- `/workspaces/claude-flow/CLAUDE.md` - Project documentation
+
+---
+
+## 🚀 快速开始
+
+### Next Steps
 
 1. Implement actual service integrations (AgentManager, SwarmCoordinator, MemoryService)
 2. Add comprehensive unit tests for all tools
@@ -397,9 +444,8 @@ Current implementation includes:
 6. Add monitoring and metrics collection
 7. Document all tool schemas in OpenAPI format
 
-## Related Files
+---
 
-- `/workspaces/claude-flow/v3/mcp/types.ts` - MCP type definitions
-- `/workspaces/claude-flow/v3/mcp/server.ts` - MCP server implementation
-- `/workspaces/claude-flow/v3/mcp/tool-registry.ts` - Tool registration system
-- `/workspaces/claude-flow/CLAUDE.md` - Project documentation
+## ⚙️ 技术栈
+
+「待补充」

@@ -1,3 +1,15 @@
+---
+title: "@claude-flow/security"
+tags: ["security", "bcrypt", "zod", "cve", "input-validation", "path-security", "credential-management", "token-generation"]
+category: "@claude-flow/security"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/security
 
 [![npm version](https://img.shields.io/npm/v/@claude-flow/security.svg)](https://www.npmjs.com/package/@claude-flow/security)
@@ -6,9 +18,15 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![Security Audit](https://img.shields.io/badge/Security-Audited-green.svg)](https://github.com/ruvnet/claude-flow)
 
-> Comprehensive security module for Claude Flow V3 - CVE fixes, input validation, path security, and secure credential management.
+---
 
-## Features
+## 💡 概述
+
+Comprehensive security module for Claude Flow V3 - CVE fixes, input validation, path security, and secure credential management.
+
+---
+
+## ⚡ 功能
 
 - **CVE Remediation** - Fixes for CVE-2 (Weak Password Hashing), CVE-3 (Hardcoded Credentials), HIGH-1 (Command Injection), HIGH-2 (Path Traversal)
 - **Password Hashing** - Secure bcrypt-based password hashing with configurable rounds (12+ recommended)
@@ -18,99 +36,71 @@
 - **Input Validation** - Zod-based schema validation for all input types
 - **Token Generation** - Secure token creation with HMAC signing
 
-## Installation
+### Validation Schemas
 
-```bash
-npm install @claude-flow/security
+| Schema | Description |
+|--------|-------------|
+| `SafeStringSchema` | Basic safe string with length limits |
+| `IdentifierSchema` | Alphanumeric identifiers |
+| `FilenameSchema` | Safe filenames |
+| `EmailSchema` | Email addresses |
+| `PasswordSchema` | Secure passwords |
+| `UUIDSchema` | UUID v4 format |
+| `HttpsUrlSchema` | HTTPS URLs only |
+| `SemverSchema` | Semantic versions |
+| `PortSchema` | Valid port numbers |
+| `IPv4Schema` | IPv4 addresses |
+| `SpawnAgentSchema` | Agent spawn requests |
+| `TaskInputSchema` | Task definitions |
+| `SecurityConfigSchema` | Security configuration |
+
+---
+
+## 📊 指标
+
+### Security Constants
+
+```typescript
+import {
+  MIN_BCRYPT_ROUNDS,      // 12
+  MAX_BCRYPT_ROUNDS,      // 14
+  MIN_PASSWORD_LENGTH,    // 8
+  MAX_PASSWORD_LENGTH,    // 72 (bcrypt limit)
+  DEFAULT_TOKEN_EXPIRATION,   // 3600 (1 hour)
+  DEFAULT_SESSION_EXPIRATION  // 86400 (24 hours)
+} from '@claude-flow/security';
 ```
 
-## Standalone use (without the Ruflo CLI)
+### Security Audit
 
-This is a plain library — every primitive (`PasswordHasher`,
+```typescript
+import { auditSecurityConfig } from '@claude-flow/security';
+
+const warnings = auditSecurityConfig({
+  bcryptRounds: 10,
+  hmacSecret: 'short'
+});
+
+// ['bcryptRounds (10) below recommended minimum (12)',
+//  'hmacSecret should be at least 32 characters']
+```
+
+---
+
+## 🏛️ 设计
+
+### Standalone use (without the Ruflo CLI)
+
+This is a plain library -- every primitive (`PasswordHasher`,
 `PathValidator`, `SafeExecutor`, `InputValidator`, `CredentialGenerator`)
 is independently importable. No CLI, no MCP server, no daemon. The
 primitives close CVE-2 (weak hashing), CVE-3 (default credentials),
-HIGH-1 (command injection), and HIGH-2 (path traversal) — drop them
+HIGH-1 (command injection), and HIGH-2 (path traversal) -- drop them
 into any Node app that needs to validate at a system boundary.
 
-### Recipe — Validate input, hash a password, generate an API key
+### API Reference
 
-```typescript
-// recipe.mjs
-import {
-  InputValidator,
-  EmailSchema,
-  PasswordHasher,
-  createCredentialGenerator,
-} from '@claude-flow/security';
-
-// 1. Validate user input at the boundary (Zod schemas, no surprises)
-const email = InputValidator.validate(EmailSchema, 'user@example.com');
-//             ↳ throws if invalid; returns the typed value otherwise
-
-// 2. Hash a password with bcrypt at the recommended cost (CVE-2)
-//    Default policy: ≥8 chars, ≥1 upper, ≥1 lower, ≥1 digit.
-//    Tune with new PasswordHasher({ rounds, requireUppercase, ... }).
-const hasher = new PasswordHasher({ rounds: 12 });
-const hash   = await hasher.hash('CorrectHorseBatteryStaple9');
-const ok     = await hasher.verify('CorrectHorseBatteryStaple9', hash); // true
-
-// 3. Generate a high-entropy API key (CVE-3) — uses crypto.randomBytes
-//    under the hood and refuses to emit keys below 32 bytes of entropy.
-const creds = createCredentialGenerator();
-const apiKey = creds.generateApiKey('ck_live_');
-console.log(apiKey.keyId, apiKey.key.slice(0, 16) + '…');
-// → 7e2b1a9c-…  ck_live_xX9aQ…
-```
-
-### Recipe — Refuse command injection + path traversal
-
-```typescript
-import {
-  createDevelopmentExecutor,
-  createProjectPathValidator,
-} from '@claude-flow/security';
-
-// SafeExecutor — only the allow-listed commands ever run (HIGH-1)
-const exec = createDevelopmentExecutor({ projectRoot: process.cwd() });
-const { stdout } = await exec.execute('git', ['status', '--porcelain']);
-
-// PathValidator — refuses traversal and symlinks out of the project (HIGH-2)
-const paths = createProjectPathValidator(process.cwd());
-const result = await paths.validate('../../etc/passwd');
-if (!result.isValid) console.log('blocked:', result.errors.join('; '));
-// → blocked: Path traversal pattern detected
-```
-
-## Quick Start
-
-```typescript
-import { createSecurityModule } from '@claude-flow/security';
-
-// Create a complete security module
-const security = createSecurityModule({
-  projectRoot: '/workspaces/project',
-  hmacSecret: process.env.HMAC_SECRET!,
-  bcryptRounds: 12,
-  allowedCommands: ['git', 'npm', 'node']
-});
-
-// Hash a password
-const hash = await security.passwordHasher.hash('userPassword123');
-
-// Validate a path
-const pathResult = await security.pathValidator.validate('/workspaces/project/src/file.ts');
-
-// Execute command safely
-const output = await security.safeExecutor.execute('git', ['status']);
-
-// Generate secure credentials
-const creds = await security.credentialGenerator.generate();
-```
-
-## API Reference
-
-### Password Hashing (CVE-2 Fix)
+#### Password Hashing (CVE-2 Fix)
 
 ```typescript
 import { PasswordHasher, createPasswordHasher } from '@claude-flow/security';
@@ -127,7 +117,7 @@ const isValid = await hasher.verify('password', hash);
 const needsRehash = hasher.needsRehash(hash);
 ```
 
-### Credential Generation (CVE-3 Fix)
+#### Credential Generation (CVE-3 Fix)
 
 ```typescript
 import { CredentialGenerator, generateCredentials } from '@claude-flow/security';
@@ -147,7 +137,7 @@ const creds = generateCredentials({
 });
 ```
 
-### Safe Command Execution (HIGH-1 Fix)
+#### Safe Command Execution (HIGH-1 Fix)
 
 ```typescript
 import { SafeExecutor, createDevelopmentExecutor } from '@claude-flow/security';
@@ -164,7 +154,7 @@ const result2 = await executor.execute('npm', ['install'], {
 });
 ```
 
-### Path Validation (HIGH-2 Fix)
+#### Path Validation (HIGH-2 Fix)
 
 ```typescript
 import { PathValidator, createProjectPathValidator } from '@claude-flow/security';
@@ -180,7 +170,7 @@ const result2 = await validator.validate('/workspaces/project/src/index.ts');
 // { valid: true, normalized: '/workspaces/project/src/index.ts' }
 ```
 
-### Input Validation
+#### Input Validation
 
 ```typescript
 import {
@@ -209,7 +199,7 @@ const safe = sanitizeHtml('<script>alert("xss")</script>Hello');
 // 'Hello'
 ```
 
-### Token Generation
+#### Token Generation
 
 ```typescript
 import { TokenGenerator, quickGenerate } from '@claude-flow/security';
@@ -232,61 +222,115 @@ const sessionToken = quickGenerate.sessionToken();
 const verificationCode = quickGenerate.verificationCode();
 ```
 
-## Security Constants
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Installation
+
+```bash
+npm install @claude-flow/security
+```
+
+### Recipe -- Validate input, hash a password, generate an API key
+
+```typescript
+// recipe.mjs
+import {
+  InputValidator,
+  EmailSchema,
+  PasswordHasher,
+  createCredentialGenerator,
+} from '@claude-flow/security';
+
+// 1. Validate user input at the boundary (Zod schemas, no surprises)
+const email = InputValidator.validate(EmailSchema, 'user@example.com');
+//             throws if invalid; returns the typed value otherwise
+
+// 2. Hash a password with bcrypt at the recommended cost (CVE-2)
+const hasher = new PasswordHasher({ rounds: 12 });
+const hash   = await hasher.hash('CorrectHorseBatteryStaple9');
+const ok     = await hasher.verify('CorrectHorseBatteryStaple9', hash); // true
+
+// 3. Generate a high-entropy API key (CVE-3) -- uses crypto.randomBytes
+const creds = createCredentialGenerator();
+const apiKey = creds.generateApiKey('ck_live_');
+console.log(apiKey.keyId, apiKey.key.slice(0, 16) + '...');
+// -> 7e2b1a9c-...  ck_live_xX9aQ...
+```
+
+### Recipe -- Refuse command injection + path traversal
 
 ```typescript
 import {
-  MIN_BCRYPT_ROUNDS,      // 12
-  MAX_BCRYPT_ROUNDS,      // 14
-  MIN_PASSWORD_LENGTH,    // 8
-  MAX_PASSWORD_LENGTH,    // 72 (bcrypt limit)
-  DEFAULT_TOKEN_EXPIRATION,   // 3600 (1 hour)
-  DEFAULT_SESSION_EXPIRATION  // 86400 (24 hours)
+  createDevelopmentExecutor,
+  createProjectPathValidator,
 } from '@claude-flow/security';
+
+// SafeExecutor -- only the allow-listed commands ever run (HIGH-1)
+const exec = createDevelopmentExecutor({ projectRoot: process.cwd() });
+const { stdout } = await exec.execute('git', ['status', '--porcelain']);
+
+// PathValidator -- refuses traversal and symlinks out of the project (HIGH-2)
+const paths = createProjectPathValidator(process.cwd());
+const result = await paths.validate('../../etc/passwd');
+if (!result.isValid) console.log('blocked:', result.errors.join('; '));
+// -> blocked: Path traversal pattern detected
 ```
 
-## Security Audit
-
-```typescript
-import { auditSecurityConfig } from '@claude-flow/security';
-
-const warnings = auditSecurityConfig({
-  bcryptRounds: 10,
-  hmacSecret: 'short'
-});
-
-// ['bcryptRounds (10) below recommended minimum (12)',
-//  'hmacSecret should be at least 32 characters']
-```
-
-## Validation Schemas
-
-| Schema | Description |
-|--------|-------------|
-| `SafeStringSchema` | Basic safe string with length limits |
-| `IdentifierSchema` | Alphanumeric identifiers |
-| `FilenameSchema` | Safe filenames |
-| `EmailSchema` | Email addresses |
-| `PasswordSchema` | Secure passwords |
-| `UUIDSchema` | UUID v4 format |
-| `HttpsUrlSchema` | HTTPS URLs only |
-| `SemverSchema` | Semantic versions |
-| `PortSchema` | Valid port numbers |
-| `IPv4Schema` | IPv4 addresses |
-| `SpawnAgentSchema` | Agent spawn requests |
-| `TaskInputSchema` | Task definitions |
-| `SecurityConfigSchema` | Security configuration |
-
-## Dependencies
+### Dependencies
 
 - `bcrypt` - Password hashing
 - `zod` - Schema validation
 
-## Related Packages
+### Related Packages
 
 - [@claude-flow/shared](../shared) - Shared types and utilities
 - [@claude-flow/swarm](../swarm) - Swarm coordination (secure agent spawning)
 
-## License
+### License
 
 MIT
+
+---
+
+## 🚀 快速开始
+
+```typescript
+import { createSecurityModule } from '@claude-flow/security';
+
+// Create a complete security module
+const security = createSecurityModule({
+  projectRoot: '/workspaces/project',
+  hmacSecret: process.env.HMAC_SECRET!,
+  bcryptRounds: 12,
+  allowedCommands: ['git', 'npm', 'node']
+});
+
+// Hash a password
+const hash = await security.passwordHasher.hash('userPassword123');
+
+// Validate a path
+const pathResult = await security.pathValidator.validate('/workspaces/project/src/file.ts');
+
+// Execute command safely
+const output = await security.safeExecutor.execute('git', ['status']);
+
+// Generate secure credentials
+const creds = await security.credentialGenerator.generate();
+```
+
+---
+
+## ⚙️ 技术栈
+
+- TypeScript
+- Node.js
+- bcrypt
+- zod

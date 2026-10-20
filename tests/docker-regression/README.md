@@ -1,21 +1,30 @@
+---
+title: "Claude-Flow Deep Regression Test Suite"
+tags: ["testing", "docker", "regression", "ci", "integration", "benchmark", "security"]
+category: "tests"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # Claude-Flow Deep Regression Test Suite
 
 Comprehensive Docker-based test suite for verifying all Claude-Flow capabilities.
 
-## Quick Start
+---
 
-```bash
-# Run all tests
-docker-compose up --build test-runner
+## 💡 概述
 
-# Run specific test categories
-docker-compose up --build unit-tests
-docker-compose up --build integration-tests
-docker-compose up --build benchmark-tests
-docker-compose up --build security-tests
-```
+Docker-based regression test suite with 1000+ test cases across 12 categories covering CLI commands, MCP server, agents, swarms, hooks, plugins, security, memory, workers, performance, unit tests, and integration tests.
 
-## Test Categories
+---
+
+## ⚡ 功能
+
+### Test Categories
 
 | Category | Tests | Description |
 |----------|-------|-------------|
@@ -34,7 +43,38 @@ docker-compose up --build security-tests
 
 **Total: 1000+ test cases**
 
-## Directory Structure
+---
+
+## 📊 指标
+
+### Test Coverage
+
+#### V3 Packages
+
+| Package | Tests | Pass Rate |
+|---------|-------|-----------|
+| @claude-flow/hooks | 112 | 100% |
+| @claude-flow/plugins | 142 | 100% |
+| @claude-flow/security | 47 | 100% |
+| @claude-flow/swarm | 89 | 100% |
+| @claude-flow/cli | 34 | 100% |
+
+#### Feature Coverage
+
+- ✅ All 54+ agents
+- ✅ All 7 swarm topologies
+- ✅ All MCP tools (27+)
+- ✅ All hooks commands
+- ✅ All security features
+- ✅ All memory operations
+- ✅ All background workers (10)
+- ✅ All performance targets
+
+---
+
+## 🏛️ 设计
+
+### Directory Structure
 
 ```
 tests/docker-regression/
@@ -64,70 +104,48 @@ tests/docker-regression/
 └── reports/                # Generated reports
 ```
 
-## Running Tests
-
-### Full Suite
-
-```bash
-# Build and run all tests
-docker-compose up --build
-
-# Run with logs
-docker-compose up --build 2>&1 | tee test-output.log
-
-# Run in background
-docker-compose up -d --build
-docker-compose logs -f test-runner
-```
-
-### Individual Categories
-
-```bash
-# Unit tests only
-docker-compose run --rm unit-tests
-
-# Integration tests only
-docker-compose run --rm integration-tests
-
-# Security tests only
-docker-compose run --rm security-tests
-
-# Benchmark tests only
-docker-compose run --rm benchmark-tests
-```
-
-### Without Docker
-
-```bash
-# Run locally (requires Node.js 18+)
-cd tests/docker-regression
-bash scripts/run-all-tests.sh
-```
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `TEST_REPORT_PATH` | `/app/reports` | Report output directory |
-| `CLAUDE_FLOW_MODE` | `test` | Operating mode |
-| `CLAUDE_FLOW_MEMORY_PATH` | `/app/data` | Memory storage path |
-| `CLAUDE_FLOW_LOG_LEVEL` | `debug` | Log verbosity |
-| `CLAUDE_FLOW_MAX_AGENTS` | `15` | Max concurrent agents |
-| `MCP_SERVER_HOST` | `mcp-server` | MCP server hostname |
-| `MCP_SERVER_PORT` | `3000` | MCP server port |
-
-## Reports
+### Reports
 
 Reports are generated in `/app/reports` (or `./reports` locally):
-
 - `regression_report_TIMESTAMP.json` - Full JSON report
 - `summary_TIMESTAMP.txt` - Human-readable summary
 - `benchmark_TIMESTAMP.json` - Performance metrics
 - `security_TIMESTAMP.json` - Security scan results
 
-## CI/CD Integration
+---
 
-### GitHub Actions
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+```bash
+# Run all tests
+docker-compose up --build test-runner
+
+# Run specific test categories
+docker-compose up --build unit-tests
+docker-compose up --build integration-tests
+docker-compose up --build benchmark-tests
+docker-compose up --build security-tests
+
+# Without Docker
+cd tests/docker-regression
+bash scripts/run-all-tests.sh
+```
+
+### CI/CD Integration
+
+#### GitHub Actions
 
 ```yaml
 jobs:
@@ -146,88 +164,20 @@ jobs:
           path: tests/docker-regression/reports/
 ```
 
-### GitLab CI
+### Troubleshooting
 
-```yaml
-regression-tests:
-  stage: test
-  script:
-    - cd tests/docker-regression
-    - docker-compose up --build --exit-code-from test-runner
-  artifacts:
-    paths:
-      - tests/docker-regression/reports/
-```
+- **Docker Build Fails**: `docker-compose build --no-cache`
+- **Tests Timeout**: `COMPOSE_HTTP_TIMEOUT=300 docker-compose up --build`
+- **MCP Server Not Starting**: Check port with `lsof -i :3000`
+- **Memory Issues**: Reduce parallel tests
 
-## Test Coverage
+---
 
-### V3 Packages
+## ⚙️ 技术栈
 
-| Package | Tests | Pass Rate |
-|---------|-------|-----------|
-| @claude-flow/hooks | 112 | 100% |
-| @claude-flow/plugins | 142 | 100% |
-| @claude-flow/security | 47 | 100% |
-| @claude-flow/swarm | 89 | 100% |
-| @claude-flow/cli | 34 | 100% |
-
-### Feature Coverage
-
-- ✅ All 54+ agents
-- ✅ All 7 swarm topologies
-- ✅ All MCP tools (27+)
-- ✅ All hooks commands
-- ✅ All security features
-- ✅ All memory operations
-- ✅ All background workers (10)
-- ✅ All performance targets
-
-## Troubleshooting
-
-### Docker Build Fails
-
-```bash
-# Clear Docker cache
-docker-compose build --no-cache
-
-# Check Docker resources
-docker system df
-docker system prune
-```
-
-### Tests Timeout
-
-```bash
-# Increase timeout
-COMPOSE_HTTP_TIMEOUT=300 docker-compose up --build
-```
-
-### MCP Server Not Starting
-
-```bash
-# Check port availability
-lsof -i :3000
-
-# Run MCP server separately
-docker-compose up mcp-server
-```
-
-### Memory Issues
-
-```bash
-# Reduce parallel tests
-docker-compose up unit-tests
-# Then run other categories separately
-```
-
-## Adding New Tests
-
-1. Create test script in `scripts/test-<category>.sh`
-2. Follow existing pattern with `run_test` function
-3. Add to `run-all-tests.sh`
-4. Update docker-compose.yml if needed
-5. Document in this README
-
-## License
-
-MIT - Part of Claude-Flow
+- Docker + Docker Compose
+- Node.js >= 18
+- Environment variables for configuration:
+  - `TEST_REPORT_PATH`, `CLAUDE_FLOW_MODE`, `CLAUDE_FLOW_MEMORY_PATH`
+  - `CLAUDE_FLOW_LOG_LEVEL`, `CLAUDE_FLOW_MAX_AGENTS`
+  - `MCP_SERVER_HOST`, `MCP_SERVER_PORT`

@@ -1,8 +1,22 @@
+---
+title: "V3 Plugin System"
+tags: ["plugin", "microkernel", "ADR-004", "DDD", "extension", "lifecycle", "dependency"]
+category: "implementation/plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # Claude-Flow V3 Plugin System
 
 > Domain-Driven Design Plugin-Based Architecture (ADR-004)
 
-## Overview
+---
+
+## 💡 概述
 
 The V3 Plugin System implements a **microkernel architecture** enabling modular extension points for:
 - Custom agent types
@@ -11,53 +25,13 @@ The V3 Plugin System implements a **microkernel architecture** enabling modular 
 - CLI commands
 - Memory backends
 
-## Quick Start
+---
 
-```typescript
-import { ClaudeFlowPlugin, PluginContext } from '@claude-flow/shared';
+## ⚡ 功能
 
-class MyPlugin implements ClaudeFlowPlugin {
-  readonly name = 'my-plugin';
-  readonly version = '1.0.0';
+### Core Components
 
-  async initialize(context: PluginContext): Promise<void> {
-    context.logger.info('MyPlugin initialized');
-  }
-
-  async shutdown(): Promise<void> {
-    // Cleanup
-  }
-}
-```
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                  Plugin Loader                       │
-│  - Dependency resolution                            │
-│  - Lifecycle management                             │
-│  - Health checks                                    │
-└──────────────────────┬──────────────────────────────┘
-                       │
-┌──────────────────────┴──────────────────────────────┐
-│                 Plugin Registry                      │
-│  - Plugin tracking                                  │
-│  - Extension point registration                     │
-│  - Status/metrics collection                        │
-└──────────────────────┬──────────────────────────────┘
-                       │
-    ┌──────────────────┼──────────────────┐
-    │                  │                  │
-┌───┴───┐         ┌────┴────┐        ┌────┴────┐
-│Plugin │         │ Plugin  │        │ Plugin  │
-│   A   │         │    B    │        │    C    │
-└───────┘         └─────────┘        └─────────┘
-```
-
-## Core Components
-
-### 1. ClaudeFlowPlugin Interface
+#### 1. ClaudeFlowPlugin Interface
 
 All plugins must implement this interface:
 
@@ -86,7 +60,7 @@ interface ClaudeFlowPlugin {
 }
 ```
 
-### 2. PluginContext
+#### 2. PluginContext
 
 Provided during initialization with access to core services:
 
@@ -99,7 +73,7 @@ interface PluginContext {
 }
 ```
 
-### 3. PluginRegistry
+#### 3. PluginRegistry
 
 Central registry for plugin and extension tracking:
 
@@ -122,7 +96,7 @@ registry.getAllMemoryBackends();
 registry.getStatusSummary();
 ```
 
-### 4. PluginLoader
+#### 4. PluginLoader
 
 Handles lifecycle and dependency resolution:
 
@@ -145,9 +119,9 @@ await loader.unloadPlugin('my-plugin');
 await loader.unloadAll();
 ```
 
-## Extension Points
+### Extension Points
 
-### Agent Types
+#### Agent Types
 
 ```typescript
 registerAgentTypes(): AgentTypeDefinition[] {
@@ -164,7 +138,7 @@ registerAgentTypes(): AgentTypeDefinition[] {
 }
 ```
 
-### Task Types
+#### Task Types
 
 ```typescript
 registerTaskTypes(): TaskTypeDefinition[] {
@@ -185,7 +159,7 @@ registerTaskTypes(): TaskTypeDefinition[] {
 }
 ```
 
-### MCP Tools
+#### MCP Tools
 
 ```typescript
 registerMCPTools(): MCPToolDefinition[] {
@@ -206,7 +180,7 @@ registerMCPTools(): MCPToolDefinition[] {
 }
 ```
 
-### CLI Commands
+#### CLI Commands
 
 ```typescript
 registerCLICommands(): CLICommandDefinition[] {
@@ -230,7 +204,7 @@ registerCLICommands(): CLICommandDefinition[] {
 }
 ```
 
-### Memory Backends
+#### Memory Backends
 
 ```typescript
 registerMemoryBackends(): MemoryBackendFactory[] {
@@ -248,26 +222,7 @@ registerMemoryBackends(): MemoryBackendFactory[] {
 }
 ```
 
-## Plugin Lifecycle
-
-```
-uninitialized → initializing → initialized → shutting-down → shutdown
-                     │                              │
-                     └──────── error ◄─────────────┘
-```
-
-### States
-
-| State | Description |
-|-------|-------------|
-| `uninitialized` | Registered but not yet initialized |
-| `initializing` | Currently running initialize() |
-| `initialized` | Successfully initialized and active |
-| `shutting-down` | Currently running shutdown() |
-| `shutdown` | Successfully shut down |
-| `error` | Error during lifecycle transition |
-
-## Dependency Management
+### Dependency Management
 
 Plugins can declare dependencies on other plugins:
 
@@ -289,25 +244,25 @@ The PluginLoader:
 3. Topologically sorts for correct initialization order
 4. Initializes in dependency order (or parallel by level)
 
-## Official Plugins
+### Official Plugins
 
 Located in `@claude-flow/shared/src/plugins/official/`:
 
-### Maestro Plugin
+#### Maestro Plugin
 
 Workflow orchestration with phase management:
 - Multi-phase workflow execution
 - Progress tracking
 - Error handling and recovery
 
-### Hive Mind Plugin
+#### Hive Mind Plugin
 
 Collective intelligence coordination:
 - Shared memory across agents
 - Pattern learning
 - Consensus mechanisms
 
-## Error Handling
+### Error Handling
 
 ```typescript
 import { PluginError, PluginErrorCode } from '@claude-flow/shared';
@@ -331,7 +286,7 @@ throw new PluginError(
 );
 ```
 
-## Configuration
+### Configuration
 
 Plugins receive configuration through PluginContext:
 
@@ -348,7 +303,7 @@ interface PluginConfig {
 }
 ```
 
-## Best Practices
+### Best Practices
 
 1. **Keep plugins focused** - Single responsibility per plugin
 2. **Declare dependencies explicitly** - Don't rely on load order
@@ -358,7 +313,63 @@ interface PluginConfig {
 6. **Validate configuration** - Early in initialize()
 7. **Document extension points** - Clear descriptions and schemas
 
-## Files Reference
+---
+
+## 📊 指标
+
+### Plugin Lifecycle States
+
+| State | Description |
+|-------|-------------|
+| `uninitialized` | Registered but not yet initialized |
+| `initializing` | Currently running initialize() |
+| `initialized` | Successfully initialized and active |
+| `shutting-down` | Currently running shutdown() |
+| `shutdown` | Successfully shut down |
+| `error` | Error during lifecycle transition |
+
+---
+
+## 🏛️ 设计
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Plugin Loader                       │
+│  - Dependency resolution                            │
+│  - Lifecycle management                             │
+│  - Health checks                                    │
+└──────────────────────┬──────────────────────────────┘
+                       │
+┌──────────────────────┴──────────────────────────────┐
+│                 Plugin Registry                      │
+│  - Plugin tracking                                  │
+│  - Extension point registration                     │
+│  - Status/metrics collection                        │
+└──────────────────────┬──────────────────────────────┘
+                       │
+    ┌──────────────────┼──────────────────┐
+    │                  │                  │
+┌───┴───┐         ┌────┴────┐        ┌────┴────┐
+│Plugin │         │ Plugin  │        │ Plugin  │
+│   A   │         │    B    │        │    C    │
+└───────┘         └─────────┘        └─────────┘
+```
+
+### Lifecycle Flow
+
+```
+uninitialized → initializing → initialized → shutting-down → shutdown
+                     │                              │
+                     └──────── error ◄─────────────┘
+```
+
+---
+
+## 📁 目录
+
+### Files Reference
 
 | File | Purpose |
 |------|---------|
@@ -367,8 +378,39 @@ interface PluginConfig {
 | `plugin-loader.ts` | Lifecycle management |
 | `plugins/official/` | Built-in plugins |
 
-## Related ADRs
+---
+
+## 🔗 资源
+
+### Related ADRs
 
 - **ADR-004**: Plugin-Based Architecture (Microkernel Pattern)
 - **ADR-005**: MCP-First API Design
 - **ADR-007**: Event Sourcing for State Changes
+
+---
+
+## 🚀 快速开始
+
+```typescript
+import { ClaudeFlowPlugin, PluginContext } from '@claude-flow/shared';
+
+class MyPlugin implements ClaudeFlowPlugin {
+  readonly name = 'my-plugin';
+  readonly version = '1.0.0';
+
+  async initialize(context: PluginContext): Promise<void> {
+    context.logger.info('MyPlugin initialized');
+  }
+
+  async shutdown(): Promise<void> {
+    // Cleanup
+  }
+}
+```
+
+---
+
+## ⚙️ 技术栈
+
+「待补充」

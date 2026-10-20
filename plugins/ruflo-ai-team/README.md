@@ -1,15 +1,28 @@
+---
+title: "RuFlo AI Team"
+tags: ["ai-team", "multi-agent", "oauth", "mcp", "plugin"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # RuFlo AI Team
+
+## 💡 概述
 
 Give Claude a tenant-isolated AI team that divides work, coordinates progress, recalls approved context, and returns evidence-backed results.
 
 RuFlo AI Team is a hosted MCP service (`https://team.ruv.io/mcp`) plus a Claude plugin with six skills, four commands, and four agent roles. It turns a reviewed goal into explicit team, run, task, memory, and evidence records. It coordinates work: it does not run agents, send messages, deploy software, execute shell commands, make purchases, or approve consequential actions. Claude (in Claude Code, Cowork, or claude.ai) does the work with its own tools and the service keeps the shared record. You stay the authority for anything with an external effect.
 
-## What you need
+---
 
-- The RuFlo AI Team connector. It is included in the plugin; on first use you are asked to sign in (OAuth 2.1). Without sign-in, the skills cannot read or write team data, and Claude should say so.
-- Nothing to install locally for the hosted service. The plugin also contains a small local guard (see "As a mod", Claude Code only).
+## ⚡ 功能
 
-## Examples
+### Examples
 
 Slash commands work where your surface supports plugin commands (Claude Code, Cowork). Plain-language prompts work everywhere the connector is available, including claude.ai.
 
@@ -19,14 +32,12 @@ Slash commands work where your surface supports plugin commands (Claude Code, Co
 4. Review the result. `/team-review RUN_ID`, or "Check run RUN_ID against its acceptance criteria and tell me which claims have evidence."
 5. Pause without losing anything. `/team-stop TEAM_ID`, or "Pause the team and export its evidence first."
 
-## How auth works and what leaves your machine
+### What you need
 
-- Sign-in is OAuth 2.1 with scopes `team:read`, `team:write` and `team:run`. The service derives your tenant from the verified token; no tool takes a tenant ID, and another tenant's IDs return the same not_found as an unknown ID.
-- Sent to team.ruv.io when a skill uses a tool: the text Claude puts into team names, objectives, run goals, task descriptions and results, memory text and search queries. Keep secrets and unnecessary personal data out of them. Your files, conversation history and local environment are not uploaded by the plugin; only what Claude passes to these tools is.
-- Stored in the service (Firestore), separated by tenant. Retention, access and deletion requests are covered by the privacy policy (https://team.ruv.io/privacy). Data is not sold or used to train general-purpose models.
-- The local guard hook (Claude Code only) makes no network calls.
+- The RuFlo AI Team connector. It is included in the plugin; on first use you are asked to sign in (OAuth 2.1). Without sign-in, the skills cannot read or write team data, and Claude should say so.
+- Nothing to install locally for the hosted service. The plugin also contains a small local guard (see "As a mod", Claude Code only).
 
-## Troubleshooting
+### Troubleshooting
 
 - "Not signed in", 401, or the tools are missing: connect the RuFlo AI Team connector and sign in again (Claude Code: `/mcp`; claude.ai and Cowork: Settings, Connectors).
 - 403 or `insufficient_scope`: the connection lacks `team:write` or `team:run`. Disconnect and reconnect, approving all three scopes.
@@ -37,7 +48,24 @@ Slash commands work where your surface supports plugin commands (Claude Code, Co
 - A write was refused with a message about a secret (Claude Code): the local guard caught a key, token or password. Remove it, or turn the `guard` option off.
 - Support: https://team.ruv.io/support or https://github.com/ruvnet/ruflo/issues
 
-## Architecture
+---
+
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
+
+### How auth works and what leaves your machine
+
+- Sign-in is OAuth 2.1 with scopes `team:read`, `team:write` and `team:run`. The service derives your tenant from the verified token; no tool takes a tenant ID, and another tenant's IDs return the same not_found as an unknown ID.
+- Sent to team.ruv.io when a skill uses a tool: the text Claude puts into team names, objectives, run goals, task descriptions and results, memory text and search queries. Keep secrets and unnecessary personal data out of them. Your files, conversation history and local environment are not uploaded by the plugin; only what Claude passes to these tools is.
+- Stored in the service (Firestore), separated by tenant. Retention, access and deletion requests are covered by the privacy policy (https://team.ruv.io/privacy). Data is not sold or used to train general-purpose models.
+- The local guard hook (Claude Code only) makes no network calls.
+
+### Architecture
 
 - OAuth 2.1 resource server with RFC 9728 discovery and issuer/audience/scope verification.
 - Tenant identity derived only from verified token claims; no tool accepts a tenant ID.
@@ -48,7 +76,7 @@ Slash commands work where your surface supports plugin commands (Claude Code, Co
 
 The read-only `team_board` tool opens one compact ruOS-style workspace in ChatGPT. Its Teams, Runs, Tasks, and Evidence rail navigates inside the same card; selecting a run or pressing Refresh calls the same scoped tool through the MCP Apps bridge without asking ChatGPT to render another board. Evidence shows a private run summary; `evidence_export` provides the full bundle in chat. Its public HTML resource contains no tenant data; the tool requires `team:read`. Other tools remain data-only. Historical chat cards are immutable, so open a fresh chat after refreshing tools to see the current UI. `run_complete` requires `team:run` and refuses to complete a run until it has at least one task and every task is complete.
 
-## Public and protected surface
+### Public and protected surface
 
 Discovery is deliberately public, so MCP clients and directory reviewers can list the service before a user signs in. Anything tenant-scoped requires OAuth.
 
@@ -64,36 +92,22 @@ Cross-origin (browser) reads are limited to an explicit allowlist. By default it
 
 Memory search reports `lexical-degraded` unless a compatible native RuVector binding passes the startup probe. The pinned `@ruvector/core` 0.1.32 package with its 0.1.30 optional native binding fails that probe in local validation with a dimension mismatch. Do not set `RUFLO_AI_TEAM_VECTOR=native` in production until a compatible binary is verified.
 
-## Local verification
-
-```bash
-npm install
-npm test
-npm run smoke
-```
-
-Run locally with `RUFLO_AI_TEAM_STORE=memory npm start`. Production requires the exact OAuth resource audience `https://team.ruv.io/mcp`, Firestore IAM, and the environment variables documented in `deploy/cloud-run.yaml`. ChatGPT connections registered before the `team:*` scope ceiling was added must be created again so dynamic client registration includes those scopes.
-
-## Compatibility
-
-The plugin targets Ruflo / `@claude-flow/cli` v3.48 and pins its remote MCP contract at service version 0.1.x. Claude discovers skills, commands, and agents from the canonical plugin directories; the manifest intentionally contains no component arrays.
-
-## Namespace coordination
+### Namespace coordination
 
 The plugin owns the `ruflo-ai-team-*` namespace. Tenant data is never separated by a user-supplied namespace: authorization derives the tenant and every repository operation requires it. This follows the `ruflo-agentdb` ADR-0001 namespace convention while treating namespaces as organization aids, not security boundaries.
 
-## Verification
+### Compatibility
 
-`bash plugins/ruflo-ai-team/scripts/smoke.sh` runs structural checks and the Node test suite. The tests assert the exact tool inventory, complete annotations, OAuth challenges, scope errors, cross-tenant denial, bounded vector indexes, fenced retrieval, and evidence export.
+The plugin targets Ruflo / `@claude-flow/cli` v3.48 and pins its remote MCP contract at service version 0.1.x. Claude discovers skills, commands, and agents from the canonical plugin directories; the manifest intentionally contains no component arrays.
 
-## Architecture decisions
+### Architecture decisions
 
 - [ADR-0001: Multi-tenant service boundary](docs/adrs/0001-multitenant-service-boundary.md)
 - [ADR-0002: Approval and external-action boundary](docs/adrs/0002-approval-and-external-action-boundary.md)
 - [ADR-0003: Tenant-scoped RuVector memory](docs/adrs/0003-tenant-scoped-ruvector-memory.md)
 - [ADR-0004: Metered unit budget](docs/adrs/0004-metered-unit-budget.md)
 
-## As a mod
+### As a mod
 
 AI Team also ships as a function-hook mod (ADR-445 pattern; hooks in `hooks/`, loaded with the plugin). No network, no process, no model call.
 
@@ -103,3 +117,63 @@ AI Team also ships as a function-hook mod (ADR-445 pattern; hooks in `hooks/`, l
 - **Options** (`userConfig`): `guard` (`on` by default).
 
 Test: `claude plugin validate plugins/ruflo-ai-team`, `claude plugin test plugins/ruflo-ai-team`, and `bash plugins/ruflo-ai-team/scripts/smoke.sh`.
+
+---
+
+## 📁 目录
+
+```
+plugins/ruflo-ai-team/
+├── docs/
+│   └── adrs/
+│       ├── 0001-multitenant-service-boundary.md
+│       ├── 0002-approval-and-external-action-boundary.md
+│       ├── 0003-tenant-scoped-ruvector-memory.md
+│       └── 0004-metered-unit-budget.md
+├── hooks/
+├── deploy/
+│   └── cloud-run.yaml
+├── scripts/
+│   └── smoke.sh
+└── README.md
+```
+
+---
+
+## 🔗 资源
+
+- [ADR-0001: Multi-tenant service boundary](docs/adrs/0001-multitenant-service-boundary.md)
+- [ADR-0002: Approval and external-action boundary](docs/adrs/0002-approval-and-external-action-boundary.md)
+- [ADR-0003: Tenant-scoped RuVector memory](docs/adrs/0003-tenant-scoped-ruvector-memory.md)
+- [ADR-0004: Metered unit budget](docs/adrs/0004-metered-unit-budget.md)
+- [Privacy Policy](https://team.ruv.io/privacy)
+- [Support](https://team.ruv.io/support)
+
+---
+
+## 🚀 快速开始
+
+### Local verification
+
+```bash
+npm install
+npm test
+npm run smoke
+```
+
+Run locally with `RUFLO_AI_TEAM_STORE=memory npm start`. Production requires the exact OAuth resource audience `https://team.ruv.io/mcp`, Firestore IAM, and the environment variables documented in `deploy/cloud-run.yaml`. ChatGPT connections registered before the `team:*` scope ceiling was added must be created again so dynamic client registration includes those scopes.
+
+```bash
+bash plugins/ruflo-ai-team/scripts/smoke.sh
+```
+
+---
+
+## ⚙️ 技术栈
+
+- OAuth 2.1 (RFC 9728)
+- Firestore (canonical storage)
+- `@ruvector/core` (vector backend)
+- MCP hosted service (`https://team.ruv.io/mcp`)
+- `@claude-flow/cli` v3.48
+- ADR-445 function-hook mod

@@ -1,27 +1,47 @@
+---
+title: "Performance Module Test Suite"
+tags: ["performance", "tests", "flash-attention", "benchmarks", "vitest", "attention"]
+category: "@claude-flow/performance/__tests__"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # Performance Module Test Suite
+
+---
+
+## 💡 概述
 
 Comprehensive test coverage for the `@claude-flow/performance` module, focusing on Flash Attention optimization and benchmark validation.
 
-## Test Files
+---
 
-### 1. `attention.test.ts` (42 tests, 494 lines)
+## ⚡ 功能
+
+### Test Files
+
+#### 1. `attention.test.ts` (42 tests, 494 lines)
 
 Tests for `FlashAttentionOptimizer` class and related functions.
 
 **Coverage Areas:**
 
-#### Initialization (3 tests)
+##### Initialization (3 tests)
 - Default and custom dimension initialization
 - Initial metrics validation
 
-#### optimize() Method (6 tests)
+##### optimize() Method (6 tests)
 - Float32Array and number array input handling
 - Execution time tracking
 - Operation counting
 - Multiple keys/values support
 - Runtime detection (NAPI/WASM/JS)
 
-#### benchmark() Method (6 tests)
+##### benchmark() Method (6 tests)
 - Benchmark execution
 - Flash Attention performance measurement
 - Baseline performance measurement
@@ -29,48 +49,48 @@ Tests for `FlashAttentionOptimizer` class and related functions.
 - V3 target validation (2.49x minimum)
 - Metrics tracking (peak speedup, success operations)
 
-#### getSpeedup() Method (3 tests)
+##### getSpeedup() Method (3 tests)
 - Zero operations case
 - Single benchmark speedup
 - Average across multiple benchmarks
 
-#### getMetrics() Method (5 tests)
+##### getMetrics() Method (5 tests)
 - Initial metrics state
 - Operation counting
 - Average execution time calculation
 - Success rate tracking
 - Peak speedup tracking
 
-#### resetMetrics() Method (2 tests)
+##### resetMetrics() Method (2 tests)
 - Metrics reset to zero
 - Post-reset functionality
 
-#### Memory Tracking (2 tests)
+##### Memory Tracking (2 tests)
 - Node.js memory tracking
 - Graceful handling of missing memory API
 
-#### Factory Functions (3 tests)
+##### Factory Functions (3 tests)
 - `createFlashAttentionOptimizer()` with default/custom dimensions
 - `quickBenchmark()` execution and validation
 
-#### Performance Validation (3 tests)
+##### Performance Validation (3 tests)
 - Speedup improvement demonstration
 - Operations per second tracking
 - V3 target validation (2.49x-7.47x)
 
-#### Edge Cases (4 tests)
+##### Edge Cases (4 tests)
 - Small dimensions (32D)
 - Large dimensions (2048D)
 - Single key/value pair
 - Many keys/values (100+)
 
-### 2. `benchmarks.test.ts` (52 tests, 516 lines)
+#### 2. `benchmarks.test.ts` (52 tests, 516 lines)
 
 Tests for `AttentionBenchmarkRunner` class and formatting utilities.
 
 **Coverage Areas:**
 
-#### runComparison() Method (9 tests)
+##### runComparison() Method (9 tests)
 - Default parameter execution
 - Flash Attention performance measurement
 - Baseline performance measurement
@@ -81,7 +101,7 @@ Tests for `AttentionBenchmarkRunner` class and formatting utilities.
 - Varying key counts (10, 50, 100, 200)
 - Execution time limits
 
-#### runComprehensiveSuite() Method (6 tests)
+##### runComprehensiveSuite() Method (6 tests)
 - Suite execution
 - Multiple dimension testing (5+ dimensions)
 - Summary statistics (avg, min, max speedup)
@@ -89,7 +109,7 @@ Tests for `AttentionBenchmarkRunner` class and formatting utilities.
 - Target tracking
 - Timestamp inclusion
 
-#### runMemoryProfile() Method (7 tests)
+##### runMemoryProfile() Method (7 tests)
 - Default dimensions profiling
 - Multiple dimension profiling
 - Flash Attention memory measurement
@@ -98,21 +118,21 @@ Tests for `AttentionBenchmarkRunner` class and formatting utilities.
 - Key count tracking
 - Custom dimension arrays
 
-#### runStressTest() Method (5 tests)
+##### runStressTest() Method (5 tests)
 - Stress test execution
 - Increasing load testing
 - Dimension consistency
 - High key count handling (up to 5000)
 - Error handling
 
-#### validateV3Targets() Method (5 tests)
+##### validateV3Targets() Method (5 tests)
 - V3 target validation
 - Minimum target check (2.49x)
 - Maximum target check (7.47x)
 - Valid speedup values
 - Correct dimension usage (512)
 
-#### Formatting Functions (7 tests)
+##### Formatting Functions (7 tests)
 - `formatBenchmarkTable()` output
 - Target status display
 - Success indicators (checkmarks)
@@ -121,17 +141,17 @@ Tests for `AttentionBenchmarkRunner` class and formatting utilities.
 - Summary statistics display
 - `formatMemoryProfile()` table generation
 
-#### quickValidation() (2 tests)
+##### quickValidation() (2 tests)
 - Validation execution
 - Target meeting verification
 
-#### Performance Validation (4 tests)
+##### Performance Validation (4 tests)
 - Consistent speedup across runs
 - Flash Attention performance improvement
 - Cross-dimension validation
 - Operations per second accuracy
 
-#### Edge Cases (6 tests)
+##### Edge Cases (6 tests)
 - Very small dimensions (32D)
 - Very large dimensions (2048D)
 - Minimal iterations (10)
@@ -139,7 +159,11 @@ Tests for `AttentionBenchmarkRunner` class and formatting utilities.
 - Empty dimension arrays
 - Single dimension arrays
 
-## Test Statistics
+---
+
+## 📊 指标
+
+### Test Statistics
 
 ```
 Total Test Files:     2
@@ -150,39 +174,11 @@ Breakdown:
 - attention.test.ts:   42 tests (494 lines)
 - benchmarks.test.ts:  52 tests (516 lines)
 
-All tests: PASSING ✓
+All tests: PASSING
 Type Errors: 0
 ```
 
-## Running Tests
-
-### Run All Tests
-```bash
-npx vitest run __tests__/
-```
-
-### Run Specific Test File
-```bash
-npx vitest run __tests__/attention.test.ts
-npx vitest run __tests__/benchmarks.test.ts
-```
-
-### Run with Coverage
-```bash
-npx vitest run __tests__/ --coverage
-```
-
-### Watch Mode (Development)
-```bash
-npx vitest watch __tests__/
-```
-
-### Verbose Output
-```bash
-npx vitest run __tests__/ --reporter=verbose
-```
-
-## V3 Performance Targets Validated
+### V3 Performance Targets Validated
 
 The test suite validates against V3 performance targets:
 
@@ -191,7 +187,7 @@ The test suite validates against V3 performance targets:
 - **Operations/Second**: Throughput measurement and comparison
 - **Execution Time**: <1s for optimization, reasonable benchmark times
 
-## Test Categories
+### Test Categories
 
 1. **Unit Tests**: Individual function and method testing
 2. **Integration Tests**: Component interaction testing
@@ -199,7 +195,11 @@ The test suite validates against V3 performance targets:
 4. **Edge Case Tests**: Boundary conditions and error handling
 5. **Formatting Tests**: Output formatting validation
 
-## Key Features Tested
+---
+
+## 🏛️ 设计
+
+### Key Features Tested
 
 - Flash Attention optimization with multiple runtimes (NAPI/WASM/JS)
 - Benchmark comparison vs baseline (DotProductAttention)
@@ -211,7 +211,7 @@ The test suite validates against V3 performance targets:
 - Multiple dimension support (32D - 2048D)
 - Flexible input formats (Float32Array, number arrays)
 
-## Quality Metrics
+### Quality Metrics
 
 - **Test Coverage**: Comprehensive coverage of all public APIs
 - **Test Quality**: Mix of unit, integration, and performance tests
@@ -219,7 +219,7 @@ The test suite validates against V3 performance targets:
 - **V3 Alignment**: All tests validate against V3 performance targets
 - **TDD Approach**: Tests follow London School methodology
 
-## Next Steps
+### Next Steps
 
 To improve coverage further, consider:
 
@@ -230,11 +230,49 @@ To improve coverage further, consider:
 5. Add memory leak detection tests
 6. Add concurrent execution tests
 
-## Dependencies
+---
 
-- **Vitest**: Test framework (^1.0.0)
-- **@ruvector/attention**: Flash Attention implementation
-- **TypeScript**: Type checking during tests
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+```bash
+# Run all tests
+npx vitest run __tests__/
+
+# Run specific test file
+npx vitest run __tests__/attention.test.ts
+npx vitest run __tests__/benchmarks.test.ts
+
+# Run with coverage
+npx vitest run __tests__/ --coverage
+
+# Watch Mode (Development)
+npx vitest watch __tests__/
+
+# Verbose Output
+npx vitest run __tests__/ --reporter=verbose
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Vitest (test framework)
+- TypeScript
+- @ruvector/attention (Flash Attention)
+- NAPI/WASM runtimes
+- DotProductAttention (baseline)
 
 ---
 

@@ -1,51 +1,36 @@
+---
+title: "ruflo-ruvector"
+tags: ["vector", "hnsw", "embeddings", "plugin"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # ruflo-ruvector
 
-Self-learning vector database powered by [`ruvector@0.3.3`](https://www.npmjs.com/package/ruvector) — HNSW, Adaptive LoRA embeddings, hooks-based intelligence, SONA self-optimizing patterns, brain (collective knowledge), and 97 MCP tools (verified via `ruvector mcp tools`).
+## 💡 概述
+
+Self-learning vector database powered by [`ruvector@0.3.3`](https://www.npmjs.com/package/ruvector) -- HNSW, Adaptive LoRA embeddings, hooks-based intelligence, SONA self-optimizing patterns, brain (collective knowledge), and 97 MCP tools (verified via `ruvector mcp tools`).
 
 > **Pinned version:** this plugin targets `ruvector@0.3.3`. Earlier 0.1.x versions are missing several commands (`brain`, `route`, `sona`); some legacy docs referenced 2.x features that do not exist on npm. Always invoke with the pin.
 
-## Overview
-
 Wraps the `ruvector` npm package as a Ruflo plugin, providing vector embedding, semantic search, code-graph clustering, hyperbolic projection, self-learning hooks, and SONA / Brain diagnostics. ruvector's Rust backend delivers sub-millisecond queries and 52,000+ inserts/sec.
 
-## Prerequisites
+---
 
-```bash
-# Required
-npm install ruvector@0.3.3
+## ⚡ 功能
 
-# Optional add-ons (install as needed)
-npm install @ruvector/pi-brain              # required for `brain` subcommands
-npm install @ruvector/ruvllm                # required for `sona` subcommands (JS fallback)
-```
-
-Run a health check:
-```bash
-npx -y ruvector@0.3.3 doctor
-```
-
-## Installation
-
-```bash
-claude --plugin-dir plugins/ruflo-ruvector
-```
-
-## MCP Integration (91 Tools)
-
-Register with the pinned version:
-```bash
-claude mcp add ruvector -- npx -y ruvector@0.3.3 mcp start
-```
-
-Key tool categories: hooks routing, AST analysis, diff classification, coverage routing, graph clustering, security scanning, RAG context, brain knowledge, SONA learning.
-
-## Agents
+### Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
 | `vector-engineer` | sonnet | Embedding, HNSW indexing, code-graph clustering, hyperbolic projection, hooks routing, brain/SONA |
 
-## Skills
+### Skills
 
 | Skill | Usage | Description |
 |-------|-------|-------------|
@@ -54,7 +39,7 @@ Key tool categories: hooks routing, AST analysis, diff classification, coverage 
 | `vector-cluster` | `/vector-cluster <files...>` | Spectral/Louvain code-graph clustering via `hooks graph-cluster` |
 | `vector-hyperbolic` | `/vector-hyperbolic <text>` | Standard ONNX embed + Poincare projection in user code |
 
-## Commands (`/vector` slash command)
+### Commands (`/vector` slash command)
 
 The full surface is documented in `commands/vector.md` (80+ subcommands). Quick reference:
 
@@ -113,41 +98,11 @@ The full surface is documented in `commands/vector.md` (80+ subcommands). Quick 
 /vector doctor | info | benchmark | install | setup
 ```
 
-## End-to-End Example: store + search project files
+---
 
-```bash
-# 0. One-time setup
-/vector-setup
+## 📊 指标
 
-# 1. Create a database
-npx -y ruvector@0.3.3 create project.db -d 384 -m cosine
-
-# 2. Embed every TypeScript source file (loop — no built-in --batch)
-mkdir -p .vec
-for f in $(find src -name '*.ts'); do
-  npx -y ruvector@0.3.3 embed text "$(cat "$f")" -o ".vec/${f//\//_}.json"
-done
-
-# 3. Insert all embeddings (assumes a JSON array of {id, vector, metadata})
-jq -s '[.[] | {id: input_filename, vector: .vector}]' .vec/*.json > corpus.json
-npx -y ruvector@0.3.3 insert project.db corpus.json
-
-# 4. Search by query embedding
-QV=$(npx -y ruvector@0.3.3 embed text "JWT refresh-token rotation" --output -)
-npx -y ruvector@0.3.3 search project.db -v "$QV" -k 5
-
-# 5. Inspect index health
-npx -y ruvector@0.3.3 stats project.db
-```
-
-For an alternative store format with lineage tracking, replace steps 1–3 with:
-```bash
-npx -y ruvector@0.3.3 rvf create project.rvf
-npx -y ruvector@0.3.3 rvf ingest project.rvf < corpus.json
-npx -y ruvector@0.3.3 rvf query project.rvf
-```
-
-## Capabilities (ruvector@0.3.3, verified)
+### Capabilities (ruvector@0.3.3, verified)
 
 | Feature | CLI | Notes |
 |---------|-----|-------|
@@ -171,6 +126,15 @@ npx -y ruvector@0.3.3 rvf query project.rvf
 | Identity (pi key) | `identity generate|show|export|import` | for brain + edge |
 | Edge compute | `edge status|balance|tasks|join` | distributed, rUv currency |
 
+### Performance
+
+| Operation | Latency | Notes |
+|-----------|---------|-------|
+| HNSW search | ~0.045ms | 8,800x vs ONNX inference |
+| Memory cache | ~0.01ms | 40,000x vs ONNX inference |
+| Insert | 52,000+/sec | Rust backend (`@ruvector/core`) |
+| Memory per vector | ~50 bytes | Efficient storage |
+
 ### Known limitations / bugs in 0.3.3
 
 | Issue | Detail | Workaround |
@@ -182,7 +146,20 @@ npx -y ruvector@0.3.3 rvf query project.rvf
 | `cluster` (top-level) | `Status: Coming Soon` | use `hooks graph-cluster` |
 | `compare`, top-level `index`, `embed --batch/--glob/--model poincare` | Don't exist (`embed text` takes `--input-file` and `--stdin`) | see `commands/vector.md` for replacements |
 
-## Self-Learning Hooks
+---
+
+## 🏛️ 设计
+
+### MCP Integration (91 Tools)
+
+Register with the pinned version:
+```bash
+claude mcp add ruvector -- npx -y ruvector@0.3.3 mcp start
+```
+
+Key tool categories: hooks routing, AST analysis, diff classification, coverage routing, graph clustering, security scanning, RAG context, brain knowledge, SONA learning.
+
+### Self-Learning Hooks
 
 ```bash
 # Full pretrain pipeline + agent generation
@@ -199,7 +176,7 @@ npx -y ruvector@0.3.3 hooks coverage-route src/module.ts
 npx -y ruvector@0.3.3 hooks security-scan src/
 ```
 
-## Brain (Collective Knowledge)
+### Brain (Collective Knowledge)
 
 ```bash
 npm install @ruvector/pi-brain   # required dependency
@@ -210,7 +187,7 @@ npx -y ruvector@0.3.3 brain list
 npx -y ruvector@0.3.3 brain drift code   # knowledge drift for a domain
 ```
 
-## SONA (Self-Optimizing Neural Architecture)
+### SONA (Self-Optimizing Neural Architecture)
 
 ```bash
 npx -y ruvector@0.3.3 sona status
@@ -218,49 +195,22 @@ npx -y ruvector@0.3.3 sona patterns "auth refactor"
 npx -y ruvector@0.3.3 sona stats
 ```
 
-## Performance
+### Known Caveats
 
-| Operation | Latency | Notes |
-|-----------|---------|-------|
-| HNSW search | ~0.045ms | 8,800x vs ONNX inference |
-| Memory cache | ~0.01ms | 40,000x vs ONNX inference |
-| Insert | 52,000+/sec | Rust backend (`@ruvector/core`) |
-| Memory per vector | ~50 bytes | Efficient storage |
-
-## Known Caveats
-
-- **ONNX runtime is bundled from 0.3.3** — `embed text` works with no add-on. Older ruvector (0.2.x) reports `ONNX WASM files not bundled`; this plugin pins 0.3.3 for that reason.
-- **No `--batch`, `--glob`, `--namespace`, `--k`, `--task`, `--model poincare` flags** (`embed text` does take `--input-file` and `--stdin`) — these were in older docs but are not in 0.3.3. See `agents/vector-engineer.md` for the replacement table.
-- **`brain` requires `@ruvector/pi-brain`** — install separately.
-- **`sona` requires `@ruvector/ruvllm`** — install separately (the native binding is not always present in the npm tarball).
-- **Top-level `cluster` is "Coming Soon"** — for actual clustering use `hooks graph-cluster <files>`.
+- **ONNX runtime is bundled from 0.3.3** -- `embed text` works with no add-on. Older ruvector (0.2.x) reports `ONNX WASM files not bundled`; this plugin pins 0.3.3 for that reason.
+- **No `--batch`, `--glob`, `--namespace`, `--k`, `--task`, `--model poincare` flags** (`embed text` does take `--input-file` and `--stdin`) -- these were in older docs but are not in 0.3.3. See `agents/vector-engineer.md` for the replacement table.
+- **`brain` requires `@ruvector/pi-brain`** -- install separately.
+- **`sona` requires `@ruvector/ruvllm`** -- install separately (the native binding is not always present in the npm tarball).
+- **Top-level `cluster` is "Coming Soon"** -- for actual clustering use `hooks graph-cluster <files>`.
 - **`compare` and top-level `index` subcommands do not exist.**
 
-## Architecture Decisions
+### Architecture Decisions
 
-- [`ADR-0001` — Pin ruflo-ruvector to ruvector@0.3.3 with optional add-ons](./docs/adrs/0001-pin-ruvector-0.3.3.md)
+- [`ADR-0001` -- Pin ruflo-ruvector to ruvector@0.3.3 with optional add-ons](./docs/adrs/0001-pin-ruvector-0.3.3.md)
 
-## Smoke test
+### As a mod
 
-```bash
-bash plugins/ruflo-ruvector/scripts/smoke.sh
-# Expected: "11 passed, 0 failed"
-```
-
-## Related Plugins
-
-- `ruflo-agentdb` — HNSW storage backend in AgentDB
-- `ruflo-intelligence` — SONA pattern learning integration
-- `ruflo-knowledge-graph` — Graph RAG for multi-hop retrieval
-- `ruflo-rag-memory` — Simple semantic search via ruvector
-
-## License
-
-MIT
-
-## As a mod
-
-Function-hook mod (ADR-445, pattern of `ruflo-agentdb`). It loads from `hooks/hooks.json` → `hooks/register.ts`.
+Function-hook mod (ADR-445, pattern of `ruflo-agentdb`). It loads from `hooks/hooks.json` -> `hooks/register.ts`.
 
 A write guard for the vector store and shared brain: `hooks_remember`, `hooks_compress_store`, `hooks_learn`, `rvf_ingest`, `brain_share`, `brain_transfer` and `memory_store` refuse secrets (a shared brain is the worst place for one). Calls to any tool of the `ruvector` MCP server are counted.
 
@@ -269,3 +219,116 @@ A write guard for the vector store and shared brain: `hooks_remember`, `hooks_co
 - **Safety**: no network, no process spawning; it only uses tools already connected.
 - **Option** `guard` (`on` by default, `off` to disable): a tighten-only `tool.call` guard. A call to one of the tools above whose input holds a key, token, private key or password is denied. The reason never repeats the secret.
 - **Test**: `claude plugin validate plugins/ruflo-ruvector`, `claude plugin test plugins/ruflo-ruvector`, `bash plugins/ruflo-ruvector/scripts/smoke.sh`.
+
+---
+
+## 📁 目录
+
+```
+plugins/ruflo-ruvector/
+├── docs/
+│   └── adrs/
+│       └── 0001-pin-ruvector-0.3.3.md
+├── agents/
+│   └── vector-engineer.md
+├── commands/
+│   └── vector.md
+├── hooks/
+│   ├── hooks.json
+│   └── register.ts
+├── scripts/
+│   └── smoke.sh
+└── README.md
+```
+
+---
+
+## 🔗 资源
+
+- [ADR-0001 -- Pin ruflo-ruvector to ruvector@0.3.3](./docs/adrs/0001-pin-ruvector-0.3.3.md)
+- [ruvector@0.3.3 on npm](https://www.npmjs.com/package/ruvector)
+
+### Related Plugins
+
+- `ruflo-agentdb` -- HNSW storage backend in AgentDB
+- `ruflo-intelligence` -- SONA pattern learning integration
+- `ruflo-knowledge-graph` -- Graph RAG for multi-hop retrieval
+- `ruflo-rag-memory` -- Simple semantic search via ruvector
+
+---
+
+## 🚀 快速开始
+
+### Prerequisites
+
+```bash
+# Required
+npm install ruvector@0.3.3
+
+# Optional add-ons (install as needed)
+npm install @ruvector/pi-brain              # required for `brain` subcommands
+npm install @ruvector/ruvllm                # required for `sona` subcommands (JS fallback)
+```
+
+Run a health check:
+```bash
+npx -y ruvector@0.3.3 doctor
+```
+
+### Installation
+
+```bash
+claude --plugin-dir plugins/ruflo-ruvector
+```
+
+### End-to-End Example: store + search project files
+
+```bash
+# 0. One-time setup
+/vector-setup
+
+# 1. Create a database
+npx -y ruvector@0.3.3 create project.db -d 384 -m cosine
+
+# 2. Embed every TypeScript source file (loop -- no built-in --batch)
+mkdir -p .vec
+for f in $(find src -name '*.ts'); do
+  npx -y ruvector@0.3.3 embed text "$(cat "$f")" -o ".vec/${f//\//_}.json"
+done
+
+# 3. Insert all embeddings (assumes a JSON array of {id, vector, metadata})
+jq -s '[.[] | {id: input_filename, vector: .vector}]' .vec/*.json > corpus.json
+npx -y ruvector@0.3.3 insert project.db corpus.json
+
+# 4. Search by query embedding
+QV=$(npx -y ruvector@0.3.3 embed text "JWT refresh-token rotation" --output -)
+npx -y ruvector@0.3.3 search project.db -v "$QV" -k 5
+
+# 5. Inspect index health
+npx -y ruvector@0.3.3 stats project.db
+```
+
+For an alternative store format with lineage tracking, replace steps 1-3 with:
+```bash
+npx -y ruvector@0.3.3 rvf create project.rvf
+npx -y ruvector@0.3.3 rvf ingest project.rvf < corpus.json
+npx -y ruvector@0.3.3 rvf query project.rvf
+```
+
+### Smoke test
+
+```bash
+bash plugins/ruflo-ruvector/scripts/smoke.sh
+# Expected: "11 passed, 0 failed"
+```
+
+---
+
+## ⚙️ 技术栈
+
+- ruvector@0.3.3 (Rust backend)
+- HNSW indexing
+- ONNX runtime (bundled, 384-dim)
+- Adaptive LoRA embeddings
+- SONA neural architecture
+- MIT License

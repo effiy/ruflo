@@ -1,381 +1,234 @@
+---
+title: "@claude-flow/plugin-code-intelligence"
+tags: ["code-intelligence", "code-analysis", "ast", "complexity", "dependencies", "refactoring"]
+category: "plugins/code-intelligence"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/plugin-code-intelligence
 
 [![npm version](https://img.shields.io/npm/v/@claude-flow/plugin-code-intelligence.svg)](https://www.npmjs.com/package/@claude-flow/plugin-code-intelligence)
 [![npm downloads](https://img.shields.io/npm/dm/@claude-flow/plugin-code-intelligence.svg)](https://www.npmjs.com/package/@claude-flow/plugin-code-intelligence)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive code intelligence plugin combining graph neural networks for code structure analysis with ultra-fast vector search for semantic code similarity. The plugin enables dead code detection, API surface analysis, refactoring impact prediction, and architectural drift monitoring while integrating seamlessly with existing IDE workflows.
+---
 
-## Features
+## 💡 概述
 
-- **Semantic Code Search**: Find semantically similar code across the codebase using natural language or code snippets
-- **Architecture Analysis**: Analyze dependency graphs, detect layer violations, circular dependencies, and architectural drift
-- **Refactoring Impact Prediction**: Predict the impact of proposed code changes using GNN analysis
-- **Module Splitting**: Suggest optimal module boundaries using MinCut algorithms
-- **Pattern Learning**: Learn recurring patterns from code changes using SONA (Self-Optimizing Neural Architecture)
+Advanced code analysis and intelligence plugin for Claude Flow V3 - deep code structure understanding, complexity analysis, dependency mapping, refactoring suggestions, and pattern detection.
 
-## Installation
+---
 
-### npm
+## ⚡ 功能
 
-```bash
-npm install @claude-flow/plugin-code-intelligence
+- **Code Structure Analysis** - AST-based analysis, function/method/class mapping
+- **Complexity Analysis** - Cyclomatic complexity, cognitive complexity, maintainability index
+- **Dependency Graph** - Module dependency mapping and visualization
+- **Code Quality Metrics** - Duplication detection, naming analysis, SOLID compliance
+- **Refactoring Suggestions** - AI-powered refactoring recommendations
+- **Pattern Detection** - Identify anti-patterns, code smells, and security issues
+- **Symbol Resolution** - Cross-file symbol tracking and import analysis
+- **Call Graph Analysis** - Function call hierarchy and hot-path identification
+- **Technical Debt Calculation** - Quantitative technical debt scoring
+
+### WASM Acceleration
+
+| Component | WASM Package | Speed Improvement |
+|-----------|-------------|-------------------|
+| Vector search (HNSW) | `micro-hnsw-wasm` | 150x-12,500x faster |
+| Dependency graph | `ruvector-gnn-wasm` | Graph Neural Networks |
+| Graph partitioning | `ruvector-mincut-wasm` | Min-cut algorithms |
+| Learning/adaptation | `sona` | Self-Optimizing Neural Architecture |
+
+### Metrics Tracked
+
+| Metric | Description |
+|--------|-------------|
+| Cyclomatic Complexity | Code path complexity |
+| Cognitive Complexity | Human understandability score |
+| Maintainability Index | 0-100 maintainability score |
+| Lines of Code (LOC) | Source lines and comments ratio |
+| Technical Debt Ratio | Ratio-based debt calculation |
+| Halstead Volume | Code volume and difficulty metrics |
+| Instability (I) | Package coupling metrics |
+| Abstractness (A) | Abstract vs concrete ratio |
+| Distance from Main Sequence (D) | Balance between I and A |
+
+---
+
+## 📊 指标
+
+| Metric | Description |
+|--------|-------------|
+| AST parsing speed | <100ms per 1000 LOC |
+| Dependency resolution | <50ms per module |
+| Complexity analysis | <10ms per function |
+| Pattern detection | <5ms per pattern |
+
+---
+
+## 🏛️ 设计
+
+### Code Analysis
+
+```typescript
+import { CodeAnalyzer } from '@claude-flow/plugin-code-intelligence';
+
+const analyzer = new CodeAnalyzer();
+
+// Analyze a single file
+const analysis = await analyzer.analyzeFile('src/auth/auth.service.ts');
+console.log(analysis.complexity);    // Cyclomatic complexity per function
+console.log(analysis.dependencies);  // Import/export graph
+console.log(analysis.symbols);       // Variables, functions, classes
+console.log(analysis.metrics);       // All quality metrics
 ```
 
-### CLI
+### Complexity Analysis
 
-```bash
-npx claude-flow plugins install --name @claude-flow/plugin-code-intelligence
+```typescript
+import { ComplexityAnalyzer } from '@claude-flow/plugin-code-intelligence';
+
+const complexityAnalyzer = new ComplexityAnalyzer();
+
+const report = await complexityAnalyzer.analyze('./src', {
+  thresholds: {
+    cyclomatic: 10,    // Warn above 10
+    cognitive: 15,     // Warn above 15
+    lines: 100         // Warn per-function lines
+  }
+});
+
+// High complexity functions
+for (const fn of report.highComplexityFunctions) {
+  console.log(`${fn.name} (${fn.file}): cyclomatic=${fn.cyclomatic}`);
+}
 ```
 
-## Quick Start
+### Dependency Graph
+
+```typescript
+import { DependencyMapper } from '@claude-flow/plugin-code-intelligence';
+
+const mapper = new DependencyMapper();
+
+const graph = await mapper.mapDependencies('./src');
+
+// Circular dependencies
+console.log(graph.cycles);
+// [{ path: ['a.ts', 'b.ts', 'a.ts'], length: 2 }]
+
+// Most depended-on modules
+console.log(graph.mostDependedOn);
+// [{ module: 'utils.ts', dependents: 25 }]
+```
+
+### Code Quality Report
+
+```typescript
+import { QualityReporter } from '@claude-flow/plugin-code-intelligence';
+
+const reporter = new QualityReporter();
+
+const report = await reporter.generateReport('./src', {
+  metrics: ['all'],
+  format: 'detailed'
+});
+
+console.log(report.overallScore);     // 0-100
+console.log(report.issues);           // Code smells, anti-patterns
+console.log(report.recommendations);  // Prioritized fixes
+```
+
+### Refactoring Suggestions
+
+```typescript
+import { RefactoringEngine } from '@claude-flow/plugin-code-intelligence';
+
+const engine = new RefactoringEngine();
+
+const suggestions = await engine.suggestRefactorings('./src/legacy/', {
+  targets: ['complexity', 'duplication', 'naming'],
+  maxSuggestions: 10
+});
+
+for (const suggestion of suggestions) {
+  console.log(`${suggestion.file}: ${suggestion.description}`);
+  console.log(`  Impact: ${suggestion.impact} | Effort: ${suggestion.effort}`);
+}
+```
+
+### Anti-Pattern Detection
+
+```typescript
+import { PatternDetector } from '@claude-flow/plugin-code-intelligence';
+
+const detector = new PatternDetector();
+
+const patterns = await detector.detect('./src', {
+  patterns: ['god-class', 'long-method', 'feature-envy', 'data-clump'],
+  language: 'typescript'
+});
+
+for (const pattern of patterns) {
+  console.log(`${pattern.type} in ${pattern.file}:${pattern.line} (confidence: ${pattern.confidence}%)`);
+}
+```
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Installation
+
+```bash
+npx claude-flow@v3alpha plugins install @claude-flow/plugin-code-intelligence
+```
+
+### Related Packages
+
+- [@claude-flow/plugin-test-intelligence](../test-intelligence) - Test complement
+- [@claude-flow/plugin-perf-optimizer](../perf-optimizer) - Performance optimization
+- [ruvector-upstream](../ruvector-upstream) - WASM acceleration dependencies
+
+### License
+
+MIT
+
+---
+
+## 🚀 快速开始
 
 ```typescript
 import { CodeIntelligencePlugin } from '@claude-flow/plugin-code-intelligence';
 
-// Initialize the plugin
-const codeIntel = new CodeIntelligencePlugin({
-  indexPath: './data/code-index',
-  repoPath: './',
-  languages: ['typescript', 'javascript']
-});
+const plugin = new CodeIntelligencePlugin();
+await plugin.initialize();
 
-// Semantic code search
-const results = await codeIntel.semanticSearch({
-  query: 'function that validates user email',
-  scope: { paths: ['src/'], excludeTests: true },
-  searchType: 'semantic',
-  topK: 10
-});
+// Analyze a directory
+const report = await plugin.analyze('./src/');
 
-// Analyze architecture
-const architecture = await codeIntel.architectureAnalyze({
-  rootPath: './src',
-  analysis: ['dependency_graph', 'circular_deps', 'dead_code'],
-  outputFormat: 'mermaid'
-});
-
-// Predict refactoring impact
-const impact = await codeIntel.refactorImpact({
-  changes: [
-    { file: 'src/utils/auth.ts', type: 'rename', details: { newName: 'authentication.ts' } }
-  ],
-  depth: 3,
-  includeTests: true
-});
+console.log(`Overall quality: ${report.score}/100`);
+console.log(`Issues found: ${report.issues.length}`);
+console.log(`Top recommendation: ${report.recommendations[0]}`);
 ```
 
-## MCP Tools
+---
 
-### 1. `code/semantic-search`
+## ⚙️ 技术栈
 
-Find semantically similar code across the codebase.
-
-```typescript
-const result = await mcp.invoke('code/semantic-search', {
-  query: 'handle authentication token refresh',
-  scope: {
-    paths: ['src/'],
-    languages: ['typescript'],
-    excludeTests: false
-  },
-  searchType: 'semantic',
-  topK: 10
-});
-
-// Returns:
-// {
-//   results: [
-//     {
-//       file: 'src/auth/tokenManager.ts',
-//       function: 'refreshAccessToken',
-//       snippet: 'async function refreshAccessToken(refreshToken: string)...',
-//       similarity: 0.94,
-//       lineRange: [45, 72]
-//     },
-//     ...
-//   ]
-// }
-```
-
-### 2. `code/architecture-analyze`
-
-Analyze codebase architecture using graph algorithms.
-
-```typescript
-const result = await mcp.invoke('code/architecture-analyze', {
-  rootPath: './src',
-  analysis: [
-    'dependency_graph',
-    'layer_violations',
-    'circular_deps',
-    'component_coupling',
-    'dead_code'
-  ],
-  baseline: 'main',  // Git ref for drift comparison
-  outputFormat: 'mermaid'
-});
-
-// Returns:
-// {
-//   dependencyGraph: '...mermaid diagram...',
-//   layerViolations: [
-//     { from: 'presentation/UserForm', to: 'data/UserRepository', rule: 'no-direct-data-access' }
-//   ],
-//   circularDeps: [
-//     ['moduleA', 'moduleB', 'moduleC', 'moduleA']
-//   ],
-//   deadCode: [
-//     { file: 'src/utils/legacy.ts', reason: 'no-references', confidence: 0.95 }
-//   ],
-//   architecturalDrift: {
-//     newDependencies: 5,
-//     removedDependencies: 2,
-//     couplingChange: +0.03
-//   }
-// }
-```
-
-### 3. `code/refactor-impact`
-
-Predict impact of proposed refactoring.
-
-```typescript
-const result = await mcp.invoke('code/refactor-impact', {
-  changes: [
-    { file: 'src/services/UserService.ts', type: 'extract', details: { method: 'validateUser' } },
-    { file: 'src/models/User.ts', type: 'rename', details: { property: 'name', to: 'fullName' } }
-  ],
-  depth: 3,
-  includeTests: true
-});
-
-// Returns:
-// {
-//   impactedFiles: [
-//     { file: 'src/controllers/AuthController.ts', changes: ['import path', 'method call'] },
-//     { file: 'src/services/AdminService.ts', changes: ['method call'] },
-//     { file: 'tests/UserService.test.ts', changes: ['test assertions'] }
-//   ],
-//   totalFilesAffected: 12,
-//   riskScore: 0.35,
-//   breakingChanges: [
-//     { type: 'property-rename', description: 'User.name -> User.fullName', usages: 45 }
-//   ],
-//   suggestedMigrationSteps: [...]
-// }
-```
-
-### 4. `code/split-suggest`
-
-Suggest optimal module boundaries using MinCut.
-
-```typescript
-const result = await mcp.invoke('code/split-suggest', {
-  targetPath: './src/monolith',
-  strategy: 'minimize_coupling',
-  constraints: {
-    maxModuleSize: 5000,  // LOC
-    minModuleSize: 500,
-    preserveBoundaries: ['src/monolith/core']
-  },
-  targetModules: 4
-});
-
-// Returns:
-// {
-//   suggestedModules: [
-//     {
-//       name: 'user-management',
-//       files: ['User.ts', 'UserService.ts', 'UserRepository.ts'],
-//       loc: 2340,
-//       externalDependencies: 3
-//     },
-//     {
-//       name: 'order-processing',
-//       files: ['Order.ts', 'OrderService.ts', 'PaymentHandler.ts'],
-//       loc: 3120,
-//       externalDependencies: 5
-//     },
-//     ...
-//   ],
-//   couplingReduction: '45%',
-//   migrationComplexity: 'medium'
-// }
-```
-
-### 5. `code/learn-patterns`
-
-Learn code patterns from repository history.
-
-```typescript
-const result = await mcp.invoke('code/learn-patterns', {
-  scope: {
-    gitRange: 'HEAD~100..HEAD',
-    authors: [],  // All authors
-    paths: ['src/']
-  },
-  patternTypes: ['bug_patterns', 'refactor_patterns'],
-  minOccurrences: 3
-});
-
-// Returns:
-// {
-//   patterns: [
-//     {
-//       type: 'bug_pattern',
-//       name: 'null-check-before-access',
-//       occurrences: 12,
-//       description: 'Adding null checks before property access',
-//       example: { before: 'user.name', after: 'user?.name' }
-//     },
-//     {
-//       type: 'refactor_pattern',
-//       name: 'async-await-migration',
-//       occurrences: 8,
-//       description: 'Converting Promise.then chains to async/await'
-//     }
-//   ]
-// }
-```
-
-## Configuration Options
-
-```typescript
-interface CodeIntelligenceConfig {
-  // Indexing
-  indexPath: string;              // Path to code index storage
-  repoPath: string;               // Repository root path
-
-  // Language support
-  languages: string[];            // Languages to index
-  excludePaths: string[];         // Paths to exclude
-
-  // Performance
-  maxMemoryMB: number;            // WASM memory limit (default: 1024)
-  maxCpuTimeSeconds: number;      // Operation timeout (default: 300)
-  incrementalIndexing: boolean;   // Enable incremental updates (default: true)
-
-  // Security
-  blockSensitiveFiles: boolean;   // Block .env, credentials, etc. (default: true)
-  maskSecrets: boolean;           // Mask detected secrets in results (default: true)
-}
-```
-
-## Supported Languages
-
-| Tier | Languages | Support Level |
-|------|-----------|---------------|
-| Tier 1 (Full) | TypeScript, JavaScript, React, Vue, Angular | Complete AST analysis |
-| Tier 2 (Partial) | Python, Java, Ruby, PHP | Core analysis features |
-| Tier 3 (Basic) | Rust, Go, C++, Swift, Kotlin | Dependency and search |
-
-## Security Considerations
-
-### Path Traversal Prevention
-
-All file paths are validated to prevent directory traversal:
-- Paths normalized and resolved against allowed root
-- Blocked patterns: `.env`, `.git/config`, credentials, secrets, private keys
-
-### Secret Detection and Masking
-
-Secrets are automatically detected and masked in search results:
-- API keys and tokens
-- Private keys and certificates
-- Password strings
-- Cloud provider credentials (AWS, GCP, Azure)
-
-### WASM Security Constraints
-
-| Constraint | Value | Rationale |
-|------------|-------|-----------|
-| Memory Limit | 1GB max | Handle large codebases |
-| CPU Time Limit | 300 seconds | Allow full repo analysis |
-| No Network Access | Enforced | Prevent code exfiltration |
-| No Shell Execution | Enforced | Prevent command injection |
-| Read-Only Mode | Enforced | Prevent code modification |
-
-### Input Validation
-
-All inputs are validated using Zod schemas:
-```typescript
-// All inputs validated:
-- Query strings: 1-5000 characters
-- File paths: Maximum 500 characters, max 100 paths per request
-- Languages: Maximum 20 languages per request
-- topK: 1-1000 results
-- Git refs: Validated against safe patterns (no shell metacharacters)
-- Module size limits: 100-100000 LOC
-```
-
-### Rate Limiting
-
-```typescript
-const rateLimits = {
-  'code/semantic-search': { requestsPerMinute: 60, maxConcurrent: 5 },
-  'code/architecture-analyze': { requestsPerMinute: 10, maxConcurrent: 2 },
-  'code/refactor-impact': { requestsPerMinute: 20, maxConcurrent: 3 },
-  'code/split-suggest': { requestsPerMinute: 5, maxConcurrent: 1 },
-  'code/learn-patterns': { requestsPerMinute: 5, maxConcurrent: 1 }
-};
-```
-
-## Performance
-
-| Metric | Target |
-|--------|--------|
-| Semantic code search | <100ms for 1M LOC |
-| Architecture analysis | <10s for 100K LOC |
-| Refactor impact | <5s for single change |
-| Module splitting | <30s for 50K LOC |
-| Pattern learning | <2min for 1000 commits |
-
-## IDE Integration
-
-- **VS Code Extension**: Real-time analysis and suggestions
-- **JetBrains Plugin**: IntelliJ, WebStorm, PyCharm support
-- **CLI**: CI/CD pipeline integration
-- **MCP**: Direct Claude Code integration
-
-## Dependencies
-
-- `micro-hnsw-wasm`: Semantic code search and clone detection (150x faster)
-- `ruvector-gnn-wasm`: Code dependency graphs, call graphs, and control flow analysis
-- `ruvector-mincut-wasm`: Module boundary detection and optimal code splitting
-- `sona`: Self-optimizing learning from code review patterns
-- `ruvector-dag-wasm`: Build dependency analysis and incremental compilation
-- `@babel/parser`: JavaScript/TypeScript AST parsing
-- `typescript`: TypeScript compiler API
-
-## Related Plugins
-
-| Plugin | Description | Use Case |
-|--------|-------------|----------|
-| [@claude-flow/plugin-test-intelligence](../test-intelligence) | Test optimization | Predictive test selection based on code changes |
-| [@claude-flow/plugin-perf-optimizer](../perf-optimizer) | Performance optimization | Code performance bottleneck detection |
-| [@claude-flow/plugin-legal-contracts](../legal-contracts) | Contract analysis | Software licensing compliance |
-
-## License
-
-MIT License
-
-Copyright (c) 2026 Claude Flow
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+- TypeScript
+- Node.js
+- AST parsing
+- RuVector WASM (HNSW, GNN, Mincut, SONA)

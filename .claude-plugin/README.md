@@ -1,3 +1,15 @@
+---
+title: "Claude Flow Plugin — Enterprise AI Agent Orchestration"
+tags: ["claude-code", "plugin", "agent", "orchestration", "swarm", "sparc", "github", "neural"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # 🚀 Claude Flow Plugin - Complete Enterprise AI Agent Orchestration
 
 [![Version](https://img.shields.io/badge/version-2.5.0-blue.svg)](https://github.com/ruvnet/claude-flow)
@@ -8,22 +20,7 @@
 
 ---
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Components](#components)
-- [Usage](#usage)
-- [MCP Integration](#mcp-integration)
-- [Examples](#examples)
-- [Documentation](#documentation)
-- [Support](#support)
-
----
-
-## 🌟 Overview
+## 💡 概述
 
 Claude Flow is the most comprehensive Claude Code plugin for enterprise AI agent orchestration. It provides a complete ecosystem for:
 
@@ -36,7 +33,7 @@ Claude Flow is the most comprehensive Claude Code plugin for enterprise AI agent
 
 ---
 
-## ✨ Features
+## ⚡ 功能
 
 ### 🐝 **Swarm Coordination**
 - **4 Topologies**: Hierarchical, Mesh, Ring, Star
@@ -275,104 +272,17 @@ Claude Flow is the most comprehensive Claude Code plugin for enterprise AI agent
 
 ---
 
-## 🚀 Quick Start
+## 📊 指标
 
-### 1. Install Claude Code Plugin
-
-In Claude Code:
-
-```
-/plugin add ruvnet/claude-flow
-```
-
-Or from local directory:
-
-```bash
-git clone https://github.com/ruvnet/claude-flow.git
-cd claude-flow
-```
-
-Then in Claude Code:
-```
-/plugin add .
-```
-
-### 2. Restart Claude Code
-
-```
-/restart
-```
-
-### 3. Configure MCP Servers (Optional)
-
-```bash
-# Add MCP servers to Claude Code
-claude mcp add claude-flow npx claude-flow@alpha mcp start
-claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional
-claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional
-```
-
-### 4. Verify Installation
-
-```bash
-# Check plugin status
-claude plugin list
-
-# Test a command
-# In Claude Code, type:
-/coordination-swarm-init
-```
+- **84.8%** SWE-Bench solve rate
+- **32.3%** token reduction vs. sequential execution
+- **2.8-4.4x** speed improvement with WASM acceleration
+- **27+** neural models for pattern recognition
+- **100** max concurrent agents
 
 ---
 
-## 📦 Installation
-
-### Prerequisites
-
-- **Claude Code CLI** >= 2.0.0
-- **Node.js** >= 20.0.0
-- **Git** (for GitHub integration features)
-- Read/write permissions in project directory
-
-### Method 1: Direct Installation (Recommended)
-
-In Claude Code:
-```
-/plugin add ruvnet/claude-flow
-/restart
-```
-
-### Method 2: Local Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/ruvnet/claude-flow.git
-cd claude-flow/claude-plugin
-
-# Run installation script
-bash scripts/install.sh
-
-# Or copy manually
-cp -r commands ~/.claude/commands/
-cp -r agents ~/.claude/agents/
-```
-
-### Method 3: NPX (One-Time Setup)
-
-```bash
-# Run setup via npx
-npx claude-flow@alpha init --plugin
-
-# This will:
-# 1. Create .claude directory
-# 2. Copy all commands and agents
-# 3. Configure MCP servers
-# 4. Setup hooks
-```
-
----
-
-## 🏗️ Components
+## 🏛️ 设计
 
 ### Directory Structure
 
@@ -432,208 +342,13 @@ claude-flow/
 
 ---
 
-## 💡 Usage
+## 📁 目录
 
-### Basic Swarm Coordination
-
-```bash
-# Initialize a hierarchical swarm
-/coordination-swarm-init
-
-# Spawn specialized agents
-/coordination-agent-spawn
-
-# Orchestrate a complex task
-/coordination-task-orchestrate "Build REST API with authentication"
-```
-
-### SPARC Development Workflow
-
-```bash
-# Start with specification
-/sparc-modes specification "User authentication system"
-
-# Design architecture
-/sparc-architect
-
-# Implement with TDD
-/sparc-tdd "Implement JWT authentication"
-
-# Code review
-/sparc-reviewer
-
-# Optimize performance
-/sparc-optimizer
-```
-
-### GitHub Automation
-
-```bash
-# Analyze repository
-/github-repo-analyze
-
-# Create PR with automated review
-/github-pr-manager
-
-# Multi-agent code review
-/github-code-review-swarm
-
-# Coordinate release across repos
-/github-multi-repo-swarm
-```
-
-### Hive Mind Coordination
-
-```bash
-# Initialize hive mind
-/hive-mind-init
-
-# Spawn hive agents with consensus
-/hive-mind-spawn
-
-# Check consensus status
-/hive-mind-consensus
-
-# View shared memory
-/hive-mind-memory
-```
+「待补充」
 
 ---
 
-## 🔌 MCP Integration
-
-Claude Flow integrates with 3 MCP servers providing 110+ tools:
-
-### Claude Flow MCP (Required)
-
-```json
-{
-  "mcpServers": {
-    "claude-flow": {
-      "command": "npx",
-      "args": ["claude-flow@alpha", "mcp", "start"]
-    }
-  }
-}
-```
-
-**Tools**: 40+ orchestration tools
-- Swarm initialization and management
-- Agent spawning and coordination
-- Task orchestration
-- Memory management
-- Neural training
-- Performance monitoring
-
-### ruv-swarm MCP (Optional)
-
-```json
-{
-  "mcpServers": {
-    "ruv-swarm": {
-      "command": "npx",
-      "args": ["ruv-swarm", "mcp", "start"]
-    }
-  }
-}
-```
-
-**Tools**: Enhanced coordination features
-- WASM acceleration (2.8-4.4x speed)
-- SIMD optimization
-- Advanced topology management
-- Byzantine fault tolerance
-
-### Flow Nexus MCP (Optional - Requires Auth)
-
-```json
-{
-  "mcpServers": {
-    "flow-nexus": {
-      "command": "npx",
-      "args": ["flow-nexus@latest", "mcp", "start"]
-    }
-  }
-}
-```
-
-**Tools**: 70+ cloud features
-- E2B sandbox execution
-- Distributed neural training
-- Event-driven workflows
-- Application marketplace
-- Real-time collaboration
-
----
-
-## 📚 Examples
-
-### Example 1: Full-Stack Development with Swarm
-
-```bash
-# Initialize hierarchical swarm
-/coordination-swarm-init
-
-# The swarm automatically spawns:
-# - backend-dev agent
-# - coder agent for frontend
-# - tester agent
-# - reviewer agent
-
-# Orchestrate the full-stack build
-/coordination-task-orchestrate "Build a todo app with React frontend and Express backend"
-
-# Monitor progress
-/monitoring-swarm-monitor
-
-# Get performance metrics
-/analysis-performance-report
-```
-
-### Example 2: SPARC TDD Workflow
-
-```bash
-# Start with specification
-/sparc-modes specification "Shopping cart with inventory management"
-
-# Generate pseudocode
-/sparc-modes pseudocode
-
-# Design architecture
-/sparc-architect
-
-# TDD implementation
-/sparc-tdd
-
-# Automated review
-/sparc-reviewer
-
-# Performance optimization
-/sparc-optimizer
-```
-
-### Example 3: GitHub PR Automation
-
-```bash
-# Analyze current PR
-/github-pr-manager
-
-# Multi-agent code review
-/github-code-review-swarm
-
-# Auto-fix issues
-/github-pr-enhance
-
-# Sync across repositories
-/github-sync-coordinator
-
-# Prepare release
-/github-release-manager
-```
-
----
-
-## 📖 Documentation
+## 🔗 资源
 
 - **[Quickstart Guide](docs/QUICKSTART.md)** - Get started in 5 minutes
 - **[User Guide](docs/USER_GUIDE.md)** - Complete usage documentation
@@ -641,10 +356,7 @@ Claude Flow integrates with 3 MCP servers providing 110+ tools:
 - **[Examples](docs/EXAMPLES.md)** - Real-world usage examples
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
----
-
-## 🤝 Support
-
+### Support
 - **Documentation**: [GitHub Wiki](https://github.com/ruvnet/claude-flow/wiki)
 - **Issues**: [GitHub Issues](https://github.com/ruvnet/claude-flow/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/ruvnet/claude-flow/discussions)
@@ -652,19 +364,66 @@ Claude Flow integrates with 3 MCP servers providing 110+ tools:
 
 ---
 
-## 📊 Performance
+## 🚀 快速开始
 
-- **84.8%** SWE-Bench solve rate
-- **32.3%** token reduction vs. sequential execution
-- **2.8-4.4x** speed improvement with WASM acceleration
-- **27+** neural models for pattern recognition
-- **100** max concurrent agents
+### 1. Install Claude Code Plugin
+
+In Claude Code:
+
+```
+/plugin add ruvnet/claude-flow
+```
+
+Or from local directory:
+
+```bash
+git clone https://github.com/ruvnet/claude-flow.git
+cd claude-flow
+```
+
+Then in Claude Code:
+```
+/plugin add .
+```
+
+### 2. Restart Claude Code
+
+```
+/restart
+```
+
+### 3. Configure MCP Servers (Optional)
+
+```bash
+# Add MCP servers to Claude Code
+claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional
+claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional
+```
+
+### 4. Verify Installation
+
+```bash
+# Check plugin status
+claude plugin list
+
+# Test a command
+# In Claude Code, type:
+/coordination-swarm-init
+```
 
 ---
 
-## 🔧 Advanced Configuration
+## ⚙️ 技术栈
 
-### Custom Swarm Topology
+- **Claude Code CLI** >= 2.0.0
+- **Node.js** >= 20.0.0
+- **Git** (for GitHub integration features)
+- MCP Protocol (3 servers, 110+ tools)
+
+### Advanced Configuration
+
+#### Custom Swarm Topology
 
 ```json
 {
@@ -677,7 +436,7 @@ Claude Flow integrates with 3 MCP servers providing 110+ tools:
 }
 ```
 
-### Enable Neural Training
+#### Enable Neural Training
 
 ```json
 {
@@ -689,7 +448,7 @@ Claude Flow integrates with 3 MCP servers providing 110+ tools:
 }
 ```
 
-### Configure Hooks
+#### Configure Hooks
 
 ```json
 {

@@ -1,18 +1,67 @@
+---
+title: "@claude-flow/plugin-agent-federation"
+tags: ["agent-federation", "zero-trust", "pii", "audit", "cross-installation", "security"]
+category: "@claude-flow/plugin-agent-federation"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/plugin-agent-federation
 
 [![npm version](https://img.shields.io/npm/v/@claude-flow/plugin-agent-federation.svg)](https://www.npmjs.com/package/@claude-flow/plugin-agent-federation)
 [![npm downloads](https://img.shields.io/npm/dm/@claude-flow/plugin-agent-federation.svg)](https://www.npmjs.com/package/@claude-flow/plugin-agent-federation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+---
+
+## 💡 概述
+
 Cross-installation agent federation with zero-trust security, PII-gated data flow, and compliance-grade audit trails.
 
-## Install + run
+---
+
+## ⚡ 功能
+
+- Zero-trust federation with mTLS + ed25519 challenge-response
+- PII-gated data flow with per-trust-level policies
+- Behavioral trust scoring
+- Compliance-grade audit trails
+- Full lifecycle CLI: init, join, leave, peers, status, audit, trust, config
+
+---
+
+## 📊 指标
+
+- 325 unit tests
+- Audit, routing, discovery, plugin lifecycle coverage
+
+---
+
+## 🏛️ 设计
+
+「待补充」
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Install + run
 
 ```bash
 npx -y -p @claude-flow/plugin-agent-federation@latest ruflo-federation --help
 ```
 
-## Subcommands
+### Subcommands
 
 | Command | Description |
 |---|---|
@@ -27,7 +76,7 @@ npx -y -p @claude-flow/plugin-agent-federation@latest ruflo-federation --help
 | `ruflo-federation trust` | Manage trust scores and tiers |
 | `ruflo-federation config` | Show/update federation config |
 
-## Configuration via `.env`
+### Configuration via `.env`
 
 ```bash
 FEDERATION_NODE_NAME=my-node           # default: hostname
@@ -36,14 +85,28 @@ FEDERATION_BIND_PORT=8443              # default: 8443
 FEDERATION_TRUST_LEVEL=untrusted       # default: untrusted
 ```
 
-## Tests
-
-325 unit tests covering audit, routing, discovery, plugin lifecycle.
+### Tests
 
 ```bash
 npm test
 ```
 
-## License
+### License
 
-MIT — Claude Flow Team.
+MIT -- Claude Flow Team.
+
+---
+
+## 🚀 快速开始
+
+```bash
+npx -y -p @claude-flow/plugin-agent-federation@latest ruflo-federation --help
+```
+
+---
+
+## ⚙️ 技术栈
+
+- TypeScript
+- Node.js
+- mTLS + ed25519

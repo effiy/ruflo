@@ -1,18 +1,36 @@
+---
+title: "Quality Engineering Domain"
+tags: ["ddd", "quality-engineering", "testing", "agentic-qe", "bounded-contexts"]
+category: "docs/ddd"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # Quality Engineering Domain
 
 > **Retired (2026-10-09):** the in-repo `v3/plugins/agentic-qe` implementation described here was removed; it never wrapped the real `agentic-qe` package. This document is kept for history. Use the maintained [`agentic-qe`](https://www.npmjs.com/package/agentic-qe) npm package or its Claude Code plugin `agentic-qe-fleet` ([proffesor-for-testing/agentic-qe](https://github.com/proffesor-for-testing/agentic-qe)).
 
-## Overview
+---
+
+## 💡 概述
 
 The Quality Engineering (QE) domain provides comprehensive automated testing, quality assessment, and continuous validation capabilities for Claude Flow V3. It is implemented as the `agentic-qe` plugin with 51 specialized QE agents organized across 12 Domain-Driven Design bounded contexts.
 
-## Strategic Design
+---
 
-### Domain Vision
+## ⚡ 功能
+
+### Strategic Design
+
+#### Domain Vision
 
 > Enable intelligent, automated quality engineering that learns from patterns, predicts defects, and ensures continuous quality at scale.
 
-### Core Subdomains
+#### Core Subdomains
 
 ```
 Quality Engineering Domain
@@ -30,7 +48,7 @@ Quality Engineering Domain
 └── Learning Optimization (Generic) # Cross-domain transfer learning
 ```
 
-### Subdomain Classification
+#### Subdomain Classification
 
 | Subdomain | Type | Complexity | Business Value |
 |-----------|------|------------|----------------|
@@ -47,7 +65,51 @@ Quality Engineering Domain
 | Chaos Resilience | Core | High | High |
 | Learning Optimization | Generic | Medium | Medium |
 
-## Context Map
+---
+
+## 📊 指标
+
+### Agent Inventory
+
+#### Total: 51 QE Agents + 7 TDD Subagents
+
+| Context | Agent Count | Complexity |
+|---------|-------------|------------|
+| test-generation | 12 | High |
+| test-execution | 8 | Medium |
+| coverage-analysis | 6 | High |
+| quality-assessment | 5 | Medium |
+| defect-intelligence | 4 | High |
+| requirements-validation | 3 | Medium |
+| code-intelligence | 5 | High |
+| security-compliance | 4 | High |
+| contract-testing | 3 | Medium |
+| visual-accessibility | 3 | Medium |
+| chaos-resilience | 4 | High |
+| learning-optimization | 2 | Medium |
+| **Total** | **59** | - |
+
+#### Memory Namespaces
+
+All QE data is stored under the `aqe/v3/` namespace prefix:
+
+| Namespace | Purpose | Vector Dim | HNSW Config |
+|-----------|---------|------------|-------------|
+| `aqe/v3/test-patterns` | Learned test generation patterns | 384 | M=16, efC=200 |
+| `aqe/v3/coverage-data` | Coverage analysis results | 384 | M=12, efC=150 |
+| `aqe/v3/defect-patterns` | Defect intelligence data | 384 | M=16, efC=200 |
+| `aqe/v3/code-knowledge` | Code knowledge graph | 384 | M=24, efC=300 |
+| `aqe/v3/security-findings` | Security scan results | 384 | M=16, efC=200 |
+| `aqe/v3/contracts` | API contract definitions | 384 | M=12, efC=150 |
+| `aqe/v3/visual-baselines` | Visual regression baselines | 768 | M=32, efC=400 |
+| `aqe/v3/chaos-experiments` | Chaos experiment data | 384 | M=12, efC=150 |
+| `aqe/v3/learning-trajectories` | ReasoningBank trajectories | 384 | M=16, efC=200 |
+
+---
+
+## 🏛️ 设计
+
+### Context Map
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -113,9 +175,9 @@ Quality Engineering Domain
 | learning-optimization | Integration | Shared Kernel | Shared ReasoningBank |
 | quality-assessment | Core | Customer-Supplier | QE assesses, Core acts |
 
-## Bounded Contexts
+### Bounded Contexts
 
-### 1. Test Generation Context
+#### 1. Test Generation Context
 
 **Responsibility**: AI-powered creation of tests across paradigms
 
@@ -140,7 +202,7 @@ Quality Engineering Domain
 - **Mock**: Simulated dependency with programmed behavior
 - **Stub**: Simplified dependency providing canned responses
 
-### 2. Test Execution Context
+#### 2. Test Execution Context
 
 **Responsibility**: Running tests with parallelization, retry, and reporting
 
@@ -160,7 +222,7 @@ Quality Engineering Domain
 - **Parallel Shard**: Subset of tests for parallel execution
 - **Test Report**: Summary of execution results
 
-### 3. Coverage Analysis Context
+#### 3. Coverage Analysis Context
 
 **Responsibility**: O(log n) gap detection and prioritization
 
@@ -178,7 +240,7 @@ Quality Engineering Domain
 - **Coverage Delta**: Change in coverage between runs
 - **Risk Score**: Assessed risk of uncovered code
 
-### 4. Quality Assessment Context
+#### 4. Quality Assessment Context
 
 **Responsibility**: Quality gates and release readiness decisions
 
@@ -195,7 +257,7 @@ Quality Engineering Domain
 - **Quality Debt**: Accumulated quality issues
 - **Go/No-Go Decision**: Binary release decision
 
-### 5. Defect Intelligence Context
+#### 5. Defect Intelligence Context
 
 **Responsibility**: ML-based defect prediction and root cause analysis
 
@@ -211,7 +273,7 @@ Quality Engineering Domain
 - **Defect Pattern**: Recurring defect signature
 - **Regression**: Previously fixed defect that recurs
 
-### 6. Requirements Validation Context
+#### 6. Requirements Validation Context
 
 **Responsibility**: BDD validation and testability analysis
 
@@ -225,7 +287,7 @@ Quality Engineering Domain
 - **Testability Score**: How easily a requirement can be tested
 - **Requirement Trace**: Link from requirement to test
 
-### 7. Code Intelligence Context
+#### 7. Code Intelligence Context
 
 **Responsibility**: Knowledge graph and semantic code search
 
@@ -242,7 +304,7 @@ Quality Engineering Domain
 - **Dependency Chain**: Series of code dependencies
 - **Complexity Score**: Cyclomatic/cognitive complexity
 
-### 8. Security Compliance Context
+#### 8. Security Compliance Context
 
 **Responsibility**: SAST, DAST, and compliance auditing
 
@@ -258,7 +320,7 @@ Quality Engineering Domain
 - **Compliance Standard**: Security standard (OWASP, PCI-DSS)
 - **Audit Trail**: Record of security-relevant actions
 
-### 9. Contract Testing Context
+#### 9. Contract Testing Context
 
 **Responsibility**: API contract validation
 
@@ -273,7 +335,7 @@ Quality Engineering Domain
 - **Consumer**: API client
 - **Contract Violation**: Mismatch between spec and implementation
 
-### 10. Visual Accessibility Context
+#### 10. Visual Accessibility Context
 
 **Responsibility**: Visual regression and WCAG compliance
 
@@ -288,7 +350,7 @@ Quality Engineering Domain
 - **WCAG Violation**: Accessibility standard failure
 - **Contrast Ratio**: Text/background contrast measurement
 
-### 11. Chaos Resilience Context
+#### 11. Chaos Resilience Context
 
 **Responsibility**: Chaos engineering and resilience validation
 
@@ -304,7 +366,7 @@ Quality Engineering Domain
 - **Recovery Time**: Time to recover from failure
 - **Resilience Score**: System's ability to handle failures
 
-### 12. Learning Optimization Context
+#### 12. Learning Optimization Context
 
 **Responsibility**: Cross-domain transfer learning
 
@@ -316,26 +378,6 @@ Quality Engineering Domain
 - **Transfer Learning**: Applying patterns from one domain to another
 - **Pattern Effectiveness**: Success rate of applied patterns
 - **Dream Cycle**: Offline pattern consolidation
-
-## Agent Inventory
-
-### Total: 51 QE Agents + 7 TDD Subagents
-
-| Context | Agent Count | Complexity |
-|---------|-------------|------------|
-| test-generation | 12 | High |
-| test-execution | 8 | Medium |
-| coverage-analysis | 6 | High |
-| quality-assessment | 5 | Medium |
-| defect-intelligence | 4 | High |
-| requirements-validation | 3 | Medium |
-| code-intelligence | 5 | High |
-| security-compliance | 4 | High |
-| contract-testing | 3 | Medium |
-| visual-accessibility | 3 | Medium |
-| chaos-resilience | 4 | High |
-| learning-optimization | 2 | Medium |
-| **Total** | **59** | - |
 
 ### TDD Subagents (7)
 
@@ -349,26 +391,35 @@ Used for London-style TDD red-green-refactor cycles:
 6. `coverage-verifier` - Verifies coverage targets met
 7. `cycle-coordinator` - Orchestrates the TDD cycle
 
-## Memory Namespaces
+---
 
-All QE data is stored under the `aqe/v3/` namespace prefix:
+## 📁 目录
 
-| Namespace | Purpose | Vector Dim | HNSW Config |
-|-----------|---------|------------|-------------|
-| `aqe/v3/test-patterns` | Learned test generation patterns | 384 | M=16, efC=200 |
-| `aqe/v3/coverage-data` | Coverage analysis results | 384 | M=12, efC=150 |
-| `aqe/v3/defect-patterns` | Defect intelligence data | 384 | M=16, efC=200 |
-| `aqe/v3/code-knowledge` | Code knowledge graph | 384 | M=24, efC=300 |
-| `aqe/v3/security-findings` | Security scan results | 384 | M=16, efC=200 |
-| `aqe/v3/contracts` | API contract definitions | 384 | M=12, efC=150 |
-| `aqe/v3/visual-baselines` | Visual regression baselines | 768 | M=32, efC=400 |
-| `aqe/v3/chaos-experiments` | Chaos experiment data | 384 | M=12, efC=150 |
-| `aqe/v3/learning-trajectories` | ReasoningBank trajectories | 384 | M=16, efC=200 |
+「待补充」
 
-## Related Documentation
+---
+
+## 🔗 资源
 
 - [ADR-030: Agentic-QE Integration](../../implementation/adrs/ADR-030-agentic-qe-integration.md)
 - [Domain Model](./domain-model.md)
 - [Integration Points](./integration-points.md)
 - [ADR-015: Unified Plugin System](../../implementation/adrs/ADR-015-unified-plugin-system.md)
 - [ADR-006: Unified Memory Service](../../implementation/adrs/ADR-006-UNIFIED-MEMORY.md)
+
+---
+
+## 🚀 快速开始
+
+「待补充」
+
+---
+
+## ⚙️ 技术栈
+
+- Domain-Driven Design (DDD)
+- Agentic-QE Plugin
+- HNSW Vector Indexing
+- Machine Learning (defect prediction)
+- ReasoningBank
+- BDD (Cucumber/Gherkin)

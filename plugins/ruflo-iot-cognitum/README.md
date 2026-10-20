@@ -1,24 +1,30 @@
+---
+title: "ruflo-iot-cognitum"
+tags: ["iot", "cognitum", "telemetry", "fleet", "plugin"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # ruflo-iot-cognitum
 
+## 💡 概述
+
 IoT device lifecycle, telemetry anomaly detection, fleet management, and witness chain verification for Cognitum Seed hardware.
-
-## Hardware
-
-This plugin requires a **Cognitum Seed** device. Get one at **https://cognitum.one** — the Seed is an edge appliance with on-device vector store, Ed25519 identity, OTA firmware, mesh networking, and a witness chain. Default address when attached via USB-C is `http://169.254.42.1` (link-local, no auth) or `https://169.254.42.1:8443` (LAN, bearer auth required for state-mutating operations).
-
-## Overview
 
 Treats every Cognitum Seed device as a Ruflo agent with hardware capabilities. Devices progress through a 5-tier trust model, emit telemetry vectors for anomaly detection, participate in mesh networks, and maintain Ed25519 witness chains for provenance.
 
 Backed by `@claude-flow/plugin-iot-cognitum` (239 tests, 39 source files).
 
-## Installation
+---
 
-```bash
-claude --plugin-dir plugins/ruflo-iot-cognitum
-```
+## ⚡ 功能
 
-## Agents
+### Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
@@ -27,7 +33,7 @@ claude --plugin-dir plugins/ruflo-iot-cognitum
 | `fleet-manager` | sonnet | Fleet CRUD, firmware rollout state machine, fleet policies |
 | `witness-auditor` | haiku | Witness chain epoch verification, gap detection |
 
-## Skills
+### Skills
 
 | Skill | Usage | Description |
 |-------|-------|-------------|
@@ -37,7 +43,7 @@ claude --plugin-dir plugins/ruflo-iot-cognitum
 | `iot-firmware` | `/iot-firmware <deploy\|advance\|rollback\|status\|list>` | Firmware rollouts |
 | `iot-witness-verify` | `/iot-witness-verify <device-id>` | Verify witness chain integrity |
 
-## Commands (25 subcommands)
+### Commands (25 subcommands)
 
 ```bash
 # Device lifecycle
@@ -77,23 +83,11 @@ iot health <device-id>
 iot trust <device-id>
 ```
 
-## Trust Model (5 Tiers)
+---
 
-| Level | Name | Score Range | Capabilities |
-|-------|------|-------------|-------------|
-| 0 | UNKNOWN | 0.0–0.19 | Discovery only |
-| 1 | REGISTERED | 0.2–0.39 | Status, identity queries |
-| 2 | PROVISIONED | 0.4–0.59 | Telemetry ingest, vector store |
-| 3 | CERTIFIED | 0.6–0.79 | Mesh participation, firmware deploy |
-| 4 | FLEET_TRUSTED | 0.8–1.0 | Full fleet operations, witness signing |
+## 📊 指标
 
-**Trust Score Formula:**
-```
-0.3×pairingIntegrity + 0.15×firmwareCurrency + 0.2×uptimeStability
-+ 0.15×witnessIntegrity + 0.1×anomalyHistory + 0.1×meshParticipation
-```
-
-## Anomaly Detection
+### Anomaly Detection
 
 Z-score composite scoring: `min(1, meanZ/3)`
 
@@ -106,43 +100,71 @@ Z-score composite scoring: `min(1, meanZ/3)`
 | pattern-break | moderate Z, multiple dims | Environmental change |
 | cluster-outlier | >50% dimensions high Z | Multi-sensor failure |
 
-## Firmware Rollout State Machine
-
-```
-pending → canary → rolling → complete
-                ↘ rolled-back ↙
-```
-
-- **canary**: Deploy to `ceil(deviceCount × canaryPercentage/100)` devices
-- **rolling**: If canary anomaly score < rollback threshold, deploy to remaining
-- **rolled-back**: Force rollback triggered by anomaly threshold breach
-
-## Background Workers
+### Background Workers
 
 | Worker | Interval | Event |
 |--------|----------|-------|
 | HealthProbeWorker | 30s | `iot:device-offline` |
-| TelemetryIngestWorker | 60s | — |
+| TelemetryIngestWorker | 60s | -- |
 | AnomalyScanWorker | 120s | `iot:anomaly-detected` |
 | MeshSyncWorker | 120s | `iot:mesh-partition` |
 | FirmwareWatchWorker | 300s | `iot:firmware-mismatch` |
 | WitnessAuditWorker | 600s | `iot:witness-gap` |
 
-## Integrations
+---
+
+## 🏛️ 设计
+
+### Hardware
+
+This plugin requires a **Cognitum Seed** device. Get one at **https://cognitum.one** -- the Seed is an edge appliance with on-device vector store, Ed25519 identity, OTA firmware, mesh networking, and a witness chain. Default address when attached via USB-C is `http://169.254.42.1` (link-local, no auth) or `https://169.254.42.1:8443` (LAN, bearer auth required for state-mutating operations).
+
+### Trust Model (5 Tiers)
+
+| Level | Name | Score Range | Capabilities |
+|-------|------|-------------|-------------|
+| 0 | UNKNOWN | 0.0-0.19 | Discovery only |
+| 1 | REGISTERED | 0.2-0.39 | Status, identity queries |
+| 2 | PROVISIONED | 0.4-0.59 | Telemetry ingest, vector store |
+| 3 | CERTIFIED | 0.6-0.79 | Mesh participation, firmware deploy |
+| 4 | FLEET_TRUSTED | 0.8-1.0 | Full fleet operations, witness signing |
+
+**Trust Score Formula:**
+```
+0.3 x pairingIntegrity + 0.15 x firmwareCurrency + 0.2 x uptimeStability
++ 0.15 x witnessIntegrity + 0.1 x anomalyHistory + 0.1 x meshParticipation
+```
+
+### Trust model parallel with federation
+
+This plugin's 5-tier device trust model (UNKNOWN -> REGISTERED -> PROVISIONED -> CERTIFIED -> FLEET_TRUSTED) follows the same shape as the ruflo-federation 5-tier trust model (UNTRUSTED -> VERIFIED -> ATTESTED -> TRUSTED -> PRIVILEGED). Different surface (IoT devices vs federation peers) and distinct naming, but the score-driven progression and capability-gating principle are the same.
+
+### Firmware Rollout State Machine
+
+```
+pending -> canary -> rolling -> complete
+                \-> rolled-back <-
+```
+
+- **canary**: Deploy to `ceil(deviceCount x canaryPercentage/100)` devices
+- **rolling**: If canary anomaly score < rollback threshold, deploy to remaining
+- **rolled-back**: Force rollback triggered by anomaly threshold breach
+
+### Integrations
 
 - **AgentDB HNSW**: Telemetry vectors stored in `iot-telemetry` namespace with HNSW indexing (M=16, efConstruction=200)
 - **SONA Neural**: Anomaly patterns fed to SONA for cross-device correlation and predictive maintenance
 - **Cognitum SDK**: `@cognitum-one/sdk/seed` SeedClient with 12 typed endpoints
 
-## Compatibility
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
 - **Hardware:** requires Cognitum Seed device. SDK: `@cognitum-one/sdk/seed`.
 - **Verification:** `bash plugins/ruflo-iot-cognitum/scripts/smoke.sh` is the contract.
 
-## Namespace coordination
+### Namespace coordination
 
-This plugin owns five AgentDB namespaces, all compliant with the [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md) (`<plugin-stem>-<intent>` kebab-case):
+This plugin owns five AgentDB namespaces, all compliant with the ruflo-agentdb ADR-0001 SS"Namespace convention" (`<plugin-stem>-<intent>` kebab-case):
 
 | Namespace | Purpose |
 |-----------|---------|
@@ -154,7 +176,11 @@ This plugin owns five AgentDB namespaces, all compliant with the [ruflo-agentdb 
 
 Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
-## As a mod (0.3.2)
+### Architecture Decisions
+
+- [`ADR-0001` -- ruflo-iot-cognitum plugin contract (compliant namespaces, 5-tier trust parallel, 6 background workers, smoke as contract)](./docs/adrs/0001-iot-cognitum-contract.md)
+
+### As a mod (0.3.2)
 
 A function-hook mod ships beside the skills (ADR-445 pattern). Needs a Claude Code with mods (2.1.287+); older builds ignore it. No network, no process spawning: it only tightens calls to this plugin's own tools and reads through tools already connected.
 
@@ -162,37 +188,67 @@ A function-hook mod ships beside the skills (ADR-445 pattern). Needs a Claude Co
 |---|---|---|
 | **Write guard** | on | Refuses a secret in an `iot-*` memory record, or on a `cognitum-iot` command line. |
 | **Destructive confirm** | on | Refuses `cognitum-iot fleet delete` and `device delete/remove/revoke/decommission/deregister` unless the command has `--confirm`/`--yes` or the `COGNITUM_IOT_CONFIRM=1` prefix (rollbacks and lists are untouched). |
-| **`/iot-mod`** | — | `status`, `scan <text>`, `devices` (reads the `iot-devices` namespace through the connected memory tool); answered locally, no model call. |
-| **Status file** | — | `.claude-flow/iot-mod/status.json` (`version`, `updatedMs`, mode flags and counters); written at session start and when a counter changes. |
+| **`/iot-mod`** | -- | `status`, `scan <text>`, `devices` (reads the `iot-devices` namespace through the connected memory tool); answered locally, no model call. |
+| **Status file** | -- | `.claude-flow/iot-mod/status.json` (`version`, `updatedMs`, mode flags and counters); written at session start and when a counter changes. |
 
-Options (`userConfig`): `guard` on\|off, `confirmDestructive` on\|off. Refusals never echo the value they matched.
+Options (`userConfig`): `guard` on|off, `confirmDestructive` on|off. Refusals never echo the value they matched.
 
 ```bash
 claude plugin test plugins/ruflo-iot-cognitum   # 10 tests
 ```
 
-## Trust model parallel with federation
+---
 
-This plugin's 5-tier device trust model (UNKNOWN → REGISTERED → PROVISIONED → CERTIFIED → FLEET_TRUSTED) follows the same shape as the [ruflo-federation 5-tier trust model](../ruflo-federation/docs/adrs/0001-federation-contract.md) (UNTRUSTED → VERIFIED → ATTESTED → TRUSTED → PRIVILEGED). Different surface (IoT devices vs federation peers) and distinct naming, but the score-driven progression and capability-gating principle are the same.
+## 📁 目录
 
-## Verification
+```
+plugins/ruflo-iot-cognitum/
+├── docs/
+│   └── adrs/
+│       └── 0001-iot-cognitum-contract.md
+├── hooks/
+├── scripts/
+│   └── smoke.sh
+└── README.md
+```
+
+---
+
+## 🔗 资源
+
+- [ADR-0001 -- ruflo-iot-cognitum plugin contract](./docs/adrs/0001-iot-cognitum-contract.md)
+- [ruflo-agentdb ADR-0001 -- Namespace convention](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)
+- [Cognitum Seed -- https://cognitum.one](https://cognitum.one)
+
+### Related Plugins
+
+- `ruflo-agentdb` -- HNSW-indexed telemetry storage backend; namespace convention owner
+- `ruflo-federation` -- 5-tier trust model parallel (different surface, distinct naming, same shape)
+- `ruflo-intelligence` -- SONA neural pattern learning
+- `ruflo-observability` -- Telemetry correlation and tracing
+
+---
+
+## 🚀 快速开始
+
+```bash
+claude --plugin-dir plugins/ruflo-iot-cognitum
+```
+
+### Verification
 
 ```bash
 bash plugins/ruflo-iot-cognitum/scripts/smoke.sh
 # Expected: "12 passed, 0 failed"
 ```
 
-## Architecture Decisions
+---
 
-- [`ADR-0001` — ruflo-iot-cognitum plugin contract (compliant namespaces, 5-tier trust parallel, 6 background workers, smoke as contract)](./docs/adrs/0001-iot-cognitum-contract.md)
+## ⚙️ 技术栈
 
-## Related Plugins
-
-- `ruflo-agentdb` — HNSW-indexed telemetry storage backend; namespace convention owner
-- `ruflo-federation` — 5-tier trust model parallel (different surface, distinct naming, same shape)
-- `ruflo-intelligence` — SONA neural pattern learning
-- `ruflo-observability` — Telemetry correlation and tracing
-
-## License
-
-MIT
+- `@claude-flow/cli` v3.6+
+- `@cognitum-one/sdk/seed` (12 typed endpoints)
+- AgentDB HNSW (M=16, efConstruction=200)
+- SONA Neural
+- Ed25519 witness chains
+- MIT License

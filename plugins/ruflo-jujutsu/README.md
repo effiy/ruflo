@@ -1,31 +1,38 @@
+---
+title: "ruflo-jujutsu"
+tags: ["jujutsu", "git", "diff-analysis", "risk-scoring", "reviewer", "adr-compliance"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-jujutsu
+
+## 💡 概述
 
 Advanced git workflows with diff analysis, risk scoring, and reviewer recommendations.
 
-## Install
-
-```
-/plugin marketplace add ruvnet/ruflo
-/plugin install ruflo-jujutsu@ruflo
-```
-
-## Features
+## ⚡ 功能
 
 - **Diff analysis**: Comprehensive change analysis with risk scoring
 - **Change classification**: Auto-categorize as feature, bugfix, refactor, etc.
 - **Reviewer role suggestions**: Suggest roles from file paths and risk; resolve actual owners separately from CODEOWNERS
 - **File-level risk**: Per-file risk breakdown for targeted review
 
-## Commands
+### Commands
 
 - `/jujutsu` -- Analyze current diff with risk scoring
 
-## Skills
+### Skills
 
 - `diff-analyze` -- Analyze diffs for risk, reviewers, and classification
 - `git-workflow` -- Advanced branch management and PR lifecycle
 
-## MCP surface (6 tools)
+### MCP surface (6 tools)
 
 All defined at `v3/@claude-flow/cli/src/mcp-tools/analyze-tools.ts`:
 
@@ -33,17 +40,25 @@ All defined at `v3/@claude-flow/cli/src/mcp-tools/analyze-tools.ts`:
 |------|---------|
 | `analyze_diff` | Full diff analysis (risk + classification + reviewers + stats) |
 | `analyze_diff-risk` | Risk score for the staged/unstaged diff |
-| `analyze_diff-classify` | Classify change as feature, bugfix, refactor, perf, security, docs, …|
+| `analyze_diff-classify` | Classify change as feature, bugfix, refactor, perf, security, docs, ...|
 | `analyze_diff-reviewers` | Suggest reviewer roles from paths and risk (does not identify people or read CODEOWNERS) |
 | `analyze_file-risk` | Per-file risk breakdown |
 | `analyze_diff-stats` | Lines added/removed, files touched, complexity delta |
 
-## Compatibility
+---
+
+## 📊 指标
+
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
 - **Verification:** `bash plugins/ruflo-jujutsu/scripts/smoke.sh` is the contract.
 
-## ADR-compliance integration
+---
+
+## 🏛️ 设计
+
+### ADR-compliance integration
 
 This plugin's diff analysis is the substrate that [ruflo-adr ADR-0001](../ruflo-adr/docs/adrs/0001-adr-plugin-pattern.md)'s `/adr check` runs on. When ADR compliance is queried for a diff:
 
@@ -52,29 +67,17 @@ This plugin's diff analysis is the substrate that [ruflo-adr ADR-0001](../ruflo-
 3. Then cross-references the `adr-patterns` namespace for ADRs related to the touched files
 4. Flags violations: code referencing deprecated/superseded ADRs, or code contradicting accepted ADRs
 
-Without this plugin, `/adr check` falls back to plain `git diff` parsing — usable but no risk scoring or reviewer recommendations.
+Without this plugin, `/adr check` falls back to plain `git diff` parsing -- usable but no risk scoring or reviewer recommendations.
 
-## Namespace coordination
+### Namespace coordination
 
 This plugin owns the `git-patterns` AgentDB namespace (kebab-case, follows the convention from [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
-## Verification
+### Architecture Decisions
 
-```bash
-bash plugins/ruflo-jujutsu/scripts/smoke.sh
-# Expected: "10 passed, 0 failed"
-```
+- [`ADR-0001` -- ruflo-jujutsu plugin contract (ADR-compliance integration, smoke as contract)](./docs/adrs/0001-jujutsu-contract.md)
 
-## Architecture Decisions
-
-- [`ADR-0001` — ruflo-jujutsu plugin contract (ADR-compliance integration, smoke as contract)](./docs/adrs/0001-jujutsu-contract.md)
-
-## Related Plugins
-
-- `ruflo-adr` — `/adr check` consumes this plugin's `analyze_diff` output
-- `ruflo-agentdb` — namespace convention owner
-
-## As a mod
+### As a mod
 
 This plugin ships a function-hook mod (ADR-445, `hooks/register.ts`). It makes no network call, spawns no process and makes no model call.
 
@@ -85,3 +88,50 @@ This plugin ships a function-hook mod (ADR-445, `hooks/register.ts`). It makes n
 Options (`userConfig`): `guard` (on), `confirmPrActions` (on).
 
 Test it: `claude plugin validate plugins/ruflo-jujutsu`, `claude plugin test plugins/ruflo-jujutsu`, `bash plugins/ruflo-jujutsu/scripts/smoke.sh`.
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Verification
+
+```bash
+bash plugins/ruflo-jujutsu/scripts/smoke.sh
+# Expected: "10 passed, 0 failed"
+```
+
+### Related Plugins
+
+- `ruflo-adr` -- `/adr check` consumes this plugin's `analyze_diff` output
+- `ruflo-agentdb` -- namespace convention owner
+
+### Install
+
+```
+/plugin marketplace add ruvnet/ruflo
+/plugin install ruflo-jujutsu@ruflo
+```
+
+---
+
+## 🚀 快速开始
+
+```
+/plugin install ruflo-jujutsu@ruflo
+/jujutsu
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Git diff analysis
+- MCP tools (analyze_*)
+- AgentDB
+- Claude Code function hooks

@@ -1,15 +1,22 @@
+---
+title: "ruflo-security-audit"
+tags: ["security", "audit", "cve", "scanning", "aidefence", "policy"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-security-audit
+
+## 💡 概述
 
 Security review, dependency scanning, policy gates, and CVE monitoring.
 
-## Install
-
-```
-/plugin marketplace add ruvnet/ruflo
-/plugin install ruflo-security-audit@ruflo
-```
-
-## What's Included
+## ⚡ 功能
 
 - **Security Scanning**: Deep scan with `security scan --depth deep` (valid: quick, standard, deep)
 - **CVE Monitoring**: Automated CVE detection and remediation guidance
@@ -18,29 +25,37 @@ Security review, dependency scanning, policy gates, and CVE monitoring.
 - **Policy Gates**: Configurable security policies for CI/CD pipelines
 - **Threat Modeling**: Automated threat analysis and risk assessment
 
-## Patterns to scan for (audit_1776853149979 follow-up)
+### Patterns to scan for (audit_1776853149979 follow-up)
 
 The 3.6.25 release closed a class of shell-injection bugs. When auditing downstream code, the scanner should flag these patterns:
 
-- **`execSync(string)` with template-literal args** — replace with `execFileSync(cmd, argv, { shell: false })`. Closed sites: `github-safe.js`, `statusline.js/cjs` (git calls), `mcp-tools/github-tools.ts` (`gh pr/issue/run`), `update/executor.ts` (`npm install`).
-- **Numeric MCP inputs cast as `number`** — TypeScript casts don't run at runtime. A `prNumber: "1; rm -rf /"` slips through. Mitigate via `toPositiveInt(value)` (see `src/mcp-tools/github-tools.ts`).
-- **Untrusted package specs flowing into `npm install`** — gate via `isSafePackageSpec(pkg, version)` regex check (see `src/update/executor.ts`). Defense-in-depth even with `execFileSync`.
-- **Loader-hijack env vars** (`LD_PRELOAD`, `NODE_OPTIONS`, `DYLD_*`) flowing into a child process env — gate via `validateEnv()` (see `src/mcp-tools/validate-input.ts`).
-- **Plaintext secrets at rest** in `.claude-flow/sessions/`, `.claude-flow/terminals/store.json`, `.swarm/memory.db` — paired with [ADR-096](../../v3/docs/adr/ADR-096-encryption-at-rest.md) opt-in encryption (`CLAUDE_FLOW_ENCRYPT_AT_REST=1`). Confirm gate state via `ruflo doctor -c encryption`.
-- **MCP stdin DoS** — un-newlined input piped into the MCP server. The host caps the buffer at 10MB by default; downstream MCP wrappers should enforce equivalent limits.
+- **`execSync(string)` with template-literal args** -- replace with `execFileSync(cmd, argv, { shell: false })`. Closed sites: `github-safe.js`, `statusline.js/cjs` (git calls), `mcp-tools/github-tools.ts` (`gh pr/issue/run`), `update/executor.ts` (`npm install`).
+- **Numeric MCP inputs cast as `number`** -- TypeScript casts don't run at runtime. A `prNumber: "1; rm -rf /"` slips through. Mitigate via `toPositiveInt(value)` (see `src/mcp-tools/github-tools.ts`).
+- **Untrusted package specs flowing into `npm install`** -- gate via `isSafePackageSpec(pkg, version)` regex check (see `src/update/executor.ts`). Defense-in-depth even with `execFileSync`.
+- **Loader-hijack env vars** (`LD_PRELOAD`, `NODE_OPTIONS`, `DYLD_*`) flowing into a child process env -- gate via `validateEnv()` (see `src/mcp-tools/validate-input.ts`).
+- **Plaintext secrets at rest** in `.claude-flow/sessions/`, `.claude-flow/terminals/store.json`, `.swarm/memory.db` -- paired with [ADR-096](../../v3/docs/adr/ADR-096-encryption-at-rest.md) opt-in encryption (`CLAUDE_FLOW_ENCRYPT_AT_REST=1`). Confirm gate state via `ruflo doctor -c encryption`.
+- **MCP stdin DoS** -- un-newlined input piped into the MCP server. The host caps the buffer at 10MB by default; downstream MCP wrappers should enforce equivalent limits.
 
 A `ruflo verify` round-trip confirms 55 witnesses (27 regression-fix + 28 per-source-file capability) match the signed manifest byte-for-byte.
 
-## Requires
+---
+
+## 📊 指标
+
+### Requires
 
 - `ruflo-core` plugin (provides MCP server)
 
-## Compatibility
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
 - **Verification:** `bash plugins/ruflo-security-audit/scripts/smoke.sh` is the contract.
 
-## AIDefence integration
+---
+
+## 🏛️ 设计
+
+### AIDefence integration
 
 This plugin's **static** scanning (CVE / dependency / shell-injection patterns) complements the **runtime** gates owned by [ruflo-aidefence ADR-0001](../ruflo-aidefence/docs/adrs/0001-aidefence-contract.md):
 
@@ -51,26 +66,19 @@ This plugin's **static** scanning (CVE / dependency / shell-injection patterns) 
 
 The two layers are complementary: static analysis finds the patterns; the 3-gate runtime catches what slipped through.
 
-## Namespace coordination
+### Namespace coordination
 
 This plugin owns the `security-findings` AgentDB namespace (kebab-case, follows the convention from [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
 `security-findings` indexes scan results by file + commit + severity. Accessed via `memory_*` (namespace-routed).
 
-## Verification
+### Architecture Decisions
 
-```bash
-bash plugins/ruflo-security-audit/scripts/smoke.sh
-# Expected: "10 passed, 0 failed"
-```
+- [`ADR-0001` -- ruflo-security-audit plugin contract (AIDefence integration, audit_1776853149979 pattern catalog as regression-prevention contract)](./docs/adrs/0001-security-audit-contract.md)
 
-## Architecture Decisions
+### As a mod
 
-- [`ADR-0001` — ruflo-security-audit plugin contract (AIDefence integration, audit_1776853149979 pattern catalog as regression-prevention contract)](./docs/adrs/0001-security-audit-contract.md)
-
-## As a mod
-
-This plugin also loads as a function-hook mod (ADR-445 pattern, `hooks/hooks.json` → `register.ts`). No network, no process spawn, no model call.
+This plugin also loads as a function-hook mod (ADR-445 pattern, `hooks/hooks.json` -> `register.ts`). No network, no process spawn, no model call.
 
 - **Guard (default on, tighten-only).** It refuses to store an audit finding that quotes a live secret in a `security*`, `audit*`, `cve*`, `vuln*`, `findings*` or `secaudit*` memory namespace (`memory_store`, `agentdb_hierarchical-store`, `agentdb_pattern-store`). The refusal never repeats the secret.
 - **Status file.** `.claude-flow/secaudit-mod/status.json` (`{version: 1, updatedMs, guard, checked, blocked, seen}`), written at session start and when a counter changes.
@@ -78,3 +86,46 @@ This plugin also loads as a function-hook mod (ADR-445 pattern, `hooks/hooks.jso
 - **Option.** `guard` (`on` | `off`, default `on`) in the plugin's `userConfig`.
 
 Test it: `claude plugin validate plugins/ruflo-security-audit`, `claude plugin test plugins/ruflo-security-audit`, `bash plugins/ruflo-security-audit/scripts/smoke.sh`.
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Verification
+
+```bash
+bash plugins/ruflo-security-audit/scripts/smoke.sh
+# Expected: "10 passed, 0 failed"
+```
+
+### Install
+
+```
+/plugin marketplace add ruvnet/ruflo
+/plugin install ruflo-security-audit@ruflo
+```
+
+---
+
+## 🚀 快速开始
+
+```
+/plugin install ruflo-security-audit@ruflo
+security scan --depth deep
+```
+
+---
+
+## ⚙️ 技术栈
+
+- @claude-flow/security
+- Zod validation
+- Claude Code function hooks
+- AgentDB
+- CVE scanning

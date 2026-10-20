@@ -1,23 +1,28 @@
+---
+title: "RuFlo V3 Helpers"
+tags: ["helpers", "v3", "scripts", "development", "automation"]
+category: "infrastructure/scripts"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # RuFlo V3 Helpers
 
 This directory contains helper scripts and utilities for V3 development.
 
-## 🚀 Quick Start
+---
 
-```bash
-# Initialize V3 development environment
-.claude/helpers/v3.sh init
+## 💡 概述
 
-# Quick status check
-.claude/helpers/v3.sh status
+Helpers are configured in `.claude/settings.json` and provide development automation for V3 operations.
 
-# Update progress metrics
-.claude/helpers/v3.sh update domain 3
-.claude/helpers/v3.sh update agent 8
-.claude/helpers/v3.sh update security 2
-```
+---
 
-## Available Helpers
+## ⚡ 功能
 
 ### 🎛️ V3 Master Tool
 - **`v3.sh`** - Main command-line interface for all V3 operations
@@ -55,14 +60,24 @@ This directory contains helper scripts and utilities for V3 development.
   - Color-coded status indicators
   - Current Git branch information
 
-## Helper Script Standards
+---
 
-### File Naming
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
+
+### Helper Script Standards
+
+**File Naming:**
 - Use kebab-case: `update-v3-progress.sh`
 - Include version prefix: `v3-*` for V3-specific helpers
 - Use descriptive names that indicate purpose
 
-### Script Requirements
+**Script Requirements:**
 - Must be executable (`chmod +x`)
 - Include proper error handling (`set -e`)
 - Provide usage help when called without arguments
@@ -80,18 +95,52 @@ Helpers are configured in `.claude/settings.json`:
 }
 ```
 
-## Development Guidelines
-
+### Development Guidelines
 1. **Security First**: All helpers must validate inputs
 2. **Idempotent**: Scripts should be safe to run multiple times
 3. **Fast Execution**: Keep helper execution under 1 second when possible
 4. **Clear Output**: Provide clear success/error messages
 5. **JSON Safe**: When updating JSON files, use `jq` for safety
 
-## Adding New Helpers
-
+### Adding New Helpers
 1. Create script in `.claude/helpers/`
 2. Make executable: `chmod +x script-name.sh`
 3. Add to settings.json helpers section
 4. Test thoroughly before committing
 5. Update this README with usage documentation
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+```bash
+# Initialize V3 development environment
+.claude/helpers/v3.sh init
+
+# Quick status check
+.claude/helpers/v3.sh status
+
+# Update progress metrics
+.claude/helpers/v3.sh update domain 3
+.claude/helpers/v3.sh update agent 8
+.claude/helpers/v3.sh update security 2
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Shell scripting (bash)
+- jq (JSON processing)

@@ -1,8 +1,24 @@
+---
+title: "ruflo-console"
+tags: ["console", "cockpit", "ui", "dashboard", "adr", "theme", "toasts"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-console
+
+## 💡 概述
 
 ruflo's cockpit inside Claude Code: the `/ruflo` command, its pages, and a band above the prompt. It reads ruflo's own files; anything it cannot measure reads `n/a`. Design notes: ADR-407 (cockpit), ADR-448 (the Room), ADR-446 (plugin mods).
 
-## Drive the console from the command line
+## ⚡ 功能
+
+### Drive the console from the command line
 
 `scripts/drive.sh` runs the console through its own model tools (`console_open`, `console_state`, `console_set`, `console_run`) from a real headless Claude, prints what each tool answered, and can assert on it, so a dev loop or CI job can check that a UI shows something.
 
@@ -35,17 +51,17 @@ CONSOLE_DRIVE_INSTALL="$PWD:ruflo-mods@ruflo" RUFLO_E2E_LIVE=1 bash plugins/rufl
   --expect 'Hide unused agent types' "$PWD/plugins/ruflo-console" read "Open view settings with chip mods, then console_state, and quote the ruflo-mods option rows."
 ```
 
-## Your project's ADRs (ADR-480)
+### Your project's ADRs (ADR-480)
 
-**TOOLS → ADRs** manages the Architecture Decision Records of the project you run Claude Code in (not ruflo's own).
+**TOOLS -> ADRs** manages the Architecture Decision Records of the project you run Claude Code in (not ruflo's own).
 
-- **Finding them.** The console looks for `docs/adr`, `docs/adrs`, `doc/adr`, `adr`, `docs/architecture/decisions`, `docs/decisions` and `architecture/decisions`, or the folder in *Settings → ADR folder*. A folder that is a link is never read. With none, **initialise ADRs here** asks first, then creates the folder and `0001-record-architecture-decisions.md`; nothing is overwritten.
-- **Reading them.** MADR front matter, Nygard / adr-tools `## Status` sections (`Superseded by [5. …](0005-….md)`), ruflo-style `Status:` lines, log4brains and plain markdown with no status all parse; a file that does not parse still lists. Filter by status, words and scope; the detail shows links both ways, the decision, and the missions it is attached to; the health strip is the lint.
+- **Finding them.** The console looks for `docs/adr`, `docs/adrs`, `doc/adr`, `adr`, `docs/architecture/decisions`, `docs/decisions` and `architecture/decisions`, or the folder in *Settings -> ADR folder*. A folder that is a link is never read. With none, **initialise ADRs here** asks first, then creates the folder and `0001-record-architecture-decisions.md`; nothing is overwritten.
+- **Reading them.** MADR front matter, Nygard / adr-tools `## Status` sections (`Superseded by [5. ...](0005-….md)`), ruflo-style `Status:` lines, log4brains and plain markdown with no status all parse; a file that does not parse still lists. Filter by status, words and scope; the detail shows links both ways, the decision, and the missions it is attached to; the health strip is the lint.
 - **Writing them.** *propose* takes the next number and the style your ADRs already use (override in Settings: ADR style, ADR file name pattern). Accept, reject, deprecate or supersede from a record's detail. Each shows the exact file and the diff, writes only that on your Yes, and leaves a file that changed since alone.
 - **Missions, loops, swarms.** Attach ADRs to the active mission (the page suggests some from the goal's words; you decide). Claude's mission context, each task's instruction and spawned swarm agents (ruflo-swarm 0.3.5) are told the accepted decisions, masked and capped. At *verify*, changed files are compared with the paths the attached accepted ADRs name: a warning in the mission record. **That compares paths only. It does not prove a change follows or breaks a decision, and it never blocks.** When a mission is done, *draft an ADR from this mission* prepares a proposed record from its goal and tasks; the decision is yours to write.
 - **For Claude.** `/ruflo run adr-propose <title>`, `adr-accept <n>`, `adr-supersede <old> <new>`, `adr-attach <n>` and the rest are palette entries, so Claude reaches them through `console_run` at the *write* control level (reading the page is *read*); a change still waits for your Yes on the diff.
 
-## In a terminal of its own: `ruflo tui` (ADR-489)
+### In a terminal of its own: `ruflo tui` (ADR-489)
 
 The same views the mod draws, on five pages (Overview, Cost, Swarm, Events, Missions), drawn by a small standalone terminal host instead of Claude Code, and a sixth, AI, that asks Codex or OpenRouter. The five are read-only; the AI page shows a card of exactly what would be sent and sends only after a `y`; `npx ruflo tui` (the `ruflo` package and `@claude-flow/cli` carry the bundle).
 
@@ -60,35 +76,35 @@ npx ruflo tui | cat              # no terminal and no --plain: a one-line hint o
 
 From a checkout, build the bundle first: `node plugins/ruflo-console/scripts/build-tui.mjs`. Room is not in the terminal (it is a message box and Claude sessions). **AI page:** Ctrl-T picks Codex or OpenRouter, Enter shows the card, `y` sends, `n` or Esc cancels, Ctrl-S stops a running answer, Esc hands the keys back to the page bar. Codex runs read-only and only as the pinned 0.162.0 release (never `current` or PATH); OpenRouter goes to `openrouter.ai` over https, or to a host a `--convo-targets` entry names (`endpoint:<name>=<https-base-url>|<KEY_ENV>|<model>`); a key is read by its variable name and never drawn. Details and what is not done yet: ADR-489 section 4. A terminal narrower than 60 columns gets a short page bar, and under 40 a one-line notice.
 
-## Toasts (ADR-477)
+### Toasts (ADR-477)
 
-Settings → Interface and updates → **Toasts** sets what the ruflo plugins may show over the transcript: `all`, `important` (warnings and errors) or `off`, with a mute chip each for `console`, `swarm`, `protector` and `mods`. It is kept in the console's store and mirrored to `.claude-flow/console/toast-prefs.json`, which the other plugins read. Every toast, drawn or not, becomes an event on the Events page (`toast <source> <glyph> <text> [off|muted|deduped|…]`); the other plugins' digests are read from `.claude-flow/console/toasts/<source>.jsonl`, masked and capped. The console itself also toasts a mission that finishes (`ok`) or loses a task (`error`), and its update notes by level. Design and contract: [ADR-477](../../v3/docs/adr/ADR-477-mod-toasts.md).
+Settings -> Interface and updates -> **Toasts** sets what the ruflo plugins may show over the transcript: `all`, `important` (warnings and errors) or `off`, with a mute chip each for `console`, `swarm`, `protector` and `mods`. It is kept in the console's store and mirrored to `.claude-flow/console/toast-prefs.json`, which the other plugins read. Every toast, drawn or not, becomes an event on the Events page (`toast <source> <glyph> <text> [off|muted|deduped|...]`); the other plugins' digests are read from `.claude-flow/console/toasts/<source>.jsonl`, masked and capped. The console itself also toasts a mission that finishes (`ok`) or loses a task (`error`), and its update notes by level. Design and contract: [ADR-477](../../v3/docs/adr/ADR-477-mod-toasts.md).
 
-## Room and Mods
+### Room and Mods
 
-Open it with `/ruflo room` (menu: Safety → The Room).
+Open it with `/ruflo room` (menu: Safety -> The Room).
 
 - **Waiting for a yes**: the one confirm that is pending, with the seconds left to answer it.
 - **Needs you, Sessions, Preview** (ADR-486): approvals, questions, failures and finished work across Claude Code, Codex and Ruflo sessions, including ones started outside Ruflo; the sessions grouped by repository and worktree; and a preview of the one you pick (latest response, current tool, edited files, test result, cost labelled reported, estimated or unavailable). Discovery is local and read-only: no model call, no process, nothing woken (the one write is a four-count summary ruflo-mods can show). The Sessions list starts folded; jumping to a session from the queue opens it. A finished session leaves the queue only after its preview was drawn; a session whose identity is ambiguous goes to an *unassigned* bucket and raises nothing. Transcript text is never saved, never sent to a model and never included in a text answer. Options `sessionWorkspace` and `sessionPreview` (both on).
-- **The feed**: events, Claude's console actions and what you said, newest first. Filter by who, search, pause, page back. **⛔ blocked** shows only what was refused or failed: Claude's actions the control log marked denied or error, and events that say denied. Press a line to open it; an event that came from a page of its own (swarm, claims, learning, plugins, missions) offers a jump button to that page.
+- **The feed**: events, Claude's console actions and what you said, newest first. Filter by who, search, pause, page back. **blocked** shows only what was refused or failed: Claude's actions the control log marked denied or error, and events that say denied. Press a line to open it; an event that came from a page of its own (swarm, claims, learning, plugins, missions) offers a jump button to that page.
 - **Mods**: one line per plugin mod that has written `.claude-flow/<name>-mod/status.json`. Press a line for its detail: what it guards (the file's own `summary`), guard, calls, blocked, the *class* of its last refusal (`secret`, `destructive`, `path`, `network`, `policy`, `other`; the refused text is never kept), `modVersion`, session start, last write, file age, and a stale marker when the last write was an earlier session.
 
 A status file is data, not instructions: it is size-capped, shape-checked (`version: 1` only), and every string is stripped of control and bidi characters and cut to length before it is drawn. `summary`, `modVersion` and `lastDenied` are optional; a mod that does not write them shows "not reported".
 
-## Project Anatole in Security & Doctor
+### Project Anatole in Security & Doctor
 
 An optional **Project Anatole** section on the Security & Doctor page (key `u`) lists, runs and edits the `ruflo-protector` mod (ADR-453). Without the plugin it is one line: `claude plugin install ruflo-protector@ruflo`.
 
 - **Reads** `.claude-flow/protector-mod/status.json`, `rules.json` and the last 200 lines of `alerts.jsonl` through the bounded, regular-file-only reader (a file over 64 KB is refused; every field is whitelisted and cleaned). It is labelled *reported by the mod, unauthenticated*: any process can write those files.
-- **Shows** the mode, the baseline's maturity ("learning 62%"), open alerts by severity, blocked and `degraded`; one row per rule (OWASP refs, severity, an off · notify · block chip, hits and acked share over the last 200 alerts, "changed from default"); the open alerts with `ack` and `allow`. The Findings meter counts open alerts, labelled as Anatole's.
+- **Shows** the mode, the baseline's maturity ("learning 62%"), open alerts by severity, blocked and `degraded`; one row per rule (OWASP refs, severity, an off . notify . block chip, hits and acked share over the last 200 alerts, "changed from default"); the open alerts with `ack` and `allow`. The Findings meter counts open alerts, labelled as Anatole's.
 - **Runs** `/protector run` and `/protector replay` into the page's Result panel.
 - **Edits** the mode (off, learn, notify, enforce) and per-rule modes through `/protector`; every change asks first and its confirm row starts with `Effect:`. `enforce` is declared an install-class action and `reset-baseline` a delete-class one, so Claude's console tools always wait for you on both (palette ids `anatole-mode`, `anatole-rule`, `anatole-ack`, `anatole-allow`, `anatole-reset`, `anatole-run`, `anatole-replay`).
 
-## Orbital theme
+### Orbital theme
 
 An optional dark telemetry look inspired by compact system monitors: black panel background, square red borders, warm red headings, muted readable values and green health indicators. It uses the existing live views and command palette; no extra polling, simulated metrics or model calls. BBS remains the default.
 
-Choose Settings → ruflo-console → Look → orbital, or run in your shell:
+Choose Settings -> ruflo-console -> Look -> orbital, or run in your shell:
 
 ```sh
 printf '%s\n' '{"look":"orbital"}' | claude plugin configure ruflo-console@ruflo --values-stdin
@@ -102,7 +118,7 @@ Orbital adapts to the pane allocation. Below 48 drawing columns or 30 available 
 
 ### Theme Studio
 
-Open **Main Menu → Tools → Theme Studio**, the **Tools** navigation group, or `/ruflo themes`. Settings also links to the studio. Choose Classic BBS, Terminal plain or Orbital. Studio selections persist and override the plugin's configured look until **Use configured look** is selected.
+Open **Main Menu -> Tools -> Theme Studio**, the **Tools** navigation group, or `/ruflo themes`. Settings also links to the studio. Choose Classic BBS, Terminal plain or Orbital. Studio selections persist and override the plugin's configured look until **Use configured look** is selected.
 
 Six bundled **Color presets** load with one click and persist across sessions. They retain the animated Ruflo header, globe, stars and topology at standard speed. Bundled presets do not consume the twelve custom theme slots. Every primary foreground role meets at least 4.5:1 contrast against its background; decorative shading may be dimmer.
 
@@ -115,7 +131,7 @@ Six bundled **Color presets** load with one click and persist across sessions. T
 | Solar Flare | Peach, gold and dark terracotta |
 | Moonlight | Periwinkle, silver and midnight blue |
 
-Select a preset to load it immediately. Edit colors or motion and choose **Save and apply** to create a custom copy; bundled originals remain available. Portable version 1 JSON presets also load through **AI → Import theme JSON**, followed by **Save and apply**. **Use configured look** restores the plugin setting.
+Select a preset to load it immediately. Edit colors or motion and choose **Save and apply** to create a custom copy; bundled originals remain available. Portable version 1 JSON presets also load through **AI -> Import theme JSON**, followed by **Save and apply**. **Use configured look** restores the plugin setting.
 
 ### Reproduce the theme workflow demo
 
@@ -144,3 +160,42 @@ The terminal color picker provides swatches and exact `#RRGGBB` entry for headin
 Imports are limited to 4096 characters and a strict version 1 data schema. Status labels and actual check results remain unchanged. Saving requires at least 3:1 foreground/background contrast; the generator aims for 4.5:1.
 
 Theme Studio uses focused Colors, Motion and AI tabs. At 100 content columns it places the editor beside a persistent globe and routing preview; narrower panes stack both panels with a compact routing strip. A single color role picker replaces the repeated swatch lists. Minimum contrast is shown before saving, and Discard draft changes restores the active palette without deleting saved themes.
+
+---
+
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
+
+「待补充」
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+「待补充」
+
+---
+
+## ⚙️ 技术栈
+
+- Claude Code function hooks
+- Terminal UI
+- SVG rendering
+- Theme system

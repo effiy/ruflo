@@ -1,1139 +1,358 @@
+---
+title: "@claude-flow/codex"
+tags: ["codex", "dual-mode", "openai", "claude", "collaboration", "skills", "templates", "memory", "orchestration"]
+category: "@claude-flow/codex"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/codex
 
-<p align="center">
-  <strong>OpenAI Codex CLI Adapter for Claude Flow V3</strong><br/>
-  <em>Self-learning multi-agent orchestration following the <a href="https://agentics.org">Agentics Foundation</a> standard</em>
-</p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/@claude-flow/codex"><img src="https://img.shields.io/npm/v/@claude-flow/codex?label=npm&color=blue" alt="npm version"></a>
-  <a href="https://www.npmjs.com/package/@claude-flow/codex"><img src="https://img.shields.io/npm/dm/@claude-flow/codex?label=downloads&color=cb3837" alt="npm downloads"></a>
-  <a href="https://github.com/ruvnet/ruflo"><img src="https://img.shields.io/badge/license-MIT-green" alt="license"></a>
-  <a href="https://agentics.org"><img src="https://img.shields.io/badge/standard-Agentics-purple" alt="Agentics Standard"></a>
-</p>
+[![npm version](https://img.shields.io/npm/v/@claude-flow/codex.svg)](https://www.npmjs.com/package/@claude-flow/codex)
+[![npm downloads](https://img.shields.io/npm/dm/@claude-flow/codex.svg)](https://www.npmjs.com/package/@claude-flow/codex)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![Dual Mode](https://img.shields.io/badge/Dual%20Mode-Claude%20+%20Codex-purple.svg)](https://github.com/ruvnet/claude-flow)
 
 ---
 
-## Why @claude-flow/codex?
+## 💡 概述
 
-Transform OpenAI Codex CLI into a **self-improving AI development system**. While Codex executes code, claude-flow orchestrates, coordinates, and **learns from every interaction**.
+Codex CLI Adapter for Claude Flow V3 - Dual-mode collaboration system running Claude Code and OpenAI Codex workers in parallel with shared memory, skill injection, template-based pipelines, and cross-platform learning.
 
-| Traditional Codex | With Claude-Flow |
-|-------------------|------------------|
-| Stateless execution | Persistent vector memory |
-| Single-agent | Multi-agent swarms (up to 15) |
-| Manual coordination | Automatic orchestration |
-| No learning | Self-learning patterns (HNSW) |
-| One platform | Dual-mode (Claude Code + Codex) |
+---
 
-## Key Concept: Execution Model
+## ⚡ 功能
+
+- **Dual-Mode Collaboration** - Run Claude Code (architect, reviewer, tester) and Codex (coder, optimizer) in parallel
+- **38+ Built-in Skills** - Pre-built specialized skill modules for both platforms
+- **37+ Task Templates** - Pre-configured collaboration pipelines for common workflows
+- **Shared Memory** - Vector-based memory sharing between platforms
+- **Cross-Platform Learning** - Train patterns from successful collaborations
+- **Template-Based Pipelines** - Pre-built workflows for features, security, refactoring, bugfixes
+- **Skill Injection** - Inject specialized capabilities into agent sessions
+- **Worker Coordination** - Dependency-ordered execution with monitoring
+
+### Collaboration Templates
+
+| Template | Workers | Description |
+|----------|---------|-------------|
+| `feature` | Architect -> Coder -> Tester -> Reviewer | Full feature development |
+| `security` | Security Analyst -> Code Scanner -> Reporter | Security audit workflow |
+| `refactor` | Architect -> Code Refactorer -> Tester | Code modernization |
+| `bugfix` | Researcher -> Code Fixer -> Tester | Bug investigation and fix |
+| `docs` | Content Planner -> Writer -> Reviewer | Documentation pipeline |
+| `performance` | Profiler -> Optimizer -> Benchmarker | Performance optimization |
+
+### Claude Code Skills (38+)
+
+`architecture-design`, `brainstorming`, `bug-finder`, `code-cleanup`, `code-review-advanced`,
+`critical-path`, `dependency-analyzer`, `docstring-writer`, `edge-case-hunter`, `error-handler`,
+`git-archaeologist`, `global-refactor`, `interface-designer`, `linter-custom`, `migration-helper`,
+`module-doc-writer`, `naming-review`, `package-update`, `pattern-review`, `performance-auditor`,
+`protocol-design`, `refactor-wizard`, `regex-generator`, `regex-review`, `security-auditor`,
+`test-generator`, `type-generator`, `ui-auditor`, ...
+
+### Codex Skills (37+)
+
+`api-builder`, `benchmark-writer`, `ci-checker`, `cli-builder`, `code-interpreter`,
+`code-summarizer`, `code-translator`, `data-processor`, `db-schema`, `dev-commands`,
+`diagram-generator`, `docker-compose`, `documentation-generator`, `env-configurator`,
+`error-message`, `git-config`, `github-actions`, `integration-builder`, `json-converter`,
+`mermaid-generator`, `node-builder`, `npm-package`, `proto-builder`, `query-builder`,
+`sdk-builder`, `server-builder`, `session-manager`, `sql-builder`, `test-builder`,
+`typescript-master`, `web-builder`, `yaml-configurator`, ...
+
+---
+
+## 📊 指标
+
+### Model Tiers (ADR-026)
+
+| Tier | Handler | Latency | Cost | Use Cases |
+|------|---------|---------|------|-----------|
+| **1** | Deterministic codemod | ~1ms | $0 | Structural transforms (no LLM) |
+| **2** | Haiku | ~500ms | $0.0002 | Simple tasks, low complexity |
+| **3** | Sonnet/Opus | 2-5s | $0.003-0.015 | Complex reasoning, architecture |
+
+### Worker Dependency Levels
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  CLAUDE-FLOW = ORCHESTRATOR (tracks state, stores memory)       │
-│  CODEX = EXECUTOR (writes code, runs commands, implements)      │
-└─────────────────────────────────────────────────────────────────┘
+Level 0: [Architect]           # No dependencies
+Level 1: [Coder, Tester]       # Depends on Architect
+Level 2: [Reviewer]            # Depends on Coder + Tester
+Level 3: [Optimizer]           # Depends on Reviewer
 ```
 
-**Codex does the work. Claude-flow coordinates and learns.**
+### Platform Strengths
 
-### The Self-Learning Loop
+| Task Type | Preferred Platform | Reason |
+|-----------|-------------------|--------|
+| Architecture & Design | Claude | Strong reasoning, system thinking |
+| Implementation | Codex | Fast code generation |
+| Security Review | Claude | Careful analysis, threat modeling |
+| Performance Optimization | Codex | Code-level optimizations |
+| Testing Strategy | Claude | Coverage analysis, edge cases |
+| Refactoring | Codex | Bulk code transformations |
 
-```
-    ┌──────────────┐
-    │   SEARCH     │ ──→ Find relevant patterns from past successes
-    │   memory     │
-    └──────┬───────┘
-           │
-    ┌──────▼───────┐
-    │  COORDINATE  │ ──→ Initialize swarm, spawn specialized agents
-    │   swarm      │
-    └──────┬───────┘
-           │
-    ┌──────▼───────┐
-    │   EXECUTE    │ ──→ Codex writes code, runs commands
-    │   codex      │
-    └──────┬───────┘
-           │
-    ┌──────▼───────┐
-    │    STORE     │ ──→ Save successful patterns for future use
-    │   memory     │
-    └──────────────┘
-```
+---
 
-## Quick Start
+## 🏛️ 设计
+
+### CLI Commands
 
 ```bash
-# Initialize for Codex (recommended)
-npx ruflo@latest init --codex
-
-# Full setup with all 137+ skills
-npx ruflo@latest init --codex --full
-
-# Dual mode (both Claude Code and Codex)
-npx ruflo@latest init --dual
-```
-
-**That's it!** The MCP server is auto-registered, skills are installed, and your project is ready for self-learning development.
-
----
-
-<details>
-<summary><b>Features</b></summary>
-
-| Feature | Description |
-|---------|-------------|
-| **AGENTS.md Generation** | Creates project instructions for Codex |
-| **MCP Integration** | Self-learning via memory and vector search |
-| **137+ Skills** | Invoke with `$skill-name` syntax |
-| **Vector Memory** | Semantic pattern search (384-dim embeddings) |
-| **Dual Platform** | Supports both Claude Code and Codex |
-| **Auto-Registration** | MCP server registered during init |
-| **HNSW Search** | 150x-12,500x faster pattern matching |
-| **Self-Learning** | Learn from successes, remember patterns |
-| **GPT-5.3 Support** | Optimized for latest OpenAI models |
-| **Neural Training** | Train patterns with SONA architecture |
-
-</details>
-
----
-
-<details>
-<summary><b>MCP Integration (Self-Learning)</b></summary>
-
-### Automatic Registration
-
-When you run `init --codex`, the MCP server is **automatically registered** with Codex:
-
-```bash
-# Verify MCP is registered
-codex mcp list
-
-# Expected output:
-# Name         Command  Args                   Status
-# claude-flow  npx      claude-flow mcp start  enabled
-```
-
-### Manual Registration
-
-If MCP is not present, add manually:
-
-```bash
-codex mcp add claude-flow -- npx claude-flow mcp start
-```
-
-### MCP Tools Reference
-
-| Tool | Purpose | When to Use |
-|------|---------|-------------|
-| `memory_search` | Semantic vector search | **BEFORE** starting any task |
-| `memory_store` | Save patterns with embeddings | **AFTER** completing successfully |
-| `swarm_init` | Initialize coordination | Start of complex tasks |
-| `agent_spawn` | Register agent roles | Multi-agent workflows |
-| `neural_train` | Train on patterns | Periodic improvement |
-
-### Tool Parameters
-
-**memory_search**
-```json
-{
-  "query": "search terms",
-  "namespace": "patterns",
-  "limit": 5
-}
-```
-
-**memory_store**
-```json
-{
-  "key": "pattern-name",
-  "value": "what worked",
-  "namespace": "patterns",
-  "upsert": true
-}
-```
-
-**swarm_init**
-```json
-{
-  "topology": "hierarchical",
-  "maxAgents": 5,
-  "strategy": "specialized"
-}
-```
-
-</details>
-
----
-
-<details>
-<summary><b>Self-Learning Workflow</b></summary>
-
-### The 4-Step Pattern
-
-```
-1. LEARN:    memory_search(query="task keywords") → Find similar patterns
-2. COORD:    swarm_init(topology="hierarchical") → Set up coordination
-3. EXECUTE:  YOU write code, run commands        → Codex does real work
-4. REMEMBER: memory_store(key, value, upsert=true) → Save for future
-```
-
-### Complete Example Prompt
-
-```
-Build an email validator using a learning-enabled swarm.
-
-STEP 1 - LEARN (use MCP tool):
-Use tool: memory_search
-  query: "validation utility function patterns"
-  namespace: "patterns"
-If score > 0.7, use that pattern as reference.
-
-STEP 2 - COORDINATE (use MCP tools):
-Use tool: swarm_init with topology="hierarchical", maxAgents=3
-Use tool: agent_spawn with type="coder", name="validator"
-
-STEP 3 - EXECUTE (YOU do this - DON'T STOP HERE):
-Create /tmp/validator/email.js with validateEmail() function
-Create /tmp/validator/test.js with test cases
-Run the tests
-
-STEP 4 - REMEMBER (use MCP tool):
-Use tool: memory_store
-  key: "pattern-email-validator"
-  value: "Email validation: regex, returns boolean, test cases"
-  namespace: "patterns"
-  upsert: true
-
-YOU execute all code. MCP tools are for learning only.
-```
-
-### Similarity Score Guide
-
-| Score | Meaning | Action |
-|-------|---------|--------|
-| > 0.7 | Strong match | Use the pattern directly |
-| 0.5 - 0.7 | Partial match | Adapt and modify |
-| < 0.5 | Weak match | Create new approach |
-
-</details>
-
----
-
-<details>
-<summary><b>Directory Structure</b></summary>
-
-```
-project/
-├── AGENTS.md                    # Main project instructions (Codex format)
-├── .agents/
-│   ├── config.toml              # Project configuration
-│   ├── skills/                  # 137+ skills
-│   │   ├── swarm-orchestration/
-│   │   │   └── SKILL.md
-│   │   ├── memory-management/
-│   │   │   └── SKILL.md
-│   │   ├── sparc-methodology/
-│   │   │   └── SKILL.md
-│   │   └── ...
-│   └── README.md                # Directory documentation
-├── .codex/                      # Local overrides (gitignored)
-│   ├── config.toml              # Local development settings
-│   └── AGENTS.override.md       # Local instruction overrides
-└── .claude-flow/                # Runtime data
-    ├── config.yaml              # Runtime configuration
-    ├── data/                    # Memory and cache
-    │   └── memory.db            # SQLite with vector embeddings
-    └── logs/                    # Log files
-```
-
-### Key Files
-
-| File | Purpose |
-|------|---------|
-| `AGENTS.md` | Main instructions for Codex (required) |
-| `.agents/config.toml` | Project-wide configuration |
-| `.codex/config.toml` | Local overrides (gitignored) |
-| `.claude-flow/data/memory.db` | Vector memory database |
-
-</details>
-
----
-
-<details>
-<summary><b>Templates</b></summary>
-
-### Available Templates
-
-| Template | Skills | Learning | Best For |
-|----------|--------|----------|----------|
-| `minimal` | 2 | Basic | Quick prototypes |
-| `default` | 4 | Yes | Standard projects |
-| `full` | 137+ | Yes | Full-featured development |
-| `enterprise` | 137+ | Advanced | Team environments |
-
-### Usage
-
-```bash
-# Minimal (fastest init)
-npx ruflo@latest init --codex --minimal
-
-# Default
-npx ruflo@latest init --codex
-
-# Full (all skills)
-npx ruflo@latest init --codex --full
-```
-
-### Template Contents
-
-**Minimal:**
-- Core swarm orchestration
-- Basic memory management
-
-**Default:**
-- Swarm orchestration
-- Memory management
-- SPARC methodology
-- Basic coding patterns
-
-**Full:**
-- All 137+ skills
-- GitHub integration
-- Security scanning
-- Performance optimization
-- AgentDB vector search
-- Neural pattern training
-
-</details>
-
----
-
-<details>
-<summary><b>Platform Comparison (Claude Code vs Codex)</b></summary>
-
-| Feature | Claude Code | OpenAI Codex |
-|---------|-------------|--------------|
-| Config File | `CLAUDE.md` | `AGENTS.md` |
-| Skills Dir | `.claude/skills/` | `.agents/skills/` |
-| Skill Syntax | `/skill-name` | `$skill-name` |
-| Settings | `settings.json` | `config.toml` |
-| MCP | Native | Via `codex mcp add` |
-| Overrides | `.claude.local.md` | `.codex/config.toml` |
-
-### Dual Mode
-
-Run `init --dual` to set up both platforms:
-
-```bash
-npx ruflo@latest init --dual
-```
-
-This creates:
-- `CLAUDE.md` for Claude Code users
-- `AGENTS.md` for Codex users
-- Shared `.claude-flow/` runtime
-- Cross-compatible skills
-
-</details>
-
----
-
-<details>
-<summary><b>Skill Invocation</b></summary>
-
-### Syntax
-
-In OpenAI Codex CLI, invoke skills with `$` prefix:
-
-```
-$swarm-orchestration
-$memory-management
-$sparc-methodology
-$security-audit
-$agent-coder
-$agent-tester
-$github-workflow
-$performance-optimization
-```
-
-### Complete Skills Table (137+ Skills)
-
-#### V3 Core Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| V3 Security Overhaul | `$v3-security-overhaul` | Complete security architecture with CVE remediation |
-| V3 Memory Unification | `$v3-memory-unification` | Unify 6+ memory systems into AgentDB with HNSW |
-| V3 Integration Deep | `$v3-integration-deep` | Deep agentic-flow integration (ADR-001) |
-| V3 Performance Optimization | `$v3-performance-optimization` | Achieve 2.49x-7.47x speedup targets |
-| V3 Swarm Coordination | `$v3-swarm-coordination` | 15-agent hierarchical mesh coordination |
-| V3 DDD Architecture | `$v3-ddd-architecture` | Domain-Driven Design architecture |
-| V3 Core Implementation | `$v3-core-implementation` | Core module implementation |
-| V3 MCP Optimization | `$v3-mcp-optimization` | MCP server optimization and transport |
-| V3 CLI Modernization | `$v3-cli-modernization` | CLI modernization and hooks enhancement |
-
-#### AgentDB & Memory Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| AgentDB Advanced | `$agentdb-advanced` | Advanced QUIC sync, distributed coordination |
-| AgentDB Memory Patterns | `$agentdb-memory-patterns` | Persistent memory patterns for AI agents |
-| AgentDB Learning | `$agentdb-learning` | AI learning plugins with AgentDB |
-| AgentDB Optimization | `$agentdb-optimization` | Quantization (4-32bit), performance tuning |
-| AgentDB Vector Search | `$agentdb-vector-search` | Semantic vector search with HNSW |
-| ReasoningBank AgentDB | `$reasoningbank-agentdb` | ReasoningBank with AgentDB integration |
-| ReasoningBank Intelligence | `$reasoningbank-intelligence` | Adaptive learning with ReasoningBank |
-
-#### Swarm & Coordination Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Swarm Orchestration | `$swarm-orchestration` | Multi-agent swarms with agentic-flow |
-| Swarm Advanced | `$swarm-advanced` | Advanced swarm patterns for research/analysis |
-| Hive Mind Advanced | `$hive-mind-advanced` | Collective intelligence system |
-| Stream Chain | `$stream-chain` | Stream-JSON chaining for multi-agent pipelines |
-| Worker Integration | `$worker-integration` | Background worker integration |
-| Worker Benchmarks | `$worker-benchmarks` | Worker performance benchmarks |
-
-#### GitHub Integration Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| GitHub Code Review | `$github-code-review` | AI-powered code review swarms |
-| GitHub Project Management | `$github-project-management` | Swarm-coordinated project management |
-| GitHub Multi-Repo | `$github-multi-repo` | Multi-repository coordination |
-| GitHub Release Management | `$github-release-management` | Release orchestration with AI swarms |
-| GitHub Workflow Automation | `$github-workflow-automation` | GitHub Actions automation |
-
-#### SPARC Methodology Skills (30+)
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| SPARC Methodology | `$sparc-methodology` | Full SPARC workflow orchestration |
-| SPARC Specification | `$sparc:spec-pseudocode` | Capture full project context |
-| SPARC Architecture | `$sparc:architect` | System architecture design |
-| SPARC Coder | `$sparc:coder` | Clean, efficient code generation |
-| SPARC Tester | `$sparc:tester` | Comprehensive testing |
-| SPARC Reviewer | `$sparc:reviewer` | Code review and quality |
-| SPARC Debugger | `$sparc:debugger` | Runtime bug troubleshooting |
-| SPARC Optimizer | `$sparc:optimizer` | Refactor and modularize |
-| SPARC Documenter | `$sparc:documenter` | Documentation generation |
-| SPARC DevOps | `$sparc:devops` | DevOps automation |
-| SPARC Security Review | `$sparc:security-review` | Static/dynamic security analysis |
-| SPARC Integration | `$sparc:integration` | System integration |
-| SPARC MCP | `$sparc:mcp` | MCP integration management |
-
-#### Flow Nexus Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Flow Nexus Neural | `$flow-nexus-neural` | Neural network training in E2B sandboxes |
-| Flow Nexus Platform | `$flow-nexus-platform` | Platform management and authentication |
-| Flow Nexus Swarm | `$flow-nexus-swarm` | Cloud-based AI swarm deployment |
-| Flow Nexus Payments | `$flow-nexus:payments` | Credit management and billing |
-| Flow Nexus Challenges | `$flow-nexus:challenges` | Coding challenges and achievements |
-| Flow Nexus Sandbox | `$flow-nexus:sandbox` | E2B sandbox management |
-| Flow Nexus App Store | `$flow-nexus:app-store` | App publishing and deployment |
-| Flow Nexus Workflow | `$flow-nexus:workflow` | Event-driven workflow automation |
-
-#### Development Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Pair Programming | `$pair-programming` | AI-assisted pair programming |
-| Skill Builder | `$skill-builder` | Create new Claude Code Skills |
-| Verification Quality | `$verification-quality` | Truth scoring and quality verification |
-| Performance Analysis | `$performance-analysis` | Bottleneck detection and optimization |
-| Agentic Jujutsu | `$agentic-jujutsu` | Quantum-resistant version control |
-| Hooks Automation | `$hooks-automation` | Automated coordination and learning |
-
-#### Memory Management Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Memory Neural | `$memory:neural` | Neural pattern training |
-| Memory Usage | `$memory:memory-usage` | Memory usage analysis |
-| Memory Search | `$memory:memory-search` | Semantic memory search |
-| Memory Persist | `$memory:memory-persist` | Memory persistence |
-
-#### Monitoring & Analysis Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Real-Time View | `$monitoring:real-time-view` | Real-time monitoring |
-| Agent Metrics | `$monitoring:agent-metrics` | Agent performance metrics |
-| Swarm Monitor | `$monitoring:swarm-monitor` | Swarm activity monitoring |
-| Token Usage | `$analysis:token-usage` | Token usage optimization |
-| Performance Report | `$analysis:performance-report` | Performance reporting |
-| Bottleneck Detect | `$analysis:bottleneck-detect` | Bottleneck detection |
-
-#### Training Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Specialization | `$training:specialization` | Agent specialization training |
-| Neural Patterns | `$training:neural-patterns` | Neural pattern training |
-| Pattern Learn | `$training:pattern-learn` | Pattern learning |
-| Model Update | `$training:model-update` | Model updates |
-
-#### Automation & Optimization Skills
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Self-Healing | `$automation:self-healing` | Self-healing workflows |
-| Smart Agents | `$automation:smart-agents` | Smart agent auto-spawning |
-| Session Memory | `$automation:session-memory` | Cross-session memory |
-| Cache Manage | `$optimization:cache-manage` | Cache management |
-| Parallel Execute | `$optimization:parallel-execute` | Parallel task execution |
-| Topology Optimize | `$optimization:topology-optimize` | Automatic topology selection |
-
-#### Hooks Skills (17 Hooks + 12 Workers)
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Pre-Edit | `$hooks:pre-edit` | Context before editing |
-| Post-Edit | `$hooks:post-edit` | Record editing outcome |
-| Pre-Task | `$hooks:pre-task` | Record task start |
-| Post-Task | `$hooks:post-task` | Record task completion |
-| Session End | `$hooks:session-end` | End session and persist |
-
-#### Dual-Mode Skills (NEW)
-
-| Skill | Syntax | Description |
-|-------|--------|-------------|
-| Dual Spawn | `$dual-spawn` | Spawn parallel Codex workers from Claude Code |
-| Dual Coordinate | `$dual-coordinate` | Coordinate Claude Code + Codex execution |
-| Dual Collect | `$dual-collect` | Collect results from parallel Codex instances |
-
-### Custom Skills
-
-Create custom skills in `.agents/skills/`:
-
-```
-.agents/skills/my-skill/
-└── SKILL.md
-```
-
-**SKILL.md format:**
-```markdown
-# My Custom Skill
-
-Instructions for what this skill does...
-
-## Usage
-Invoke with `$my-skill`
-```
-
-</details>
-
----
-
-<details>
-<summary><b>Dual-Mode Integration (Claude Code + Codex)</b></summary>
-
-### Hybrid Execution Model
-
-Run Claude Code for interactive development and spawn headless Codex workers for parallel background tasks:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  CLAUDE CODE (interactive)  ←→  CODEX WORKERS (headless)        │
-│  - Main conversation         - Parallel background execution    │
-│  - Complex reasoning         - Bulk code generation            │
-│  - Architecture decisions    - Test execution                   │
-│  - Final integration         - File processing                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Setup
-
-```bash
-# Initialize dual-mode
-npx ruflo@latest init --dual
-
-# Creates both:
-# - CLAUDE.md (Claude Code configuration)
-# - AGENTS.md (Codex configuration)
-# - Shared .claude-flow/ runtime
-```
-
-### Spawning Parallel Codex Workers
-
-From Claude Code, spawn headless Codex instances:
-
-```bash
-# Spawn workers in parallel (each runs independently)
-claude -p "Analyze src/auth/ for security issues" --session-id "task-1" &
-claude -p "Write unit tests for src/api/" --session-id "task-2" &
-claude -p "Optimize database queries in src/db/" --session-id "task-3" &
-wait  # Wait for all to complete
-```
-
-### Dual-Mode Skills
-
-| Skill | Platform | Description |
-|-------|----------|-------------|
-| `$dual-spawn` | Codex | Spawn parallel workers from orchestrator |
-| `$dual-coordinate` | Both | Coordinate cross-platform execution |
-| `$dual-collect` | Claude Code | Collect results from Codex workers |
-
-### Dual-Mode Agents
-
-| Agent | Type | Execution |
-|-------|------|-----------|
-| `codex-worker` | Worker | Headless background execution |
-| `codex-coordinator` | Coordinator | Manage parallel worker pool |
-| `dual-orchestrator` | Orchestrator | Route tasks to appropriate platform |
-
-### Task Routing Rules
-
-| Task Complexity | Platform | Reason |
-|----------------|----------|--------|
-| Simple (1-2 files) | Codex Headless | Fast, parallel |
-| Medium (3-5 files) | Claude Code | Needs context |
-| Complex (architecture) | Claude Code | Reasoning required |
-| Bulk operations | Codex Workers | Parallelize |
-| Final review | Claude Code | Integration |
-
-### Example Workflow
-
-```
-1. Claude Code receives complex feature request
-2. Designs architecture and creates plan
-3. Spawns 4 Codex workers:
-   - Worker 1: Implement data models
-   - Worker 2: Create API endpoints
-   - Worker 3: Write unit tests
-   - Worker 4: Generate documentation
-4. Workers execute in parallel (headless)
-5. Claude Code collects and integrates results
-6. Final review and refinement in Claude Code
-```
-
-### Memory Sharing
-
-Both platforms share the same `.claude-flow/` runtime:
-
-```
-.claude-flow/
-├── data/
-│   └── memory.db      # Shared vector memory
-├── config.yaml        # Shared configuration
-└── sessions/          # Cross-platform sessions
-```
-
-### Benefits
-
-| Feature | Benefit |
-|---------|---------|
-| **Parallel Execution** | 4-8x faster for bulk tasks |
-| **Cost Optimization** | Route simple tasks to cheaper workers |
-| **Context Preservation** | Shared memory across platforms |
-| **Best of Both** | Interactive + batch processing |
-| **Unified Learning** | Patterns learned by both platforms |
-
-### CLI Commands (NEW in v3.0.0-alpha.8)
-
-The `@claude-flow/codex` package now includes built-in dual-mode orchestration:
-
-```bash
-# List available collaboration templates
-npx @claude-flow/codex dual templates
-
-# Run a feature development swarm
-npx @claude-flow/codex dual run --template feature --task "Add user authentication"
-
-# Run a security audit swarm
-npx @claude-flow/codex dual run --template security --task "src/auth/"
-
-# Run a refactoring swarm
-npx @claude-flow/codex dual run --template refactor --task "src/legacy/"
+# Run a collaboration template
+npx @claude-flow/codex dual run feature --task "Add user authentication with OAuth"
+npx @claude-flow/codex dual run security --target "./src"
+npx @claude-flow/codex dual run refactor --target "./src/legacy"
+
+# Custom multi-platform swarm
+npx @claude-flow/codex dual run \
+  --worker "claude:architect:Design the API structure" \
+  --worker "codex:coder:Implement REST endpoints" \
+  --worker "claude:tester:Write integration tests" \
+  --worker "codex:reviewer:Review code quality" \
+  --namespace "api-feature"
 
 # Check collaboration status
 npx @claude-flow/codex dual status
+
+# List available templates
+npx @claude-flow/codex dual templates
+
+# List available skills
+npx @claude-flow/codex dual skills
 ```
 
-### Codex Loop Runner
+### Skill Management
 
-Codex does not expose Claude Code's `ScheduleWakeup`, so `@claude-flow/codex` provides a process-based equivalent:
+```typescript
+import { CodexSkillManager } from '@claude-flow/codex';
 
-```bash
-# Run Codex repeatedly until it creates .codex/loop/default.complete or reaches 10 iterations
-npx @claude-flow/codex loop run "Fix failing tests and create the completion marker when done"
+const skills = new CodexSkillManager();
 
-# Use command mode for recurring Ruflo workers or custom scripts
-npx @claude-flow/codex loop run --name testgaps --interval 270 --max-iterations 0 \
-  --command "npx claude-flow hooks worker dispatch --trigger testgaps"
+// List all available skills
+const allSkills = skills.listAll();
 
-# Inspect or stop a loop from another terminal
-npx @claude-flow/codex loop status --name testgaps
-npx @claude-flow/codex loop stop --name testgaps
+// List by platform
+const claudeSkills = skills.listByPlatform('claude');
+const codexSkills = skills.listByPlatform('codex');
+
+// Run a skill directly
+const result = await skills.runSkill('claude', 'security-auditor', {
+  target: './src/auth'
+});
+
+// Inject skills into agents
+const agent = skills.injectSkills('claude', ['security-auditor', 'code-review-advanced']);
 ```
 
-Loop state is stored in `.codex/loop/<name>.json`; `loop stop` writes `.codex/loop/<name>.stop`, which the runner observes between iterations.
+### Template System
 
-### Pre-Built Templates
+```typescript
+import { CodexTemplateRunner } from '@claude-flow/codex';
 
-| Template | Pipeline | Platforms |
-|----------|----------|-----------|
-| **feature** | architect → coder → tester → reviewer | Claude (architect, reviewer) + Codex (coder, tester) |
-| **security** | scanner → analyzer → fixer | Codex (scanner, fixer) + Claude (analyzer) |
-| **refactor** | analyzer → planner → refactorer → validator | Claude (analyzer, planner) + Codex (refactorer, validator) |
+const runner = new CodexTemplateRunner();
 
-### Programmatic API
+// Run a pre-built template
+const result = await runner.runTemplate('feature', {
+  task: 'Add user authentication',
+  language: 'typescript',
+  testFramework: 'jest'
+});
+
+// List templates
+const templates = runner.listTemplates();
+
+// Create custom template
+runner.createTemplate('my-workflow', {
+  workers: [
+    { platform: 'claude', role: 'architect', task: 'Design solution' },
+    { platform: 'codex', role: 'coder', task: 'Implement solution' },
+    { platform: 'claude', role: 'tester', task: 'Write tests' }
+  ]
+});
+```
+
+### Dual-Mode Orchestrator
 
 ```typescript
 import { DualModeOrchestrator, CollaborationTemplates } from '@claude-flow/codex';
 
-// Create orchestrator
 const orchestrator = new DualModeOrchestrator({
-  projectPath: process.cwd(),
-  maxConcurrent: 4,
-  sharedNamespace: 'collaboration',
-  timeout: 300000,
+  namespace: 'my-feature',
+  memoryBackend: 'hybrid',
+  maxConcurrency: 4
 });
 
-// Listen to events
-orchestrator.on('worker:started', ({ id, role }) => console.log(`Started: ${role}`));
-orchestrator.on('worker:completed', ({ id }) => console.log(`Completed: ${id}`));
+// Use pre-built template
+const workers = CollaborationTemplates.featureDevelopment('Add OAuth login');
 
-// Run collaboration with a template
-const workers = CollaborationTemplates.featureDevelopment('Add OAuth2 login');
-const result = await orchestrator.runCollaboration(workers, 'Feature: OAuth2');
+// Run collaboration
+const results = await orchestrator.runCollaboration(workers, 'Implement OAuth feature');
 
-console.log(`Success: ${result.success}`);
-console.log(`Duration: ${result.totalDuration}ms`);
-console.log(`Workers: ${result.workers.length}`);
+// Access shared memory
+const designDocs = await orchestrator.getMemory('design-decisions');
+
+// Get worker results
+for (const result of results) {
+  console.log(`${result.worker}: ${result.status}`);
+}
 ```
 
-</details>
+### Shared Memory
+
+```typescript
+// All workers share state via the shared memory namespace
+import { SharedMemory } from '@claude-flow/codex';
+
+const memory = new SharedMemory('collaboration');
+
+// Store context for cross-platform sharing
+await memory.store('design-decisions', {
+  pattern: 'Repository pattern',
+  database: 'PostgreSQL',
+  auth: 'OAuth 2.0 + JWT'
+});
+
+// Search for patterns across all workers
+const patterns = await memory.search('authentication patterns');
+
+// Retrieve specific findings
+const findings = await memory.retrieve('security-findings');
+```
+
+### Programmatic API
+
+```typescript
+import { CodexCLI } from '@claude-flow/codex';
+
+const codex = new CodexCLI({
+  model: 'auto',
+  platform: 'auto',
+  skills: ['typescript', 'testing'],
+  memory: { backend: 'hybrid' }
+});
+
+// Run with auto-routing
+await codex.run('Write a TypeScript function to parse CSV files');
+
+// Run on specific platform
+await codex.runOnClaude('Review this security configuration');
+await codex.runOnCodex('Optimize this database query');
+
+// Batch mode
+const results = await codex.batch([
+  { task: 'Add TypeScript types' },
+  { task: 'Write unit tests' },
+  { task: 'Document the API' }
+]);
+```
+
+### Cross-Platform Learning
+
+```typescript
+import { CrossPlatformLearning } from '@claude-flow/codex';
+
+const learning = new CrossPlatformLearning();
+
+// After successful collaboration
+await learning.trainFromCollaboration('feature-implementation-123');
+
+// Share patterns between platforms
+await learning.sharePatterns('claude', 'codex', 'successful-auth-pattern');
+
+// Get learned patterns
+const patterns = await learning.getPatterns({
+  platform: 'both',
+  category: 'authentication'
+});
+```
 
 ---
 
-<details>
-<summary><b>Configuration</b></summary>
+## 📁 目录
 
-### .agents/config.toml
+「待补充」
 
-```toml
-# Model configuration
-model = "gpt-5.3"
+---
 
-# Approval policy: "always" | "on-request" | "never"
-approval_policy = "on-request"
+## 🔗 资源
 
-# Sandbox mode: "read-only" | "workspace-write" | "danger-full-access"
-sandbox_mode = "workspace-write"
-
-# Web search: "off" | "cached" | "live"
-web_search = "cached"
-
-# MCP Servers
-[mcp_servers.claude-flow]
-command = "npx"
-args = ["claude-flow", "mcp", "start"]
-enabled = true
-
-# Skills
-[[skills]]
-path = ".agents/skills/swarm-orchestration"
-enabled = true
-
-[[skills]]
-path = ".agents/skills/memory-management"
-enabled = true
-
-[[skills]]
-path = ".agents/skills/sparc-methodology"
-enabled = true
-```
-
-### .codex/config.toml (Local Overrides)
-
-`init` creates this gitignored file with **standard** trust by default:
-
-```toml
-# Local development overrides (gitignored)
-# These settings override .agents/config.toml
-
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
-web_search = "cached"
-
-# Disable MCP in local if needed
-[mcp_servers.claude-flow]
-enabled = false
-```
-
-Codex can then write inside the workspace only and asks before anything riskier.
-Opt in to the old permissive file (`approval_policy = "never"`,
-`sandbox_mode = "danger-full-access"`, `web_search = "live"`) explicitly:
+### Installation
 
 ```bash
-npx ruflo@latest init --dual --codex-trust full     # or: RUFLO_CODEX_TRUST=full
-npx @claude-flow/codex init --codex-trust full
+npm install @claude-flow/codex
 ```
 
-`init` prints which level you got. An existing `.codex/config.toml` is never
-rewritten, not even with `--force` (it holds your own sandbox and approval
-choices), so to change the level of an existing file edit those three keys.
-Unknown `--codex-trust` values are rejected on the command line and fall back to
-`standard` (with a warning) from the environment variable.
-
-### Environment Variables
+### Environment Setup
 
 ```bash
-# Configuration paths
-CLAUDE_FLOW_CONFIG=./claude-flow.config.json
-CLAUDE_FLOW_MEMORY_PATH=./.claude-flow/data
-
-# Provider keys
+# Required API keys
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
 
-# MCP settings
-CLAUDE_FLOW_MCP_PORT=3000
+# Optional configuration
+CODEX_DEFAULT_PLATFORM=auto
+CODEX_MEMORY_BACKEND=hybrid
+CODEX_LOG_LEVEL=info
 ```
 
-</details>
-
----
-
-<details>
-<summary><b>Vector Search Details</b></summary>
-
-### Specifications
-
-| Property | Value |
-|----------|-------|
-| Embedding Dimensions | 384 |
-| Search Algorithm | HNSW |
-| Speed Improvement | 150x-12,500x faster |
-| Similarity Range | 0.0 - 1.0 |
-| Storage | SQLite with vector extension |
-| Model | all-MiniLM-L6-v2 |
-
-### Namespaces
-
-| Namespace | Purpose |
-|-----------|---------|
-| `patterns` | Successful code patterns |
-| `solutions` | Bug fixes and solutions |
-| `tasks` | Task completion records |
-| `coordination` | Swarm state |
-| `results` | Worker results |
-| `default` | General storage |
-
-### Example Searches
-
-```javascript
-// Find auth patterns
-memory_search({ query: "authentication JWT patterns", namespace: "patterns" })
-
-// Find bug solutions
-memory_search({ query: "null pointer fix", namespace: "solutions" })
-
-// Find past tasks
-memory_search({ query: "user profile API", namespace: "tasks" })
-```
-
-</details>
-
----
-
-<details>
-<summary><b>API Reference</b></summary>
-
-### CodexInitializer Class
-
-```typescript
-import { CodexInitializer } from '@claude-flow/codex';
-
-class CodexInitializer {
-  /**
-   * Initialize a Codex project
-   */
-  async initialize(options: CodexInitOptions): Promise<CodexInitResult>;
-
-  /**
-   * Preview what would be created without writing files
-   */
-  async dryRun(options: CodexInitOptions): Promise<string[]>;
-}
-```
-
-### initializeCodexProject Function
-
-```typescript
-import { initializeCodexProject } from '@claude-flow/codex';
-
-/**
- * Quick initialization helper
- */
-async function initializeCodexProject(
-  projectPath: string,
-  options?: Partial<CodexInitOptions>
-): Promise<CodexInitResult>;
-```
-
-### Types
-
-```typescript
-interface CodexInitOptions {
-  /** Project directory path */
-  projectPath: string;
-  /** Template to use */
-  template?: 'minimal' | 'default' | 'full' | 'enterprise';
-  /** Specific skills to include */
-  skills?: string[];
-  /** Overwrite existing files */
-  force?: boolean;
-  /** Enable dual mode (Claude Code + Codex) */
-  dual?: boolean;
-}
-
-interface CodexInitResult {
-  /** Whether initialization succeeded */
-  success: boolean;
-  /** List of files created */
-  filesCreated: string[];
-  /** List of skills generated */
-  skillsGenerated: string[];
-  /** Whether MCP was registered */
-  mcpRegistered?: boolean;
-  /** Non-fatal warnings */
-  warnings?: string[];
-  /** Fatal errors */
-  errors?: string[];
-}
-```
-
-### Programmatic Usage
-
-```typescript
-import { CodexInitializer, initializeCodexProject } from '@claude-flow/codex';
-
-// Quick initialization
-const result = await initializeCodexProject('/path/to/project', {
-  template: 'full',
-  force: true,
-  dual: false,
-});
-
-console.log(`Files created: ${result.filesCreated.length}`);
-console.log(`Skills: ${result.skillsGenerated.length}`);
-console.log(`MCP registered: ${result.mcpRegistered}`);
-
-// Or use the class directly
-const initializer = new CodexInitializer();
-const result = await initializer.initialize({
-  projectPath: '/path/to/project',
-  template: 'enterprise',
-  skills: ['swarm-orchestration', 'memory-management', 'security-audit'],
-  force: false,
-  dual: true,
-});
-
-if (result.warnings?.length) {
-  console.warn('Warnings:', result.warnings);
-}
-```
-
-</details>
-
----
-
-<details>
-<summary><b>Migration from Claude Code</b></summary>
-
-### Convert CLAUDE.md to AGENTS.md
-
-```typescript
-import { migrate } from '@claude-flow/codex';
-
-const result = await migrate({
-  sourcePath: './CLAUDE.md',
-  targetPath: './AGENTS.md',
-  preserveComments: true,
-  generateSkills: true,
-});
-
-console.log(`Migrated: ${result.success}`);
-console.log(`Skills generated: ${result.skillsGenerated.length}`);
-```
-
-### Manual Migration Checklist
-
-1. **Rename config file**: `CLAUDE.md` → `AGENTS.md`
-2. **Move skills**: `.claude/skills/` → `.agents/skills/`
-3. **Update syntax**: `/skill-name` → `$skill-name`
-4. **Convert settings**: `settings.json` → `config.toml`
-5. **Register MCP**: `codex mcp add claude-flow -- npx claude-flow mcp start`
-
-### Dual Mode Alternative
-
-Instead of migrating, use dual mode to support both:
+### CLI Integration
 
 ```bash
-npx ruflo@latest init --dual
+# Dual run via CLI
+npx claude-flow@v3alpha codex dual run feature --task "Add user auth"
+
+# List all
+npx claude-flow@v3alpha codex dual skills
+npx claude-flow@v3alpha codex dual templates
+npx claude-flow@v3alpha codex dual status
 ```
 
-This keeps both `CLAUDE.md` and `AGENTS.md` in sync.
+### Related Packages
 
-</details>
+- [@claude-flow/providers](../providers) - Multi-provider LLM integration
+- [@claude-flow/integration](../integration) - Deep agentic-flow integration
+- [@claude-flow/plugins](../plugins) - Plugin SDK with worker management
 
----
-
-<details>
-<summary><b>Troubleshooting</b></summary>
-
-### MCP Not Working
-
-```bash
-# Check if registered
-codex mcp list
-
-# Re-register
-codex mcp remove claude-flow
-codex mcp add claude-flow -- npx claude-flow mcp start
-
-# Test connection
-npx claude-flow mcp test
-```
-
-### Memory Search Returns Empty
-
-```bash
-# Initialize memory database
-npx claude-flow memory init --force
-
-# Check if entries exist
-npx claude-flow memory list
-
-# Manually add a test pattern
-npx claude-flow memory store --key "test" --value "test pattern" --namespace patterns
-```
-
-### Skills Not Loading
-
-```bash
-# Verify skill directory
-ls -la .agents/skills/
-
-# Check config.toml for skill registration
-cat .agents/config.toml | grep skills
-
-# Rebuild skills
-npx ruflo@latest init --codex --force
-```
-
-### Vector Search Slow
-
-```bash
-# Check HNSW index
-npx claude-flow memory stats
-
-# Rebuild index
-npx claude-flow memory optimize --rebuild-index
-```
-
-</details>
-
----
-
-## Inspect an existing Codex session
-
-The `activity` command lets you pick a helper and read its assignment, recorded
-state, public progress messages, and tool calls/results. It reads local rollout
-files without starting model sessions or sending commands to agents.
-
-From a checkout containing this change:
-
-```bash
-npm install --prefix v3/@claude-flow/codex --workspaces=false --ignore-scripts --legacy-peer-deps --package-lock=false
-npm run build --prefix v3/@claude-flow/codex
-node v3/@claude-flow/codex/dist/cli.js activity \
-  --session-file /path/to/sessions/parent-rollout.jsonl \
-  --sessions-dir /path/to/sessions
-```
-
-Choose the parent rollout explicitly. Only helpers whose recorded parent chain
-leads back to that session appear. The selected directory must contain both the
-parent and helper files; use the smallest directory that contains them all.
-
-Use **j/k** or the arrow keys to select a helper, then **Enter** to open it.
-In the detail view, **j/k** scroll, **Space** moves down a page, **g** goes to the
-top, **G** follows the latest activity, and **b** or **Escape** returns to the list.
-Press **q** to quit; the Codex session keeps running.
-
-Use `--agent <thread-id>` to open a specific helper, `--once` to print a snapshot
-without an interactive terminal, or `--interval <seconds>` to change the refresh
-interval (default: 2 seconds; range: 0.2–60).
-
-These screenshots use made-up session records:
-
-![Agent picker with a parser-review helper](docs/images/activity-picker.png)
-
-![Helper assignment, public progress, command and result](docs/images/activity-detail.png)
-
-### What the viewer can read
-
-The parser supports CLI rollout files with a `session_meta` header, helper ancestry
-in `source.subagent.thread_spawn.parent_thread_id`, and an own-thread marker
-(`payload.thread_id`) before helper activity. Public message, function/custom tool
-call and result records, and supported task/item events are shown. Formats without
-these attribution fields may produce an empty list or unavailable activity.
-
-Copied parent history, reasoning, and system/developer messages are excluded.
-Ambiguous identities and paths through symlinks are rejected. The viewer strips
-terminal controls and masks common credential patterns before shortening previews.
-Masking cannot catch every secret in arbitrary command output: check the visible
-content before sharing a screenshot.
-
-State is the last **recorded** state, not a heartbeat. Discovery stops after 4,000
-entries or eight directory levels; ancestry is limited to 64 links. Each detail
-refresh reads at most 1 MiB, lines are limited to 64 KiB, previews to 2,400 characters,
-and history to 80 events. The metadata header must include its terminating newline
-within the first 64 KiB; an oversized or incomplete header excludes that file.
-The screen labels incomplete scans, omitted records and logs that are still being
-read. Missing data stays unavailable.
-
-### Check the viewer locally
-
-```bash
-cd v3/@claude-flow/codex
-npm test -- --run tests/activity-files.test.ts tests/activity-parser.test.ts tests/activity-viewer.test.ts
-cd ../../..
-node scripts/smoke-codex-activity.mjs
-```
-
-The Node smoke check runs the built CLI against synthetic files and checks the
-picker, detail output, history isolation, invalid input and read-only access.
-The screenshots above were captured from the interactive viewer using synthetic
-records; screenshot generation is not part of CI.
-
-### Release integration
-
-Ship the viewer in `@claude-flow/codex` with the next coordinated Ruflo release.
-At release, bump the package version and exported `VERSION` together, update the
-bundled dependency pins and lockfile, and include the built package in the release
-train.
-
-## Related Packages
-
-| Package | Description |
-|---------|-------------|
-| [@claude-flow/cli](https://www.npmjs.com/package/@claude-flow/cli) | Main CLI (26 commands, 140+ subcommands) |
-| [claude-flow](https://www.npmjs.com/package/claude-flow) | Umbrella package |
-| [@claude-flow/memory](https://www.npmjs.com/package/@claude-flow/memory) | AgentDB with HNSW vector search |
-| [@claude-flow/security](https://www.npmjs.com/package/@claude-flow/security) | Security module |
-
-## License
+### License
 
 MIT
 
-## Support
+---
 
-- Documentation: https://github.com/ruvnet/ruflo
-- Issues: https://github.com/ruvnet/ruflo/issues
+## 🚀 快速开始
+
+```typescript
+import { CodexCLI, DualModeOrchestrator } from '@claude-flow/codex';
+
+// Simple CLI usage
+const codex = new CodexCLI();
+const result = await codex.run('Write a hello world in TypeScript');
+
+// Dual-mode collaboration
+const orchestrator = new DualModeOrchestrator({
+  namespace: 'quick-start'
+});
+
+const results = await orchestrator.runCollaboration([
+  { platform: 'claude', role: 'architect', task: 'Design a REST API' },
+  { platform: 'codex', role: 'coder', task: 'Implement it' }
+], 'Build a simple API');
+```
+
+---
+
+## ⚙️ 技术栈
+
+- TypeScript
+- Node.js
+- Claude Code API (Anthropic)
+- OpenAI Codex CLI
+- AgentDB shared memory

@@ -1,31 +1,41 @@
+---
+title: "ruflo-migrations"
+tags: ["migrations", "database", "schema", "plugin"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # ruflo-migrations
+
+## 💡 概述
 
 Schema migration management -- generate, validate, dry-run, and rollback database migrations.
 
-## Overview
-
 Generates sequentially numbered database migrations with up/down SQL pairs for rollback safety. Includes dry-run mode to preview SQL without executing, validation checks for foreign key consistency, index coverage, and naming conventions, plus full migration history tracking in AgentDB.
 
-## Installation
+---
 
-```bash
-claude --plugin-dir plugins/ruflo-migrations
-```
+## ⚡ 功能
 
-## Agents
+### Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
 | `migration-engineer` | sonnet | Generate sequential migrations, create up/down pairs, dry-run validation, rollback safety checks |
 
-## Skills
+### Skills
 
 | Skill | Usage | Description |
 |-------|-------|-------------|
 | `migrate-create` | `/migrate-create <name>` | Create a new sequentially numbered migration with up/down SQL files |
 | `migrate-validate` | `/migrate-validate` | Validate pending migrations for FK consistency, rollback safety, and best practices |
 
-## Commands (6 subcommands)
+### Commands (6 subcommands)
 
 ```bash
 migrate create <name>        # Create NNN_name.up.sql and NNN_name.down.sql
@@ -36,7 +46,21 @@ migrate validate             # Validate pending migrations for safety
 migrate history              # Show full migration execution history
 ```
 
-## Validation Checks
+### Migration File Format
+
+```
+migrations/
+  001_create_users.up.sql
+  001_create_users.down.sql
+  002_add_email_index.up.sql
+  002_add_email_index.down.sql
+```
+
+---
+
+## 📊 指标
+
+### Validation Checks
 
 | Check | Severity | Description |
 |-------|----------|-------------|
@@ -49,52 +73,28 @@ migrate history              # Show full migration execution history
 | Naming conventions | Info | Tables plural, columns snake_case |
 | Idempotency | Warning | Use IF EXISTS / IF NOT EXISTS |
 
-## Migration File Format
+---
 
-```
-migrations/
-  001_create_users.up.sql
-  001_create_users.down.sql
-  002_add_email_index.up.sql
-  002_add_email_index.down.sql
-```
+## 🏛️ 设计
 
-## Compatibility
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
 - **Verification:** `bash plugins/ruflo-migrations/scripts/smoke.sh` is the contract.
 
-## Namespace coordination
+### Namespace coordination
 
-This plugin owns the `migrations` AgentDB namespace (kebab-case is implicit when the plugin name is the intent — same documented exception as `federation`). Follows the convention from [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
+This plugin owns the `migrations` AgentDB namespace (kebab-case is implicit when the plugin name is the intent -- same documented exception as `federation`). Follows the convention from [ruflo-agentdb ADR-0001 SS"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
 `migrations` is accessed via `memory_*` tools (namespace-routed). Tracks migration metadata, applied/pending status, and validation results.
 
-> **Routing note:** Earlier versions of these skills used `agentdb_hierarchical-*` and `agentdb_pattern-store` with namespace arguments — those tool families route by tier/ReasoningBank and ignore namespace strings. ADR-0001 fixed the skills to use `memory_*` for namespaced reads/writes.
+> **Routing note:** Earlier versions of these skills used `agentdb_hierarchical-*` and `agentdb_pattern-store` with namespace arguments -- those tool families route by tier/ReasoningBank and ignore namespace strings. ADR-0001 fixed the skills to use `memory_*` for namespaced reads/writes.
 
-## Verification
+### Architecture Decisions
 
-```bash
-bash plugins/ruflo-migrations/scripts/smoke.sh
-# Expected: "10 passed, 0 failed"
-```
+- [`ADR-0001` -- ruflo-migrations plugin contract (namespace-routing fix, smoke as contract)](./docs/adrs/0001-migrations-contract.md)
 
-## Architecture Decisions
-
-- [`ADR-0001` — ruflo-migrations plugin contract (namespace-routing fix, smoke as contract)](./docs/adrs/0001-migrations-contract.md)
-
-## Related Plugins
-
-- `ruflo-agentdb` — namespace convention owner; defines the routing rules ADR-0001 fixes a violation of
-- `ruflo-adr` -- Document schema change decisions as ADRs
-- `ruflo-ddd` -- Align migration boundaries with aggregate roots
-- `ruflo-observability` -- Track migration execution duration and failure rates
-
-## License
-
-MIT
-
-## As a mod
+### As a mod
 
 Function-hook mod (ADR-445 pattern, `hooks/register.ts`). It adds, with no network, no process spawning and no model call:
 
@@ -109,3 +109,57 @@ Per-prompt context is deliberately not added: this plugin has nothing worth atta
 | `guard` | `on` | refuse the calls above |
 
 Test: `claude plugin validate plugins/ruflo-migrations`, `claude plugin test plugins/ruflo-migrations`, `bash plugins/ruflo-migrations/scripts/smoke.sh`.
+
+---
+
+## 📁 目录
+
+```
+plugins/ruflo-migrations/
+├── docs/
+│   └── adrs/
+│       └── 0001-migrations-contract.md
+├── hooks/
+│   └── register.ts
+├── scripts/
+│   └── smoke.sh
+└── README.md
+```
+
+---
+
+## 🔗 资源
+
+- [ADR-0001 -- ruflo-migrations plugin contract](./docs/adrs/0001-migrations-contract.md)
+- [ruflo-agentdb ADR-0001 -- Namespace convention](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)
+
+### Related Plugins
+
+- `ruflo-agentdb` -- namespace convention owner; defines the routing rules ADR-0001 fixes a violation of
+- `ruflo-adr` -- Document schema change decisions as ADRs
+- `ruflo-ddd` -- Align migration boundaries with aggregate roots
+- `ruflo-observability` -- Track migration execution duration and failure rates
+
+---
+
+## 🚀 快速开始
+
+```bash
+claude --plugin-dir plugins/ruflo-migrations
+```
+
+### Verification
+
+```bash
+bash plugins/ruflo-migrations/scripts/smoke.sh
+# Expected: "10 passed, 0 failed"
+```
+
+---
+
+## ⚙️ 技术栈
+
+- `@claude-flow/cli` v3.6+
+- AgentDB namespace-routed storage
+- ADR-445 function-hook mod
+- MIT License

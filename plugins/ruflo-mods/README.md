@@ -1,4 +1,18 @@
+---
+title: "ruflo-mods"
+tags: ["mods", "function-hooks", "claude-code", "routing", "trust-gate", "budgeting"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-mods
+
+## 💡 概述
 
 ruflo as a Claude Code mod (function hooks): on by default in Claude Code >= 2.1.287; from 2.1.277 with `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`. Design and evidence: [ADR-404](../../v3/docs/adr/ADR-404-claude-code-mods-function-hooks.md), including Amendment 1 (default-on in `ruflo init`).
 
@@ -13,7 +27,9 @@ ruflo mods uninstall                # claude plugin uninstall what ruflo install
 
 These enable `ruflo-mods@ruflo`, `ruflo-swarm@ruflo` and `ruflo-console@ruflo`, the `ruflo` marketplace and `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`. A key you already set is left as it is: a plugin you set to `false` stays off and is never installed. `ruflo init --no-mods` writes none of it.
 
-## What loads
+## ⚡ 功能
+
+### What loads
 
 - **ruflo-mods and ruflo-console** run only where function hooks are on. With them off, or with Claude Code's rollout switch off, they do nothing, and the classic hooks keep every event.
 - **ruflo-swarm** loads its commands, skills and agents even without function hooks. With them on, it is also a mod that can run host commands (pane actions you start).
@@ -23,7 +39,7 @@ These enable `ruflo-mods@ruflo`, `ruflo-swarm@ruflo` and `ruflo-console@ruflo`, 
   - **Build the list from `observe` first.** In `observe`, each later mod gets one `ruflo mod trust: <name> (<name>@<marketplace>) loaded; <what it can do>` line. Add the provenance of each one you keep to `modTrustAllow`, then switch to `refuse-risky`. A mod you did not list is refused with a message naming the entry to add.
   - When `ruflo-protector`'s status file exists, `/ruflo-mods` shows one `protector:` row (mode, open alerts, blocked).
 
-## Install and repair
+### Install and repair
 
 When a `claude` binary is on PATH, init and install also do what you would do by hand, in the project directory:
 
@@ -41,7 +57,7 @@ Settings alone are not always enough. Claude Code loads these plugins from its l
 
 `ruflo mods uninstall` runs `claude plugin uninstall <id> --scope <scope>` only for the plugins ruflo itself installed: ones that were not installed before and that ruflo enabled. It then removes exactly the settings keys ruflo added. Both are recorded in `.claude-flow/mods/install.json`.
 
-## Dogfooding: `--source local`
+### Dogfooding: `--source local`
 
 `ruflo mods install --source local` declares the `ruflo` marketplace as a directory source pointing at a ruflo checkout: `--marketplace-path <dir>`, or by default the project root, which must hold the `ruflo` `.claude-plugin/marketplace.json`.
 
@@ -50,7 +66,7 @@ Settings alone are not always enough. Claude Code loads these plugins from its l
 - **One marketplace per config dir.** Claude Code keeps one `ruflo` marketplace per config dir, so switching it to a directory applies to every project on that machine. Switch back with `claude plugin marketplace add ruvnet/ruflo`.
 - **Doctor** reports the source type, and warns when a project declares one source but Claude Code knows `ruflo` by another.
 
-## Flags
+### Flags
 
 - `--no-plugin-install` writes settings only and runs no `claude` command.
 - `--dry-run` (`mods install`, `mods uninstall`) prints the settings and the `claude` commands without running either.
@@ -60,7 +76,7 @@ Settings alone are not always enough. Claude Code loads these plugins from its l
 
 In a session, `/ruflo mods` (through ruflo-console's `/ruflo`) reports what the mod owns, routed, recorded and tightened. `/ruflo-mods` stays as an alias of it (ADR-406: no command is removed or renamed).
 
-## What it does
+### What it does
 
 - **Routing:** in an initialized Ruflo project (an existing `.claude-flow/` directory), `prompt.submit` routes each prompt in-process and hands the route, plus ranked memory, to the model as context. The text is the same as the classic `route` hook produces.
 - **Edit learning:** `tool.call` records finished edits for the intelligence consolidator, once per turn.
@@ -73,13 +89,17 @@ The classic `hook-handler.cjs` hooks stay installed and remain the fallback. The
 
 At user scope, an unrelated project receives no routing context, edit-learning writes or `.claude-flow/mods/session.json` heartbeat. The mod does not initialize projects itself. Tool guards, trust checks and explicitly configured budgets remain active there.
 
-## Toasts (ADR-477)
+### Toasts (ADR-477)
 
 ruflo-mods draws its toasts through the shared toast policy (one copy of `hooks/toast-policy.ts`, kept identical across the ruflo mods by `scripts/sync-toast-policy.mjs`): a level prefix (`›` info, `✓` ok, `⚠` warn, `✗` error), one clean line of at most 120 characters with secrets masked, an identical toast not repeated for a minute, and at most four a minute per source (errors are held and counted, never dropped). The budget ladder is `info`, `warn`, `error`, `error` (INFO, WARNING, CRITICAL, HARD_STOP); a dropped or held-back delivery is an `error`; `agentTrim`'s one-time note is `info`.
 
 The person's choice is the console's **Settings → Interface and updates → Toasts**: `all`, `important` (warnings and errors) or `off`, and a mute chip per source. Every toast, drawn or not, is kept as a digest the console shows on its Events page, flagged with what became of it; without the console nothing is written and the defaults apply.
 
-## Options
+---
+
+## 📊 指标
+
+### Options
 
 Claude Code reads a plugin's options from `pluginConfigs["ruflo-mods@ruflo"].options` in user settings, `--settings` or managed settings. Project settings are not read for this. Every option has a default:
 
@@ -104,7 +124,11 @@ Claude Code reads a plugin's options from `pluginConfigs["ruflo-mods@ruflo"].opt
 | `guidanceContext` | `false` | Screened lexical excerpts (at most five, 4096 characters) from a compiler-exported guidance projection; advisory, cannot authorize tool calls. Design in [ADR-447](../../v3/docs/adr/ADR-447-native-mod-guidance-observation-loop.md); evidence: [native guidance](../../v3/docs/validation/ADR-447-native-guidance-evidence.md) |
 | `guidanceLearning` | `false` | Unverified activity observations for independent review; no training or promotion. Evidence: [native guidance](../../v3/docs/validation/ADR-447-native-guidance-evidence.md) |
 
-## Task guidance and observation review (ADR-447)
+---
+
+## 🏛️ 设计
+
+### Task guidance and observation review (ADR-447)
 
 Export reviewed guidance with a CLI built from this revision. Supply the full
 40 or 64 character commit ID containing the reviewed source. The exporter checks
@@ -189,7 +213,11 @@ The review command accepts at most 128 queue files per batch. Archive reviewed
 queues explicitly outside the active directory. `/ruflo mods` reports saved,
 pending and dropped observations. These counts are activity, not correctness.
 
-## Tests
+---
+
+## 📁 目录
+
+### Tests
 
 ```bash
 CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1 claude plugin test plugins/ruflo-mods   # real engine; needs the rollout switch on
@@ -213,3 +241,27 @@ feature options because the 2.1.283 test kit ignores per-test option overrides.
 It runs the three feature contracts against unchanged production hooks. The
 default settings contract belongs to the standard suite. A rollout gate still
 applies, and the focused result must not be reported as the complete native suite.
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+```bash
+ruflo init
+ruflo mods install
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Claude Code function hooks (2.1.287+)
+- ruflo marketplace
+- Claude Code plugin system
+- Guidance Control Plane compiler

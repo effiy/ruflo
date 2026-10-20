@@ -1,10 +1,32 @@
+---
+title: "V3 Integration Test Suite"
+tags: ["testing", "integration", "vitest", "memory", "swarm", "MCP", "plugin", "workflow"]
+category: "__tests__/integration"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # V3 Integration Test Suite
 
 Comprehensive cross-module integration tests for claude-flow V3 architecture.
 
-## Test Files Overview
+---
 
-### 1. memory-integration.test.ts (15 tests)
+## 💡 概述
+
+「待补充」
+
+---
+
+## ⚡ 功能
+
+### Test Files Overview
+
+#### 1. memory-integration.test.ts (15 tests)
 Tests for HybridBackend with SQLite + AgentDB integration:
 - ✅ Store and retrieve memory from hybrid backend
 - ✅ Cross-backend queries by agent ID
@@ -29,7 +51,7 @@ Tests for HybridBackend with SQLite + AgentDB integration:
 - Transaction consistency
 - Concurrent operations
 
-### 2. swarm-integration.test.ts (15 tests)
+#### 2. swarm-integration.test.ts (15 tests)
 Tests for agent spawn, coordination, and multi-agent communication:
 - ✅ Spawn multiple agents in swarm
 - ✅ Coordinate task distribution across agents
@@ -54,7 +76,7 @@ Tests for agent spawn, coordination, and multi-agent communication:
 - Consensus mechanisms
 - Dynamic scaling
 
-### 3. mcp-integration.test.ts (15 tests)
+#### 3. mcp-integration.test.ts (15 tests)
 Tests for MCP tools integration with agent, memory, and config:
 - ✅ Spawn agent via MCP agent tools
 - ✅ List agents via MCP agent tools
@@ -79,7 +101,7 @@ Tests for MCP tools integration with agent, memory, and config:
 - Error handling
 - Tool chaining
 
-### 4. plugin-integration.test.ts (15 tests)
+#### 4. plugin-integration.test.ts (15 tests)
 Tests for plugin loading, initialization, and extension points:
 - ✅ Load and initialize plugin
 - ✅ Register and invoke extension points
@@ -104,7 +126,7 @@ Tests for plugin loading, initialization, and extension points:
 - Hot reloading
 - Error isolation
 
-### 5. workflow-integration.test.ts (15 tests)
+#### 5. workflow-integration.test.ts (15 tests)
 Tests for end-to-end agent workflows and task execution:
 - ✅ End-to-end agent workflow execution
 - ✅ Persist task execution pipeline to memory
@@ -129,52 +151,57 @@ Tests for end-to-end agent workflows and task execution:
 - Distributed execution
 - State persistence
 
-## Running the Tests
+---
 
-### Run all integration tests
-```bash
-npm run test:integration
-```
+## 📊 指标
 
-### Run specific test file
-```bash
-npm run test -- v3/__tests__/integration/memory-integration.test.ts
-npm run test -- v3/__tests__/integration/swarm-integration.test.ts
-npm run test -- v3/__tests__/integration/mcp-integration.test.ts
-npm run test -- v3/__tests__/integration/plugin-integration.test.ts
-npm run test -- v3/__tests__/integration/workflow-integration.test.ts
-```
+### Test Coverage Goals
 
-### Run with coverage
-```bash
-npm run test:coverage -- v3/__tests__/integration
-```
+- **Line Coverage**: >80%
+- **Branch Coverage**: >75%
+- **Function Coverage**: >80%
+- **Integration Points**: 100%
 
-### Watch mode for development
-```bash
-npm run test:watch -- v3/__tests__/integration
-```
+### Performance Targets (from V3 Goals)
 
-## Test Architecture
+Integration tests verify these targets:
+- ⚡ Flash Attention: 2.49x-7.47x speedup
+- 🔍 AgentDB Search: 150x-12,500x improvement
+- 💾 Memory Reduction: 50-75%
+- 🚀 Startup Time: <500ms
 
-### Mocking Strategy
+### CI/CD Integration
+
+These integration tests are designed to run in CI/CD pipelines:
+- Fast execution (<5 minutes total)
+- Reliable (deterministic, no flaky tests)
+- Isolated (no external dependencies)
+- Self-cleaning (automatic cleanup)
+
+---
+
+## 🏛️ 设计
+
+### Test Architecture
+
+#### Mocking Strategy
 - **External Dependencies**: Mocked (file system, network)
 - **Module Interactions**: Real (test actual integration)
 - **Database**: In-memory SQLite for tests
 - **Event Bus**: Real EventEmitter for event testing
 
-### Test Isolation
+#### Test Isolation
 - Each test file creates fresh instances
 - Database files are created with unique timestamps
 - Cleanup in `afterEach` hooks
 - No shared state between tests
 
-### Performance Considerations
+#### Performance Considerations
 - Tests use in-memory databases when possible
 - Concurrent operations tested with realistic timeouts
 - Cleanup is non-blocking where safe
 
-## Architecture Decision Records (ADRs) Tested
+### Architecture Decision Records (ADRs) Tested
 
 | ADR | Description | Test Coverage |
 |-----|-------------|---------------|
@@ -188,56 +215,7 @@ npm run test:watch -- v3/__tests__/integration
 | ADR-008 | Vitest over Jest | All tests use Vitest |
 | ADR-009 | Hybrid memory backend | Memory integration |
 
-## Test Coverage Goals
-
-- **Line Coverage**: >80%
-- **Branch Coverage**: >75%
-- **Function Coverage**: >80%
-- **Integration Points**: 100%
-
-## CI/CD Integration
-
-These integration tests are designed to run in CI/CD pipelines:
-- Fast execution (<5 minutes total)
-- Reliable (deterministic, no flaky tests)
-- Isolated (no external dependencies)
-- Self-cleaning (automatic cleanup)
-
-## Debugging Integration Tests
-
-### Enable verbose logging
-```bash
-DEBUG=claude-flow:* npm run test:integration
-```
-
-### Run single test
-```bash
-npm run test -- -t "should execute end-to-end agent workflow"
-```
-
-### Generate detailed coverage report
-```bash
-npm run test:coverage -- v3/__tests__/integration --reporter=html
-```
-
-## Contributing
-
-When adding new integration tests:
-1. Follow the existing structure (15 tests per file)
-2. Test real module interactions (not just mocks)
-3. Include setup and teardown
-4. Add meaningful descriptions
-5. Update this README with new test coverage
-
-## Performance Targets (from V3 Goals)
-
-Integration tests verify these targets:
-- ⚡ Flash Attention: 2.49x-7.47x speedup
-- 🔍 AgentDB Search: 150x-12,500x improvement
-- 💾 Memory Reduction: 50-75%
-- 🚀 Startup Time: <500ms
-
-## Security Testing
+### Security Testing
 
 Integration tests include:
 - Input validation
@@ -246,9 +224,81 @@ Integration tests include:
 - Safe concurrent operations
 - No credential exposure
 
-## Related Documentation
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Related Documentation
 
 - `/v3/docs/architecture/` - Architecture decision records
 - `/v3/docs/testing/` - Testing strategy
 - `/v3/README.md` - V3 overview
 - `/CLAUDE.md` - Development guidelines
+
+---
+
+## 🚀 快速开始
+
+### Running the Tests
+
+#### Run all integration tests
+```bash
+npm run test:integration
+```
+
+#### Run specific test file
+```bash
+npm run test -- v3/__tests__/integration/memory-integration.test.ts
+npm run test -- v3/__tests__/integration/swarm-integration.test.ts
+npm run test -- v3/__tests__/integration/mcp-integration.test.ts
+npm run test -- v3/__tests__/integration/plugin-integration.test.ts
+npm run test -- v3/__tests__/integration/workflow-integration.test.ts
+```
+
+#### Run with coverage
+```bash
+npm run test:coverage -- v3/__tests__/integration
+```
+
+#### Watch mode for development
+```bash
+npm run test:watch -- v3/__tests__/integration
+```
+
+### Debugging Integration Tests
+
+#### Enable verbose logging
+```bash
+DEBUG=claude-flow:* npm run test:integration
+```
+
+#### Run single test
+```bash
+npm run test -- -t "should execute end-to-end agent workflow"
+```
+
+#### Generate detailed coverage report
+```bash
+npm run test:coverage -- v3/__tests__/integration --reporter=html
+```
+
+### Contributing
+
+When adding new integration tests:
+1. Follow the existing structure (15 tests per file)
+2. Test real module interactions (not just mocks)
+3. Include setup and teardown
+4. Add meaningful descriptions
+5. Update this README with new test coverage
+
+---
+
+## ⚙️ 技术栈
+
+「待补充」

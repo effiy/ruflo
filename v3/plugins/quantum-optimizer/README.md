@@ -1,61 +1,41 @@
+---
+title: "Quantum Optimizer Plugin"
+tags: ["quantum", "optimization", "annealing", "QAOA", "Grover", "WASM", "MCP", "plugin", "scheduling"]
+category: "plugins/quantum-optimizer"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/plugin-quantum-optimizer
 
 [![npm version](https://img.shields.io/npm/v/@claude-flow/plugin-quantum-optimizer.svg)](https://www.npmjs.com/package/@claude-flow/plugin-quantum-optimizer)
 [![license](https://img.shields.io/npm/l/@claude-flow/plugin-quantum-optimizer.svg)](https://github.com/ruvnet/claude-flow/blob/main/LICENSE)
 [![downloads](https://img.shields.io/npm/dm/@claude-flow/plugin-quantum-optimizer.svg)](https://www.npmjs.com/package/@claude-flow/plugin-quantum-optimizer)
 
+---
+
+## 💡 概述
+
 An exotic optimization plugin implementing quantum-inspired algorithms including Quantum Annealing simulation, QAOA (Quantum Approximate Optimization Algorithm) emulation, and Grover-inspired search acceleration. The plugin provides dramatic speedups for dependency resolution, optimal scheduling, and constraint satisfaction while running entirely on classical WASM-accelerated hardware.
 
-## Installation
+---
 
-### npm
+## ⚡ 功能
 
-```bash
-npm install @claude-flow/plugin-quantum-optimizer
-```
+### Available MCP Tools
 
-### CLI
-
-```bash
-npx claude-flow plugins install --name @claude-flow/plugin-quantum-optimizer
-```
-
-## Quick Start
-
-```typescript
-import { QuantumOptimizerPlugin } from '@claude-flow/plugin-quantum-optimizer';
-
-// Initialize the plugin
-const plugin = new QuantumOptimizerPlugin();
-await plugin.initialize();
-
-// Solve a scheduling optimization problem
-const schedule = await plugin.scheduleOptimize({
-  tasks: [
-    { id: 'build', duration: 10, dependencies: [], resources: ['cpu'], deadline: 30 },
-    { id: 'test', duration: 5, dependencies: ['build'], resources: ['cpu'], deadline: 40 },
-    { id: 'deploy', duration: 3, dependencies: ['test'], resources: ['network'], deadline: 50 }
-  ],
-  resources: [
-    { id: 'cpu', capacity: 4, cost: 1.0 },
-    { id: 'network', capacity: 2, cost: 0.5 }
-  ],
-  objective: 'makespan'
-});
-
-console.log('Optimal schedule:', schedule);
-```
-
-## Available MCP Tools
-
-### 1. `quantum/annealing-solve`
+#### 1. `quantum/annealing-solve`
 
 Solve combinatorial optimization problems using simulated quantum annealing.
 
 ```typescript
 const result = await mcp.call('quantum/annealing-solve', {
   problem: {
-    type: 'qubo',  // Quadratic Unconstrained Binary Optimization
+    type: 'qubo',
     variables: 100,
     constraints: [...],
     objective: { 'x1': -1, 'x2': -1, 'x1_x2': 2 }
@@ -75,9 +55,7 @@ const result = await mcp.call('quantum/annealing-solve', {
 
 **Problem Types:** `qubo`, `ising`, `sat`, `max_cut`, `tsp`, `dependency`
 
-**Returns:** Optimal or near-optimal solution with energy value and convergence statistics.
-
-### 2. `quantum/qaoa-optimize`
+#### 2. `quantum/qaoa-optimize`
 
 Approximate optimization using Quantum Approximate Optimization Algorithm emulation.
 
@@ -92,7 +70,7 @@ const result = await mcp.call('quantum/qaoa-optimize', {
     weights: { '0_1': 1.0, '1_2': 0.5, ... }
   },
   circuit: {
-    depth: 3,  // QAOA circuit depth (p)
+    depth: 3,
     optimizer: 'cobyla',
     initialParams: 'heuristic'
   },
@@ -102,16 +80,14 @@ const result = await mcp.call('quantum/qaoa-optimize', {
 
 **Problem Types:** `max_cut`, `portfolio`, `scheduling`, `routing`
 
-**Returns:** Optimized solution with approximation ratio and parameter trajectory.
-
-### 3. `quantum/grover-search`
+#### 3. `quantum/grover-search`
 
 Grover-inspired search with quadratic speedup for unstructured search problems.
 
 ```typescript
 const result = await mcp.call('quantum/grover-search', {
   searchSpace: {
-    size: 1000000,  // 1M elements
+    size: 1000000,
     oracle: 'x.value > 100 && x.valid === true',
     structure: 'database'
   },
@@ -124,9 +100,7 @@ const result = await mcp.call('quantum/grover-search', {
 });
 ```
 
-**Returns:** Found solution(s) with iteration count and amplitude distribution.
-
-### 4. `quantum/dependency-resolve`
+#### 4. `quantum/dependency-resolve`
 
 Resolve complex dependency graphs using quantum optimization.
 
@@ -135,10 +109,9 @@ const result = await mcp.call('quantum/dependency-resolve', {
   packages: [
     { name: 'react', version: '18.2.0', dependencies: { 'react-dom': '^18.0.0' }, conflicts: [] },
     { name: 'webpack', version: '5.88.0', dependencies: { 'loader-utils': '^3.0.0' }, conflicts: [] },
-    // ... more packages
   ],
   constraints: {
-    minimize: 'versions',  // Minimize total version count
+    minimize: 'versions',
     lockfile: existingLockfile,
     peer: true
   },
@@ -146,9 +119,7 @@ const result = await mcp.call('quantum/dependency-resolve', {
 });
 ```
 
-**Returns:** Resolved dependency tree with version selections and conflict resolutions.
-
-### 5. `quantum/schedule-optimize`
+#### 5. `quantum/schedule-optimize`
 
 Quantum-optimized task scheduling for complex workflows.
 
@@ -157,48 +128,24 @@ const result = await mcp.call('quantum/schedule-optimize', {
   tasks: [
     { id: 'task-1', duration: 10, dependencies: [], resources: ['gpu'], deadline: 100 },
     { id: 'task-2', duration: 5, dependencies: ['task-1'], resources: ['cpu'], deadline: 120 },
-    { id: 'task-3', duration: 8, dependencies: [], resources: ['cpu', 'memory'], deadline: 80 }
   ],
   resources: [
     { id: 'cpu', capacity: 8, cost: 1.0 },
     { id: 'gpu', capacity: 2, cost: 5.0 },
-    { id: 'memory', capacity: 64, cost: 0.1 }
   ],
-  objective: 'weighted'  // Balance makespan and cost
+  objective: 'weighted'
 });
 ```
 
-**Returns:** Optimal schedule with resource assignments and timeline visualization.
+### Use Cases
 
-## Configuration Options
+1. **Dependency Resolution**: Solve complex version conflicts in package managers
+2. **Task Scheduling**: Optimal CI/CD pipeline and workflow scheduling
+3. **Resource Allocation**: Distribute workloads optimally across agents/machines
+4. **Test Selection**: Find minimal test sets with maximum coverage
+5. **Configuration Optimization**: Find optimal system configurations
 
-```typescript
-interface QuantumOptimizerConfig {
-  // Maximum problem variables (default: 10000)
-  maxVariables: number;
-
-  // Maximum iterations (default: 1000000)
-  maxIterations: number;
-
-  // Memory limit in bytes (default: 4GB)
-  maxMemoryBytes: number;
-
-  // CPU time limit in ms (default: 600000 = 10 min)
-  maxCpuTimeMs: number;
-
-  // QAOA circuit depth limit (default: 20)
-  maxCircuitDepth: number;
-
-  // Simulated qubit limit (default: 50)
-  maxQubits: number;
-
-  // Progress monitoring
-  progressCheckIntervalMs: number;
-  minProgressThreshold: number;
-}
-```
-
-## Quantum-Inspired Algorithms
+### Quantum-Inspired Algorithms
 
 | Algorithm | Speedup | Problem Class | Classical Equivalent |
 |-----------|---------|---------------|---------------------|
@@ -208,7 +155,11 @@ interface QuantumOptimizerConfig {
 | Quantum Walk | Polynomial | Graph problems | Random Walk |
 | VQE | Variable | Eigenvalue problems | Power Iteration |
 
-## Performance Targets
+---
+
+## 📊 指标
+
+### Performance Targets
 
 | Metric | Target | Improvement vs Classical |
 |--------|--------|-------------------------|
@@ -218,7 +169,36 @@ interface QuantumOptimizerConfig {
 | Dependency resolution | <5s for 1000 packages | 24x faster than SAT solver |
 | Schedule optimization | <30s for 100 tasks | 20x faster than ILP solver |
 
-## Security Considerations
+### Rate Limits
+
+| Tool | Requests/Minute | Max Concurrent |
+|------|-----------------|----------------|
+| `annealing-solve` | 5 | 1 |
+| `qaoa-optimize` | 5 | 1 |
+| `grover-search` | 10 | 2 |
+| `dependency-resolve` | 10 | 2 |
+| `schedule-optimize` | 5 | 1 |
+
+---
+
+## 🏛️ 设计
+
+### Configuration Options
+
+```typescript
+interface QuantumOptimizerConfig {
+  maxVariables: number;         // Maximum problem variables (default: 10000)
+  maxIterations: number;        // Maximum iterations (default: 1000000)
+  maxMemoryBytes: number;       // Memory limit in bytes (default: 4GB)
+  maxCpuTimeMs: number;         // CPU time limit in ms (default: 600000 = 10 min)
+  maxCircuitDepth: number;      // QAOA circuit depth limit (default: 20)
+  maxQubits: number;            // Simulated qubit limit (default: 50)
+  progressCheckIntervalMs: number;
+  minProgressThreshold: number;
+}
+```
+
+### Security Considerations
 
 - **Resource Limits**: Strict memory (4GB), CPU (10 min), and iteration (1M) limits prevent DoS attacks
 - **Problem Validation**: Problems are validated for size, connectivity, and coefficient magnitude before processing
@@ -250,50 +230,87 @@ interface QuantumOptimizerConfig {
 | Max graph edges | 100,000 |
 | Max search space | 1 billion elements |
 
-### Rate Limits
+### Theoretical Background
 
-| Tool | Requests/Minute | Max Concurrent |
-|------|-----------------|----------------|
-| `annealing-solve` | 5 | 1 |
-| `qaoa-optimize` | 5 | 1 |
-| `grover-search` | 10 | 2 |
-| `dependency-resolve` | 10 | 2 |
-| `schedule-optimize` | 5 | 1 |
-
-## Dependencies
-
-- `ruvector-exotic-wasm` - Quantum-inspired optimization algorithms
-- `ruvector-sparse-inference-wasm` - Efficient sparse matrix operations for quantum simulation
-- `micro-hnsw-wasm` - Amplitude-inspired search acceleration
-- `ruvector-dag-wasm` - Quantum circuit DAG representation
-- `ruvector-hyperbolic-hnsw-wasm` - Hyperbolic embeddings for quantum state spaces
-
-## Theoretical Background
-
-### Quantum Annealing
+#### Quantum Annealing
 Exploits quantum tunneling to escape local minima during optimization. Simulated via Path Integral Monte Carlo on classical hardware.
 
-### QAOA
+#### QAOA
 Variational algorithm alternating between problem Hamiltonian and mixer. Emulated via tensor network contraction for efficient classical simulation.
 
-### Grover's Algorithm
+#### Grover's Algorithm
 Amplitude amplification for unstructured search achieving O(sqrt(N)) complexity. Classical implementation uses interference-inspired importance sampling.
 
-## Use Cases
+---
 
-1. **Dependency Resolution**: Solve complex version conflicts in package managers
-2. **Task Scheduling**: Optimal CI/CD pipeline and workflow scheduling
-3. **Resource Allocation**: Distribute workloads optimally across agents/machines
-4. **Test Selection**: Find minimal test sets with maximum coverage
-5. **Configuration Optimization**: Find optimal system configurations
+## 📁 目录
 
-## Related Plugins
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Related Plugins
 
 | Plugin | Description | Synergy |
 |--------|-------------|---------|
 | [@claude-flow/plugin-neural-coordination](https://www.npmjs.com/package/@claude-flow/plugin-neural-coordination) | Multi-agent coordination | Quantum optimizer schedules tasks across coordinated agent swarms |
 | [@claude-flow/plugin-cognitive-kernel](https://www.npmjs.com/package/@claude-flow/plugin-cognitive-kernel) | Cognitive augmentation | Optimizes cognitive load distribution and attention allocation |
 | [@claude-flow/plugin-hyperbolic-reasoning](https://www.npmjs.com/package/@claude-flow/plugin-hyperbolic-reasoning) | Hierarchical reasoning | Quantum algorithms optimize hierarchical constraint satisfaction |
+
+---
+
+## 🚀 快速开始
+
+### Installation
+
+#### npm
+
+```bash
+npm install @claude-flow/plugin-quantum-optimizer
+```
+
+#### CLI
+
+```bash
+npx claude-flow plugins install --name @claude-flow/plugin-quantum-optimizer
+```
+
+### Quick Start
+
+```typescript
+import { QuantumOptimizerPlugin } from '@claude-flow/plugin-quantum-optimizer';
+
+const plugin = new QuantumOptimizerPlugin();
+await plugin.initialize();
+
+// Solve a scheduling optimization problem
+const schedule = await plugin.scheduleOptimize({
+  tasks: [
+    { id: 'build', duration: 10, dependencies: [], resources: ['cpu'], deadline: 30 },
+    { id: 'test', duration: 5, dependencies: ['build'], resources: ['cpu'], deadline: 40 },
+    { id: 'deploy', duration: 3, dependencies: ['test'], resources: ['network'], deadline: 50 }
+  ],
+  resources: [
+    { id: 'cpu', capacity: 4, cost: 1.0 },
+    { id: 'network', capacity: 2, cost: 0.5 }
+  ],
+  objective: 'makespan'
+});
+
+console.log('Optimal schedule:', schedule);
+```
+
+---
+
+## ⚙️ 技术栈
+
+- `ruvector-exotic-wasm` - Quantum-inspired optimization algorithms
+- `ruvector-sparse-inference-wasm` - Efficient sparse matrix operations for quantum simulation
+- `micro-hnsw-wasm` - Amplitude-inspired search acceleration
+- `ruvector-dag-wasm` - Quantum circuit DAG representation
+- `ruvector-hyperbolic-hnsw-wasm` - Hyperbolic embeddings for quantum state spaces
 
 ## License
 

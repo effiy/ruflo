@@ -1,34 +1,48 @@
+---
+title: "ruflo-music"
+tags: ["music", "ai-generation", "cognitum", "midi", "stems", "mastering"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-music
 
-AI music generation via [Cognitum Music](https://music.cognitum.one) — compose lyrics/prompts, generate tracks, separate stems, extract MIDI, and master, all through the `cogmusic` MCP server against your own Cognitum account.
+## 💡 概述
 
-## Overview
+AI music generation via [Cognitum Music](https://music.cognitum.one) -- compose lyrics/prompts, generate tracks, separate stems, extract MIDI, and master, all through the `cogmusic` MCP server against your own Cognitum account.
 
-Wraps the `cogmusic` MCP bridge as a Ruflo plugin with 2 agents, 7 skills, and one dispatcher command. Unlike most sibling plugins, there's no locally-executed CLI runtime here — every real generation runs on a remote GPU inference service (MiniMax-Music3), reached over a hand-rolled MCP server your own account authenticates against with a personal access token you mint yourself.
+Wraps the `cogmusic` MCP bridge as a Ruflo plugin with 2 agents, 7 skills, and one dispatcher command. Unlike most sibling plugins, there's no locally-executed CLI runtime here -- every real generation runs on a remote GPU inference service (MiniMax-Music3), reached over a hand-rolled MCP server your own account authenticates against with a personal access token you mint yourself.
 
-## Prerequisites
+## ⚡ 功能
+
+### Prerequisites
 
 - A Cognitum Music account at [music.cognitum.one](https://music.cognitum.one).
-- A `cogmcp_...` personal access token, minted at `music.cognitum.one/mcp` (sign in → "Generate connection token"). Shown exactly once — copy it immediately. This plugin cannot mint or rotate this token for you.
+- A `cogmcp_...` personal access token, minted at `music.cognitum.one/mcp` (sign in -> "Generate connection token"). Shown exactly once -- copy it immediately. This plugin cannot mint or rotate this token for you.
 - `cogmusic@0.1.1` or later registered as an MCP server:
   ```bash
   claude mcp add cogmusic --env COGMUSIC_TOKEN=cogmcp_... -- npx -y cogmusic@0.1.1
   ```
-  `0.1.0` has no fetch timeout override and fails any `create_production` call that runs past Node's ~5-minute default — real generations routinely take longer. See the `music-connect` skill for the full setup flow.
+  `0.1.0` has no fetch timeout override and fails any `create_production` call that runs past Node's ~5-minute default -- real generations routinely take longer. See the `music-connect` skill for the full setup flow.
 
-## Installation
+### Installation
 
 ```bash
 claude --plugin-dir plugins/ruflo-music
 ```
 
-## MCP Integration (6 Tools)
+### MCP Integration (6 Tools)
 
 `cogmusic` exposes 6 tools once registered:
 
 ```bash
 claude mcp add cogmusic --env COGMUSIC_TOKEN=cogmcp_... -- npx -y cogmusic@0.1.1
-claude mcp get cogmusic   # expect: ✔ Connected
+claude mcp get cogmusic   # expect: Connected
 ```
 
 | Tool | Purpose |
@@ -40,18 +54,18 @@ claude mcp get cogmusic   # expect: ✔ Connected
 | `extract_midi` | Pitch-tracked MIDI/score extraction |
 | `master` | LUFS loudness normalization + peak limiting |
 
-## Agents
+### Agents
 
 | Agent | Role |
 |-------|------|
 | `music-composer` | Writes structured lyrics + a genre/style prompt from a creative brief. Calls no MCP tools. |
-| `music-producer` | Pipeline entry point — delegates composition to `music-composer`, calls `create_production`, caches the result, optionally post-processes, reports the `audio_url`. |
+| `music-producer` | Pipeline entry point -- delegates composition to `music-composer`, calls `create_production`, caches the result, optionally post-processes, reports the `audio_url`. |
 
-## Skills
+### Skills
 
 | Skill | Purpose |
 |-------|---------|
-| `music-connect` | One-time setup — register the `cogmusic` MCP server |
+| `music-connect` | One-time setup -- register the `cogmusic` MCP server |
 | `music-generate` | Generate a track from a fully-specified brief |
 | `music-list` | List all productions in the account |
 | `music-get` | Fetch one production's metadata + `audio_url` |
@@ -59,7 +73,7 @@ claude mcp get cogmusic   # expect: ✔ Connected
 | `music-midi` | Extract MIDI from an existing production |
 | `music-master` | Run a mastering (LUFS) pass on an existing production |
 
-## Commands
+### Commands
 
 ```bash
 /music connect [--token cogmcp_...]
@@ -71,50 +85,42 @@ claude mcp get cogmusic   # expect: ✔ Connected
 /music master <production-id>
 ```
 
-## Known gaps (disclosed, not silently omitted)
+### Known gaps (disclosed, not silently omitted)
 
-- **No audio bytes over MCP, by design.** Every tool that returns a production carries an `audio_url`, not the audio itself — always a separate authenticated `GET` with the same `cogmcp_` token as `Authorization: Bearer`.
-- **Stems and MIDI have no `audio_url` yet.** `separate_stems`/`extract_midi` confirm what was produced (`has_stems`/`has_midi` via `get_production`), but the derived audio/MIDI files are dashboard-only today — the PAT-authorized-URL pattern that already covers the primary track (see Architecture Decisions) hasn't been extended to these two endpoints upstream.
-- **The GPU inference service has a real reliability history.** Intermittent cold-start failures were root-caused and fixed upstream across three iterations (see ADR-0001's Related section) — a single retry resolves most transient failures; every generation-class skill documents this rather than treating a first failure as final.
+- **No audio bytes over MCP, by design.** Every tool that returns a production carries an `audio_url`, not the audio itself -- always a separate authenticated `GET` with the same `cogmcp_` token as `Authorization: Bearer`.
+- **Stems and MIDI have no `audio_url` yet.** `separate_stems`/`extract_midi` confirm what was produced (`has_stems`/`has_midi` via `get_production`), but the derived audio/MIDI files are dashboard-only today -- the PAT-authorized-URL pattern that already covers the primary track (see Architecture Decisions) hasn't been extended to these two endpoints upstream.
+- **The GPU inference service has a real reliability history.** Intermittent cold-start failures were root-caused and fixed upstream across three iterations (see ADR-0001's Related section) -- a single retry resolves most transient failures; every generation-class skill documents this rather than treating a first failure as final.
 
-## Compatibility
+---
+
+## 📊 指标
+
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
-- **Runtime:** `cogmusic@0.1.1+` npm package (stdio↔HTTP MCP bridge) registered via `claude mcp add`; no local compute — generation runs on a remote GPU service you don't control.
+- **Runtime:** `cogmusic@0.1.1+` npm package (stdio<->HTTP MCP bridge) registered via `claude mcp add`; no local compute -- generation runs on a remote GPU service you don't control.
 - **Verification:** `bash plugins/ruflo-music/scripts/smoke.sh` is the contract.
 
-## Namespace coordination
+---
+
+## 🏛️ 设计
+
+### Namespace coordination
 
 This plugin owns two AgentDB namespaces (kebab-case, follows the convention from [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md)):
 
 | Namespace | Purpose |
 |-----------|---------|
-| `music-productions` | Cached production metadata — id, title, `audio_url`, prompt, lyrics, duration, processing-step flags — for recall without a round-trip to `list_productions`/`get_production` |
+| `music-productions` | Cached production metadata -- id, title, `audio_url`, prompt, lyrics, duration, processing-step flags -- for recall without a round-trip to `list_productions`/`get_production` |
 | `music-briefs` | The creative brief that produced each production, keyed by production id, so a later "make another one like that" can retrieve the exact prompt/lyrics shape that worked |
 
 All access via `memory_*` (namespace-routed). No `agentdb_pattern-*` or `agentdb_hierarchical-*` calls with a `namespace` argument anywhere in this plugin. Reserved namespaces (`pattern`, `claude-memories`, `default`) are never shadowed.
 
-## Verification
+### Architecture Decisions
 
-```bash
-bash plugins/ruflo-music/scripts/smoke.sh
-# Expected: "10 passed, 0 failed"
-```
+- [ADR-0001](docs/adrs/0001-music-contract.md) -- plugin contract: PAT auth model, `audio_url` delivery pattern, namespace claims, disclosed reliability posture.
 
-## Architecture Decisions
-
-- [ADR-0001](docs/adrs/0001-music-contract.md) — plugin contract: PAT auth model, `audio_url` delivery pattern, namespace claims, disclosed reliability posture.
-
-## Related Plugins
-
-- [ruflo-agentdb](../ruflo-agentdb) — namespace convention this plugin follows
-- [ruflo-neural-trader](../ruflo-neural-trader) — closest sibling precedent for an external-service-wrapping plugin contract (diverged where local-CLI vs. remote-PAT-authed-MCP-server shape doesn't fit)
-
-## License
-
-MIT
-
-## As a mod
+### As a mod
 
 Function-hook mod (ADR-445 pattern, `hooks/register.ts`). It adds, with no network, no process spawning and no model call:
 
@@ -129,3 +135,49 @@ Per-prompt context is deliberately not added: this plugin has nothing worth atta
 | `guard` | `on` | refuse the calls above |
 
 Test: `claude plugin validate plugins/ruflo-music`, `claude plugin test plugins/ruflo-music`, `bash plugins/ruflo-music/scripts/smoke.sh`.
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Verification
+
+```bash
+bash plugins/ruflo-music/scripts/smoke.sh
+# Expected: "10 passed, 0 failed"
+```
+
+### Related Plugins
+
+- [ruflo-agentdb](../ruflo-agentdb) -- namespace convention this plugin follows
+- [ruflo-neural-trader](../ruflo-neural-trader) -- closest sibling precedent for an external-service-wrapping plugin contract (diverged where local-CLI vs. remote-PAT-authed-MCP-server shape doesn't fit)
+
+### License
+
+MIT
+
+---
+
+## 🚀 快速开始
+
+```bash
+claude mcp add cogmusic --env COGMUSIC_TOKEN=cogmcp_... -- npx -y cogmusic@0.1.1
+claude --plugin-dir plugins/ruflo-music
+/music generate "your brief"
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Cognitum Music / cogmusic MCP bridge
+- MiniMax-Music3 GPU inference
+- PAT authentication
+- AgentDB
+- Claude Code function hooks

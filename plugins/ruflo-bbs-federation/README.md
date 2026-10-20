@@ -1,5 +1,26 @@
+---
+title: "ruflo-bbs-federation"
+tags: ["bbs", "federation", "plugin", "mod"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
 
-## As a mod
+# ruflo-bbs-federation
+
+## 💡 概述
+
+「待补充」
+
+---
+
+## ⚡ 功能
+
+### As a mod
 
 Function hooks (ADR-445 pattern, `hooks/register.ts`) that need no model call, no network and no process:
 
@@ -9,4 +30,46 @@ Function hooks (ADR-445 pattern, `hooks/register.ts`) that need no model call, n
 
 Options (`userConfig`): `guard` (on/off, default on), `allowWildcardBind` (default off).
 
+---
+
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
+
+「待补充」
+
+---
+
+## 📁 目录
+
+```
+plugins/ruflo-bbs-federation/
+├── hooks/
+│   └── register.ts
+├── scripts/
+│   └── smoke.sh
+└── README.md
+```
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
 Test: `claude plugin validate plugins/ruflo-bbs-federation && claude plugin test plugins/ruflo-bbs-federation && bash plugins/ruflo-bbs-federation/scripts/smoke.sh`.
+
+---
+
+## ⚙️ 技术栈
+
+- ADR-445 function-hook mod pattern
+- Claude Code 2.1.287+

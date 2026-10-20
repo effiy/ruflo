@@ -1,429 +1,321 @@
+---
+title: "@claude-flow/mcp"
+tags: ["mcp", "tools", "resources", "prompts", "server", "sse", "transport", "json-rpc"]
+category: "@claude-flow/mcp"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/mcp
 
 [![npm version](https://img.shields.io/npm/v/@claude-flow/mcp.svg)](https://www.npmjs.com/package/@claude-flow/mcp)
 [![npm downloads](https://img.shields.io/npm/dm/@claude-flow/mcp.svg)](https://www.npmjs.com/package/@claude-flow/mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-[![MCP 2025-11-25](https://img.shields.io/badge/MCP-2025--11--25-blue.svg)](https://modelcontextprotocol.io)
-[![Standalone](https://img.shields.io/badge/Module-Standalone-green.svg)](https://github.com/ruvnet/claude-flow)
+[![MCP](https://img.shields.io/badge/MCP-Compliant-green.svg)](https://modelcontextprotocol.io)
 
-> **MCP 2025-11-25 Compliant** - Standalone Model Context Protocol server implementation with full Resources, Prompts, and Tasks support
+---
 
-## Features
+## 💡 概述
 
-- **MCP 2025-11-25 Compliant** - Full specification support
-- **High-Performance Server** - <400ms startup time
-- **Multiple Transports** - stdio, HTTP, WebSocket, in-process
-- **Resources** - list, read, subscribe with caching
-- **Prompts** - templates with arguments and embedded resources
-- **Tasks** - Async operations with progress and cancellation
-- **Pagination** - Cursor-based pagination for large datasets
-- **Connection Pooling** - Max 10 connections, configurable
-- **Fast Tool Registry** - O(1) lookup, <10ms registration
-- **Session Management** - Timeout handling, authentication
-- **Security** - CORS, Helmet, auth tokens
-- **Zero Dependencies** - No @claude-flow/* dependencies
+Full MCP (Model Context Protocol) server implementation for Claude Flow V3 - wire-compatible with Anthropic's `@modelcontextprotocol/sdk`, cross-account Lambda warmers, tools, resources, prompts, and lifecycle management.
 
-## Installation
+---
+
+## ⚡ 功能
+
+- **Full MCP Specification** - Tools, resources, prompts, sampling, roots, logging
+- **Transport Layer** - SSE and stdio transports
+- **JSON-RPC 2.0** - Standard JSON-RPC messaging
+- **Resource Management** - File resources, dynamic resources, and content types
+- **Prompt Management** - Prompt templates with argument schemas
+- **Tool Execution** - Declarative tools with validation and error handling
+- **Lifecycle** - Initialize, heartbeat, and shutdown lifecycle
+- **Server Capabilities** - Capability negotiation per MCP spec
+- **Cross-Account Lambda Warmers** - Keep Lambda functions warm across AWS accounts (SSE transport)
+- **Bundled Servers** - ready-to-copy-and-run example servers in `examples/`
+
+---
+
+## 📊 指标
+
+### Core Endpoints
+
+| URI | Method | Description |
+|-----|--------|-------------|
+| `/mcp/initialize` | POST | Initialize MCP session |
+| `/mcp/tools/list` | POST | List available tools |
+| `/mcp/tools/call` | POST | Execute a tool call |
+| `/mcp/tools/call/:name` | POST | Execute a named tool call |
+| `/mcp/resources/list` | POST | List available resources |
+| `/mcp/resources/read` | POST | Read resource content |
+| `/mcp/prompts/list` | POST | List available prompts |
+| `/mcp/prompts/get` | POST | Get a prompt by name |
+| `/mcp/sse` | GET | SSE event stream |
+| `/mcp/sse-terminal` | GET | SSE stream for terminal emulation |
+| `/mcp/health` | GET | Health check |
+| `/mcp/lambda/warm-functions` | POST | Warm cross-account Lambda functions |
+| `/mcp/lambda/list-lambdas` | GET | List managed Lambda functions |
+| `/mcp/capabilities` | GET | Server capabilities |
+| `/mcp/roots/list` | POST | List roots (for clients) |
+| `/mcp/sampling/createMessage` | POST | LLM sampling request |
+| `/mcp/logging/setLevel` | POST | Set log level |
+| `/mcp/log` | POST | Send log message (server->client) |
+| `/mcp/stats` | GET | Server statistics |
+
+---
+
+## 🏛️ 设计
+
+### Architecture
+
+```
+HTTP Request
+    │
+    ▼
+┌─────────────┐
+│   Transport  │  SSE or stdio
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  JSON-RPC 2.0│
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  MCP Server  │
+│  ┌─────────┐ │
+│  │ Tools    │ │
+│  ├─────────┤ │
+│  │ Resources│ │
+│  ├─────────┤ │
+│  │ Prompts  │ │
+│  └─────────┘ │
+└─────────────┘
+```
+
+### Server Initialization Pattern
+
+```typescript
+// Same wire protocol as @modelcontextprotocol/sdk
+interface InitializeRequest {
+  jsonrpc: '2.0';
+  method: 'initialize';
+  params: {
+    protocolVersion: string;
+    capabilities: ClientCapabilities;
+    clientInfo: { name: string; version: string; };
+  };
+  id: number;
+}
+
+interface InitializeResponse {
+  jsonrpc: '2.0';
+  result: {
+    protocolVersion: string;
+    capabilities: ServerCapabilities;
+    serverInfo: { name: string; version: string; };
+    instructions?: string;
+  };
+  id: number;
+}
+```
+
+### Tool Registration
+
+```typescript
+import { MCPTool, createMCPServer } from '@claude-flow/mcp';
+
+const tools: MCPTool[] = [
+  {
+    name: 'greet',
+    description: 'Greet a user',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Name to greet' }
+      },
+      required: ['name']
+    },
+    handler: async (input) => ({
+      content: [{ type: 'text', text: `Hello, ${input.name}!` }]
+    })
+  }
+];
+
+const server = createMCPServer({
+  name: 'My MCP Server',
+  version: '1.0.0',
+  tools
+});
+
+await server.start({ port: 3000 });
+```
+
+### Resource Management
+
+```typescript
+import { createMCPServer } from '@claude-flow/mcp';
+
+const server = createMCPServer({
+  name: 'file-server',
+  version: '1.0.0',
+  resources: [
+    {
+      uri: 'file:///project/README.md',
+      name: 'Project README',
+      description: 'Project documentation',
+      mimeType: 'text/markdown',
+      handler: async () => {
+        const content = await fs.readFile('/project/README.md', 'utf-8');
+        return { contents: [{ uri: 'file:///project/README.md', text: content }] };
+      }
+    }
+  ]
+});
+```
+
+### Lambda Warmers
+
+```typescript
+import { CrossAccountLambdaWarmer } from '@claude-flow/mcp';
+
+const warmer = new CrossAccountLambdaWarmer({
+  accounts: [
+    {
+      accountId: '123456789012',
+      roleArn: 'arn:aws:iam::123456789012:role/LambdaWarmer',
+      functions: ['my-function-1', 'my-function-2']
+    }
+  ],
+  concurrency: 5,
+  region: 'us-east-1'
+});
+
+// Warm all functions
+await warmer.warmAll();
+
+// Warm specific function
+await warmer.warmFunction(0, 'my-function-1');
+
+// Warm functions with specific payload
+await warmer.warmAll({ type: 'keep-warm', timestamp: Date.now() });
+```
+
+### SSE Transport
+
+```typescript
+// Client-side SSE subscription
+const events = new EventSource('http://localhost:3000/mcp/sse');
+
+events.addEventListener('message', (event) => {
+  const data = JSON.parse(event.data);
+  console.log('MCP Event:', data);
+});
+
+// Terminal emulation SSE stream
+const terminal = new EventSource('http://localhost:3000/mcp/sse-terminal');
+terminal.addEventListener('data', (event) => {
+  process.stdout.write(event.data); // Stream to terminal
+});
+```
+
+### Bundled Example Servers
+
+```
+examples/
+├── basic-server/          Minimal MCP server with one tool
+├── resource-server/       Server exposing file resources
+├── prompt-server/         Server with prompt templates
+├── sse-server/            SSE streaming server
+├── terminal-emulator/     Terminal emulation over SSE
+├── lambda-warmer/         Cross-account Lambda warming
+├── express-integration/   MCP server as Express middleware
+├── multi-account-warmer/  Warming across multiple AWS accounts
+├── full-lifecycle/        Complete MCP lifecycle implementation
+└── { other examples }
+```
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Installation
 
 ```bash
 npm install @claude-flow/mcp
 ```
 
-## Quick Start
+### Protocol Compliance
 
-```typescript
-import { quickStart, defineTool } from '@claude-flow/mcp';
+Wire-compatible with Anthropic's [`@modelcontextprotocol/sdk`](https://www.npmjs.com/package/@modelcontextprotocol/sdk). Any MCP client that works with the reference SDK works with this server.
 
-// Create and start server
-const server = await quickStart({
-  transport: 'stdio',
-  name: 'My MCP Server',
-});
+### Related Packages
 
-// Register custom tools
-server.registerTool(defineTool(
-  'greet',
-  'Greet a user',
-  {
-    type: 'object',
-    properties: {
-      name: { type: 'string', description: 'User name' }
-    },
-    required: ['name']
-  },
-  async ({ name }) => ({ message: `Hello, ${name}!` })
-));
+- [@claude-flow/plugins](../plugins) - MCP tool definitions via plugin SDK
+- [@claude-flow/security](../security) - Security validation for tool inputs
 
-// Start listening
-await server.start();
-```
+### References
 
-## Transports
+- [Model Context Protocol Specification](https://modelcontextprotocol.io)
+- [MCP SDK (Anthropic)](https://www.npmjs.com/package/@modelcontextprotocol/sdk)
 
-### Stdio (Default)
-
-```typescript
-import { createMCPServer } from '@claude-flow/mcp';
-
-const server = createMCPServer({
-  transport: 'stdio',
-  name: 'Stdio Server',
-}, logger);
-
-await server.start();
-```
-
-### HTTP
-
-```typescript
-const server = createMCPServer({
-  transport: 'http',
-  host: 'localhost',
-  port: 3000,
-  corsEnabled: true,
-  corsOrigins: ['http://localhost:8080'],
-  auth: {
-    enabled: true,
-    method: 'token',
-    tokens: ['secret-token'],
-  },
-}, logger);
-
-await server.start();
-// Server at http://localhost:3000
-// WebSocket at ws://localhost:3000/ws
-```
-
-### WebSocket
-
-```typescript
-const server = createMCPServer({
-  transport: 'websocket',
-  host: 'localhost',
-  port: 3001,
-  maxConnections: 100,
-  heartbeatInterval: 30000,
-}, logger);
-
-await server.start();
-// WebSocket at ws://localhost:3001/ws
-```
-
-## Tool Registry
-
-```typescript
-import { createToolRegistry, defineTool } from '@claude-flow/mcp';
-
-const registry = createToolRegistry(logger);
-
-// Register tool
-registry.register({
-  name: 'calculate',
-  description: 'Perform calculations',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      expression: { type: 'string' }
-    }
-  },
-  handler: async ({ expression }) => {
-    return { result: eval(expression) };
-  },
-  category: 'math',
-  tags: ['calculator'],
-});
-
-// Execute tool
-const result = await registry.execute('calculate', { expression: '2 + 2' });
-
-// Search tools
-const mathTools = registry.getByCategory('math');
-const stats = registry.getStats();
-```
-
-## Session Management
-
-```typescript
-import { createSessionManager } from '@claude-flow/mcp';
-
-const sessions = createSessionManager(logger, {
-  maxSessions: 100,
-  sessionTimeout: 30 * 60 * 1000, // 30 minutes
-});
-
-// Create session
-const session = sessions.createSession('http');
-
-// Initialize with client info
-sessions.initializeSession(session.id, {
-  protocolVersion: '2024-11-05', // MCP spec: YYYY-MM-DD string
-  capabilities: { tools: { listChanged: true } },
-  clientInfo: { name: 'Claude', version: '1.0' },
-});
-
-// Get metrics
-const metrics = sessions.getSessionMetrics();
-// { total: 1, active: 1, authenticated: 0, expired: 0 }
-```
-
-## Connection Pool
-
-```typescript
-import { createConnectionPool } from '@claude-flow/mcp';
-
-const pool = createConnectionPool({
-  maxConnections: 10,
-  minConnections: 2,
-  idleTimeout: 30000,
-  acquireTimeout: 5000,
-}, logger, 'http');
-
-// Acquire connection
-const conn = await pool.acquire();
-
-// Use connection...
-
-// Release back to pool
-pool.release(conn);
-
-// Get stats
-const stats = pool.getStats();
-// { totalConnections: 5, idleConnections: 4, busyConnections: 1, ... }
-```
-
-## API Reference
-
-### Server
-
-```typescript
-interface IMCPServer {
-  start(): Promise<void>;
-  stop(): Promise<void>;
-  registerTool(tool: MCPTool): boolean;
-  registerTools(tools: MCPTool[]): { registered: number; failed: string[] };
-  getHealthStatus(): Promise<{ healthy: boolean; error?: string; metrics?: Record<string, number> }>;
-  getMetrics(): MCPServerMetrics;
-  getSessions(): MCPSession[];
-  getSession(sessionId: string): MCPSession | undefined;
-  terminateSession(sessionId: string): boolean;
-}
-```
-
-### Tool
-
-```typescript
-interface MCPTool<TInput = unknown, TOutput = unknown> {
-  name: string;
-  description: string;
-  inputSchema: JSONSchema;
-  handler: (input: TInput, context?: ToolContext) => Promise<TOutput>;
-  category?: string;
-  tags?: string[];
-  cacheable?: boolean;
-  cacheTTL?: number;
-  timeout?: number;
-}
-```
-
-### Transport
-
-```typescript
-interface ITransport {
-  readonly type: TransportType;
-  start(): Promise<void>;
-  stop(): Promise<void>;
-  onRequest(handler: RequestHandler): void;
-  onNotification(handler: NotificationHandler): void;
-  sendNotification?(notification: MCPNotification): Promise<void>;
-  getHealthStatus(): Promise<TransportHealthStatus>;
-}
-```
-
-## Built-in Tools
-
-The server automatically registers these system tools:
-
-| Tool | Description |
-|------|-------------|
-| `system/info` | Get server information |
-| `system/health` | Get health status |
-| `system/metrics` | Get server metrics |
-| `tools/list-detailed` | List all tools with details |
-
-## Resources (MCP 2025-11-25)
-
-```typescript
-import { createMCPServer, createTextResource } from '@claude-flow/mcp';
-
-const server = createMCPServer({ transport: 'stdio' }, logger);
-const resourceRegistry = server.getResourceRegistry();
-
-// Register a text resource
-const { resource, handler } = createTextResource(
-  'file://readme.txt',
-  'README',
-  'Welcome to the application!',
-  { mimeType: 'text/plain' }
-);
-resourceRegistry.registerResource(resource, handler);
-
-// Register with custom handler
-resourceRegistry.registerResource(
-  {
-    uri: 'db://users/{id}',
-    name: 'User Data',
-    description: 'Get user by ID',
-    mimeType: 'application/json',
-  },
-  async (uri) => {
-    const id = uri.split('/').pop();
-    const user = await fetchUser(id);
-    return [{ uri, mimeType: 'application/json', text: JSON.stringify(user) }];
-  }
-);
-
-// Subscribe to updates
-resourceRegistry.subscribe('file://readme.txt', (uri, content) => {
-  console.log('Resource updated:', uri);
-});
-```
-
-## Prompts (MCP 2025-11-25)
-
-```typescript
-import { createMCPServer, definePrompt, textMessage, interpolate } from '@claude-flow/mcp';
-
-const server = createMCPServer({ transport: 'stdio' }, logger);
-const promptRegistry = server.getPromptRegistry();
-
-// Define a prompt with arguments
-const codeReviewPrompt = definePrompt(
-  'code_review',
-  'Review code for quality and best practices',
-  async (args) => [
-    textMessage('user', `Please review this ${args.language} code:\n\n${args.code}`),
-  ],
-  {
-    title: 'Code Review',
-    arguments: [
-      { name: 'code', description: 'The code to review', required: true },
-      { name: 'language', description: 'Programming language', required: false },
-    ],
-  }
-);
-
-promptRegistry.register(codeReviewPrompt);
-
-// Get prompt with arguments
-const result = await promptRegistry.get('code_review', {
-  code: 'function hello() { return "world"; }',
-  language: 'JavaScript',
-});
-```
-
-## Tasks (MCP 2025-11-25)
-
-```typescript
-import { createMCPServer } from '@claude-flow/mcp';
-
-const server = createMCPServer({ transport: 'stdio' }, logger);
-const taskManager = server.getTaskManager();
-
-// Create a long-running task
-const taskId = taskManager.createTask(async (reportProgress, signal) => {
-  for (let i = 0; i <= 100; i += 10) {
-    if (signal.aborted) throw new Error('Task cancelled');
-
-    reportProgress({
-      progress: i,
-      total: 100,
-      message: `Processing... ${i}%`,
-    });
-
-    await new Promise(r => setTimeout(r, 100));
-  }
-
-  return { success: true, processedItems: 100 };
-});
-
-// Get task status
-const status = taskManager.getTask(taskId);
-
-// Wait for completion
-const result = await taskManager.waitForTask(taskId);
-
-// Cancel a task
-taskManager.cancelTask(taskId, 'User requested cancellation');
-```
-
-## MCP Methods Supported
-
-| Method | Description |
-|--------|-------------|
-| `initialize` | Initialize connection |
-| `tools/list` | List available tools |
-| `tools/call` | Execute a tool |
-| `resources/list` | List resources with pagination |
-| `resources/read` | Read resource content |
-| `resources/subscribe` | Subscribe to updates |
-| `resources/unsubscribe` | Unsubscribe from updates |
-| `prompts/list` | List prompts with pagination |
-| `prompts/get` | Get prompt with arguments |
-| `tasks/status` | Get task status |
-| `tasks/cancel` | Cancel a running task |
-| `completion/complete` | Auto-complete arguments |
-| `logging/setLevel` | Set log level |
-| `ping` | Keep-alive |
-
-## Performance Targets
-
-| Metric | Target |
-|--------|--------|
-| Server startup | <400ms |
-| Tool registration | <10ms |
-| Tool execution overhead | <50ms |
-| Connection acquire | <5ms |
-| Connection release | <1ms |
-
-## Security
-
-### Authentication
-
-```typescript
-const server = createMCPServer({
-  auth: {
-    enabled: true,
-    method: 'token',
-    tokens: ['your-secret-token'],
-  },
-}, logger);
-```
-
-### CORS
-
-```typescript
-const server = createMCPServer({
-  transport: 'http',
-  corsEnabled: true,
-  corsOrigins: ['https://your-domain.com'],
-}, logger);
-```
-
-## Error Codes
-
-```typescript
-const ErrorCodes = {
-  PARSE_ERROR: -32700,
-  INVALID_REQUEST: -32600,
-  METHOD_NOT_FOUND: -32601,
-  INVALID_PARAMS: -32602,
-  INTERNAL_ERROR: -32603,
-  SERVER_NOT_INITIALIZED: -32002,
-  AUTHENTICATION_REQUIRED: -32001,
-};
-```
-
-## License
+### License
 
 MIT
+
+---
+
+## 🚀 快速开始
+
+```typescript
+import { createMCPServer } from '@claude-flow/mcp';
+
+// Create a server with tools
+const server = createMCPServer({
+  name: 'My MCP Server',
+  version: '1.0.0',
+  tools: [
+    {
+      name: 'echo',
+      description: 'Echo back the input',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          message: { type: 'string', description: 'Message to echo' }
+        },
+        required: ['message']
+      },
+      handler: async (input) => ({
+        content: [{ type: 'text', text: input.message }]
+      })
+    }
+  ]
+});
+
+// Start the server
+await server.start({ port: 3000 });
+console.log('MCP Server running on http://localhost:3000');
+```
+
+---
+
+## ⚙️ 技术栈
+
+- TypeScript
+- Node.js
+- JSON-RPC 2.0
+- SSE (Server-Sent Events)
+- MCP Protocol
+- AWS SDK (for Lambda warmers)

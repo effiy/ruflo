@@ -1,30 +1,61 @@
+---
+title: "@claude-flow/plugin-iot-cognitum"
+tags: ["iot", "cognitum-seed", "edge", "device-agent", "vector-store", "firmware", "mesh"]
+category: "@claude-flow/plugin-iot-cognitum"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/plugin-iot-cognitum
 
 [![npm version](https://img.shields.io/npm/v/@claude-flow/plugin-iot-cognitum.svg)](https://www.npmjs.com/package/@claude-flow/plugin-iot-cognitum)
 [![npm downloads](https://img.shields.io/npm/dm/@claude-flow/plugin-iot-cognitum.svg)](https://www.npmjs.com/package/@claude-flow/plugin-iot-cognitum)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-IoT Cognitum Seed device-agent bridge — treat every Seed as a Ruflo agent with hardware capabilities.
+---
 
-## Hardware
+## 💡 概述
+
+IoT Cognitum Seed device-agent bridge -- treat every Seed as a Ruflo agent with hardware capabilities.
+
+---
+
+## ⚡ 功能
+
+- On-device vector store
+- Ed25519 cryptographic identity
+- OTA firmware updates
+- Mesh networking
+- Witness chain for provenance
+- Fleet management
+- CLI and programmatic API
+
+---
+
+## 📊 指标
+
+- 239 unit + integration tests
+- Chained-command live-device smoke harness
+
+---
+
+## 🏛️ 设计
+
+### Hardware
 
 This plugin requires a **Cognitum Seed** device. Get one at **https://cognitum.one**.
 
 The Seed is an edge appliance with on-device vector store, Ed25519 cryptographic identity, OTA firmware updates, mesh networking, and a witness chain for provenance.
 
 **Default endpoints:**
-- `http://169.254.42.1` — link-local USB-C (no auth, read-only + pair window)
-- `https://169.254.42.1:8443` — LAN/HTTPS with bearer token (full access including writes)
+- `http://169.254.42.1` -- link-local USB-C (no auth, read-only + pair window)
+- `https://169.254.42.1:8443` -- LAN/HTTPS with bearer token (full access including writes)
 
-## Install + run
-
-```bash
-npx -y -p @claude-flow/plugin-iot-cognitum@latest cognitum-iot --help
-```
-
-## Authentication via `.env`
-
-Create a `.env` file in your project root (or any parent directory):
+### Authentication via `.env`
 
 ```bash
 COGNITUM_SEED_TOKEN=your-bearer-token-here
@@ -37,12 +68,38 @@ IOT_TLS_INSECURE=true                                # accept self-signed cert (
 
 The bin walks up from CWD looking for `.env`, loads it without overwriting existing process.env vars, then:
 
-- When `COGNITUM_SEED_TOKEN` is present → default endpoint switches to `https://169.254.42.1:8443` (LAN/HTTPS) and the token is passed as the bearer/pairing token on `register`.
-- When no token → default endpoint stays at `http://169.254.42.1` (USB-C link-local, read-only).
+- When `COGNITUM_SEED_TOKEN` is present, default endpoint switches to `https://169.254.42.1:8443` (LAN/HTTPS) and the token is passed as the bearer/pairing token on `register`.
+- When no token, default endpoint stays at `http://169.254.42.1` (USB-C link-local, read-only).
 
-Token scope on Seed varies — read endpoints work with most tokens; `store/ingest` and some admin operations require a write-scoped token. See https://cognitum.one for token tier documentation.
+### Programmatic use
 
-## Commands
+```typescript
+import { IoTCognitumPlugin } from '@claude-flow/plugin-iot-cognitum';
+
+const plugin = new IoTCognitumPlugin();
+await plugin.initialize({ /* PluginContext */ });
+const coordinator = plugin['coordinator'];
+const device = await coordinator.registerDevice('http://169.254.42.1');
+console.log(`Trust: ${device.trustLevel}, vectors: ${device.vectorStoreStats.totalVectors}`);
+```
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Install + run
+
+```bash
+npx -y -p @claude-flow/plugin-iot-cognitum@latest cognitum-iot --help
+```
+
+### Commands
 
 | Command | Description |
 |---|---|
@@ -68,21 +125,7 @@ Token scope on Seed varies — read endpoints work with most tokens; `store/inge
 | `cognitum-iot firmware advance <rollout-id>` | Advance rollout stage |
 | `cognitum-iot firmware rollback <rollout-id>` | Force rollback |
 
-## Programmatic use
-
-```typescript
-import { IoTCognitumPlugin } from '@claude-flow/plugin-iot-cognitum';
-
-const plugin = new IoTCognitumPlugin();
-await plugin.initialize({ /* PluginContext */ });
-const coordinator = plugin['coordinator'];
-const device = await coordinator.registerDevice('http://169.254.42.1');
-console.log(`Trust: ${device.trustLevel}, vectors: ${device.vectorStoreStats.totalVectors}`);
-```
-
-## Tests
-
-239 unit + integration tests, plus a chained-command live-device smoke harness at `__tests__/integration/full-plugin-smoke.mjs`. Run:
+### Tests
 
 ```bash
 npm test                                      # unit + SDK integration
@@ -90,8 +133,25 @@ SEED_ENDPOINT=http://169.254.42.1 \
   node __tests__/integration/full-plugin-smoke.mjs   # live device smoke
 ```
 
-## License
+### License
 
-MIT — Claude Flow Team.
+MIT -- Claude Flow Team.
 
 Cognitum Seed hardware: see https://cognitum.one for licensing and acquisition.
+
+---
+
+## 🚀 快速开始
+
+```bash
+npx -y -p @claude-flow/plugin-iot-cognitum@latest cognitum-iot --help
+```
+
+---
+
+## ⚙️ 技术栈
+
+- TypeScript
+- Node.js
+- Cognitum Seed hardware
+- Ed25519

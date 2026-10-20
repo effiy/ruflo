@@ -1,18 +1,28 @@
+---
+title: "Ruflo Plugins"
+tags: ["plugins", "claude-code", "catalog", "agent", "orchestration", "memory", "security"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # Ruflo Plugins
 
 32 Claude Code plugins for agent-powered development workflows. Load with `--plugin-dir`.
 
-## Quick Start
+---
 
-```bash
-# Load specific plugins
-claude --plugin-dir plugins/ruflo-core --plugin-dir plugins/ruflo-swarm
+## 💡 概述
 
-# Load all plugins
-claude $(ls -d plugins/ruflo-*/ | sed 's|^|--plugin-dir |' | tr '\n' ' ')
-```
+A catalog of Claude Code plugins organized by category: Core & Coordination, Memory & Intelligence, Architecture & Methodology, Quality & Security, Development Tools, and Domain-Specific. Each plugin follows the Claude Code plugin specification.
 
-## Plugin Catalog
+---
+
+## ⚡ 功能
 
 ### Core & Coordination
 
@@ -77,7 +87,11 @@ claude $(ls -d plugins/ruflo-*/ | sed 's|^|--plugin-dir |' | tr '\n' ' ')
 | [ruflo-neural-trader](ruflo-neural-trader/) | [`neural-trader`](https://npmjs.com/package/neural-trader) — 4 agents, LSTM/Transformer, Rust/NAPI backtesting, 112+ MCP tools |
 | [ruflo-market-data](ruflo-market-data/) | Market data ingestion, OHLCV vectorization, pattern matching |
 
-## Recommended Stacks
+---
+
+## 📊 指标
+
+### Recommended Stacks
 
 | Use Case | Plugins |
 |----------|---------|
@@ -90,7 +104,7 @@ claude $(ls -d plugins/ruflo-*/ | sed 's|^|--plugin-dir |' | tr '\n' ' ')
 | Trading systems | `ruflo-core` + `ruflo-neural-trader` + `ruflo-market-data` + `ruflo-ruvector` |
 | Full stack | All 32 plugins |
 
-## npm Package Integration
+### npm Package Integration
 
 Several plugins wrap standalone npm packages for deeper functionality:
 
@@ -99,16 +113,11 @@ Several plugins wrap standalone npm packages for deeper functionality:
 | `ruflo-neural-trader` | [`neural-trader`](https://npmjs.com/package/neural-trader) | 112+ MCP tools, Rust/NAPI engine, LSTM/Transformer models |
 | `ruflo-ruvector` | [`ruvector`](https://npmjs.com/package/ruvector) | 103 MCP tools, FlashAttention-3, Graph RAG, Brain AGI |
 
-```bash
-# Install backing packages
-npm install neural-trader ruvector
+---
 
-# Add as MCP servers (optional, for direct tool access)
-claude mcp add neural-trader -- npx neural-trader mcp start
-claude mcp add ruvector -- npx ruvector mcp start
-```
+## 🏛️ 设计
 
-## Plugin Structure
+### Plugin Structure
 
 Each plugin follows the Claude Code plugin specification:
 
@@ -121,22 +130,7 @@ ruflo-<name>/
   README.md                     # Plugin documentation
 ```
 
-## Creating a Plugin
-
-```bash
-claude --plugin-dir plugins/ruflo-plugin-creator
-# Then: /create-plugin my-new-plugin
-```
-
-Or manually: copy any existing plugin directory and modify.
-
-## Validation
-
-```bash
-claude plugin validate plugins/ruflo-<name>
-```
-
-## Verification & Discoverability
+### Verification & Discoverability
 
 Every MCP tool description across the 32 plugins must answer "use this over native (Bash/Read/Grep/Glob/Task/TodoWrite) when?" per [ADR-112](../v3/docs/adr/ADR-112-mcp-tool-discoverability.md). The rule is enforced by CI:
 
@@ -145,12 +139,67 @@ Every MCP tool description across the 32 plugins must answer "use this over nati
 node scripts/audit-tool-descriptions.mjs
 
 # Gates: every description must include "Use when …" guidance,
-# be ≥ 80 chars, and be unique. Baseline at verification/mcp-tool-baseline.json
+# be >= 80 chars, and be unique. Baseline at verification/mcp-tool-baseline.json
 # is monotone-decreasing — CI fails on any regression.
 ```
 
-Combined with [`verification/`](../verification/) (Ed25519-signed witness manifest, 103+ documented fixes attested), the plugin surface is regression-protected at three layers: install smoke (`npm i`), behavioral smoke (paired-tool round-trips), and presence attestation (every load-bearing line of every documented fix). See [`verification/README.md`](../verification/README.md) for the full stack.
+Combined with [`verification/`](../verification/) (Ed25519-signed witness manifest, 103+ documented fixes attested), the plugin surface is regression-protected at three layers: install smoke (`npm i`), behavioral smoke (paired-tool round-trips), and presence attestation (every load-bearing line of every documented fix).
 
-## License
+---
 
-MIT
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+- [ADR-112](../v3/docs/adr/ADR-112-mcp-tool-discoverability.md) — MCP tool discoverability
+- [`verification/README.md`](../verification/README.md) — full regression-protection stack
+
+---
+
+## 🚀 快速开始
+
+```bash
+# Load specific plugins
+claude --plugin-dir plugins/ruflo-core --plugin-dir plugins/ruflo-swarm
+
+# Load all plugins
+claude $(ls -d plugins/ruflo-*/ | sed 's|^|--plugin-dir |' | tr '\n' ' ')
+```
+
+### Creating a Plugin
+
+```bash
+claude --plugin-dir plugins/ruflo-plugin-creator
+# Then: /create-plugin my-new-plugin
+```
+
+Or manually: copy any existing plugin directory and modify.
+
+### Validation
+
+```bash
+claude plugin validate plugins/ruflo-<name>
+```
+
+### npm Package Integration
+
+```bash
+# Install backing packages
+npm install neural-trader ruvector
+
+# Add as MCP servers (optional, for direct tool access)
+claude mcp add neural-trader -- npx neural-trader mcp start
+claude mcp add ruvector -- npx ruvector mcp start
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Claude Code plugin system
+- MCP protocol
+- npm packages: `neural-trader`, `ruvector`

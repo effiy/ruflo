@@ -1,276 +1,285 @@
-# @claude-flow/plugin-performance-optimizer
+---
+title: "@claude-flow/plugin-perf-optimizer"
+tags: ["performance", "optimization", "benchmarking", "wasm", "sparse-inference", "bottleneck"]
+category: "plugins/perf-optimizer"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
 
-[![npm version](https://img.shields.io/npm/v/@claude-flow/plugin-performance-optimizer.svg)](https://www.npmjs.com/package/@claude-flow/plugin-performance-optimizer)
-[![npm downloads](https://img.shields.io/npm/dm/@claude-flow/plugin-performance-optimizer.svg)](https://www.npmjs.com/package/@claude-flow/plugin-performance-optimizer)
+# @claude-flow/plugin-perf-optimizer
+
+[![npm version](https://img.shields.io/npm/v/@claude-flow/plugin-perf-optimizer.svg)](https://www.npmjs.com/package/@claude-flow/plugin-perf-optimizer)
+[![npm downloads](https://img.shields.io/npm/dm/@claude-flow/plugin-perf-optimizer.svg)](https://www.npmjs.com/package/@claude-flow/plugin-perf-optimizer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A comprehensive performance optimization plugin combining sparse inference for efficient trace analysis with graph neural networks for dependency chain optimization. The plugin enables intelligent bottleneck detection, memory leak identification, N+1 query detection, and bundle size optimization while providing explainable recommendations based on historical performance patterns.
+---
 
-## Features
+## 💡 概述
 
-- **Bottleneck Detection**: Identify performance bottlenecks using GNN-based dependency analysis
-- **Memory Analysis**: Detect memory leaks, retention chains, and GC pressure points
-- **Query Optimization**: Detect N+1 queries, missing indexes, and slow joins
-- **Bundle Optimization**: Analyze and optimize JavaScript bundle size with tree shaking and code splitting
-- **Configuration Optimization**: Learn optimal configurations from workload patterns using SONA
+Performance optimization automation plugin for Claude Flow V3 - automated bottleneck detection, profiling, optimization recommendations, and code transformation with RuVector WASM acceleration.
 
-## Installation
+---
 
-### npm
+## ⚡ 功能
 
-```bash
-npm install @claude-flow/plugin-performance-optimizer
-```
+- **Automated Profiling** - CPU, memory, and I/O profiling with bottleneck identification
+- **Optimization Recommendations** - AI-powered suggestions ranked by impact and effort
+- **Code Transformation** - Automatic application of safe optimizations
+- **Benchmarking** - Before/after comparisons with statistical significance
+- **Memory Analysis** - Heap snapshots, leak detection, allocation profiling
+- **Bundle Analysis** - Import cost analysis and tree-shaking opportunities
+- **Build Optimization** - Build time analysis with caching recommendations
+- **Continuous Monitoring** - Performance regression detection
 
-### CLI
+### WASM Acceleration
 
-```bash
-npx claude-flow plugins install --name @claude-flow/plugin-performance-optimizer
-```
+| Component | WASM Package | Speed Improvement |
+|-----------|-------------|-------------------|
+| Inference optimization | `ruvector-sparse-inference-wasm` | Sparse matrix efficiency |
+| Hardware acceleration | `ruvector-fpga-transformer-wasm` | FPGA-accelerated operations |
 
-## Quick Start
+### Optimization Categories
+
+| Category | Examples |
+|----------|----------|
+| **Computation** | Algorithm selection, memoization, caching |
+| **Memory** | Pool reuse, buffer optimization, lazy loading |
+| **I/O** | Batching, streaming, connection pooling |
+| **Rendering** | Virtualization, debounce/throttle |
+| **Bundle** | Tree shaking, code splitting, dynamic imports |
+| **Build** | Parallel compilation, incremental builds |
+
+---
+
+## 📊 指标
+
+| Metric | Target |
+|--------|--------|
+| Profiling overhead | <5% |
+| Recommendation accuracy | >80% |
+| Auto-optimization safety | 100% (no functional changes) |
+| Benchmark confidence | p < 0.05 |
+
+---
+
+## 🏛️ 设计
+
+### Profiling
 
 ```typescript
-import { PerfOptimizerPlugin } from '@claude-flow/plugin-performance-optimizer';
+import { Profiler } from '@claude-flow/plugin-perf-optimizer';
 
-// Initialize the plugin
-const plugin = new PerfOptimizerPlugin();
-await plugin.initialize();
+const profiler = new Profiler();
 
-// Detect performance bottlenecks
-const bottlenecks = await plugin.detectBottlenecks({
-  traceData: {
-    format: 'otlp',
-    spans: traceSpans,
-    metrics: performanceMetrics
-  },
-  analysisScope: ['cpu', 'memory', 'database'],
-  threshold: {
-    latencyP95: 500,  // 500ms
-    throughput: 1000,
-    errorRate: 0.01
-  }
+// CPU profiling
+const cpuProfile = await profiler.profileCPU(async () => {
+  await myFunction();
 });
 
-console.log('Detected bottlenecks:', bottlenecks);
-```
-
-## MCP Tools
-
-### 1. `perf/bottleneck-detect`
-
-Detect performance bottlenecks using GNN-based dependency analysis.
-
-```typescript
-// Example usage via MCP
-const result = await mcp.call('perf/bottleneck-detect', {
-  traceData: {
-    format: 'chrome_devtools',
-    spans: chromeTraceSpans,
-    metrics: { renderTime: 150, scriptTime: 200 }
-  },
-  analysisScope: ['cpu', 'render', 'network'],
-  threshold: {
-    latencyP95: 100,
-    throughput: 60
-  }
+// Memory profiling
+const memProfile = await profiler.profileMemory(async () => {
+  await myFunction();
 });
-```
 
-**Returns:** List of identified bottlenecks with severity, location, and recommended fixes.
-
-### 2. `perf/memory-analyze`
-
-Analyze memory usage patterns and detect potential leaks.
-
-```typescript
-const result = await mcp.call('perf/memory-analyze', {
-  heapSnapshot: '/path/to/heap-snapshot.heapsnapshot',
-  timeline: memoryTimelineData,
-  analysis: ['leak_detection', 'retention_analysis', 'gc_pressure'],
-  compareBaseline: '/path/to/baseline-snapshot.heapsnapshot'
+// I/O profiling
+const ioProfile = await profiler.profileIO(async () => {
+  await myFunction();
 });
 ```
 
-**Returns:** Memory analysis report with leak candidates, retention chains, and optimization suggestions.
-
-### 3. `perf/query-optimize`
-
-Detect N+1 queries and suggest database optimizations.
+### Bottleneck Detection
 
 ```typescript
-const result = await mcp.call('perf/query-optimize', {
-  queries: [
-    { sql: 'SELECT * FROM users WHERE id = ?', duration: 5, resultSize: 1 },
-    { sql: 'SELECT * FROM orders WHERE user_id = ?', duration: 3, resultSize: 10 }
-  ],
-  patterns: ['n_plus_1', 'missing_index', 'slow_join'],
-  suggestIndexes: true
+import { BottleneckDetector } from '@claude-flow/plugin-perf-optimizer';
+
+const detector = new BottleneckDetector();
+
+const bottlenecks = await detector.analyze('./src', {
+  profileTypes: ['cpu', 'memory', 'io'],
+  thresholds: { cpuTime: 50, memoryMB: 100 }
 });
-```
 
-**Returns:** Detected query anti-patterns with suggested batch alternatives and index recommendations.
-
-### 4. `perf/bundle-optimize`
-
-Analyze and optimize JavaScript bundle size.
-
-```typescript
-const result = await mcp.call('perf/bundle-optimize', {
-  bundleStats: '/path/to/webpack-stats.json',
-  analysis: ['tree_shaking', 'code_splitting', 'duplicate_deps', 'large_modules'],
-  targets: {
-    maxSize: 250,  // 250KB
-    maxChunks: 10
-  }
-});
-```
-
-**Returns:** Bundle analysis with optimization recommendations for tree shaking, code splitting, and dependency deduplication.
-
-### 5. `perf/config-optimize`
-
-Suggest optimal configurations based on workload patterns using SONA learning.
-
-```typescript
-const result = await mcp.call('perf/config-optimize', {
-  workloadProfile: {
-    type: 'api',
-    metrics: { requestsPerSecond: 1000, avgLatency: 50 },
-    constraints: { maxMemory: '4GB', maxCpu: 4 }
-  },
-  configSpace: {
-    poolSize: { type: 'number', range: [10, 100], current: 25 },
-    cacheSize: { type: 'number', range: [100, 1000], current: 200 }
-  },
-  objective: 'latency'
-});
-```
-
-**Returns:** Optimized configuration values with expected performance improvements.
-
-## Configuration Options
-
-```typescript
-interface PerfOptimizerConfig {
-  // WASM memory limit (default: 2GB)
-  memoryLimit: number;
-
-  // Analysis timeout in seconds (default: 300)
-  analysisTimeout: number;
-
-  // Enable SONA learning for configuration optimization
-  enableSONALearning: boolean;
-
-  // Supported trace formats
-  supportedFormats: ('otlp' | 'chrome_devtools' | 'jaeger' | 'zipkin')[];
-
-  // Performance thresholds for alerting
-  thresholds: {
-    latencyP95: number;
-    throughput: number;
-    errorRate: number;
-  };
+for (const bottleneck of bottlenecks) {
+  console.log(`${bottleneck.location} (impact: ${bottleneck.impact}%)`);
+  console.log(`  Suggestion: ${bottleneck.recommendation}`);
 }
 ```
 
-## Performance Targets
-
-| Metric | Target | Improvement vs Baseline |
-|--------|--------|------------------------|
-| Trace analysis (1M spans) | <5s | 24x faster |
-| Memory analysis (1GB heap) | <30s | 10x faster |
-| Query pattern detection (10K queries) | <1s | 600x faster |
-| Bundle analysis (10MB) | <10s | 6x faster |
-| Config optimization | <1min convergence | 1440x+ faster |
-
-## Security Considerations
-
-- **Trace Data Sanitization**: Automatically sanitizes sensitive data (passwords, tokens, cookies) from trace data before processing
-- **Query Parse-Only**: SQL queries are parsed and analyzed but never executed
-- **WASM Sandboxing**: All analysis runs in isolated WASM sandbox with 2GB memory limit and no network access
-- **Path Validation**: Bundle stats paths are validated to prevent path traversal attacks
-- **Input Validation**: All inputs validated with Zod schemas to prevent injection attacks
-- **No Code Execution**: Performance suggestions are recommendations only - no automatic code modification
-
-### WASM Security Constraints
-
-| Constraint | Value | Rationale |
-|------------|-------|-----------|
-| Memory Limit | 2GB max | Handle large trace datasets |
-| CPU Time Limit | 300 seconds | Allow deep performance analysis |
-| No Network Access | Enforced | Prevent data exfiltration |
-| No File System Write | Enforced | Read-only analysis mode |
-| Sandboxed Paths | Validated prefixes only | Prevent path traversal |
-
-### Input Limits
-
-| Input | Limit |
-|-------|-------|
-| Max spans per trace | 1,000,000 |
-| Max query size | 10KB |
-| Max queries per batch | 10,000 |
-| Max heap snapshot size | 1GB |
-| Max bundle stats size | 50MB |
-| CPU time limit | 300 seconds |
-
-### Rate Limiting
+### Optimization Engine
 
 ```typescript
-const rateLimits = {
-  'perf/bottleneck-detect': { requestsPerMinute: 10, maxConcurrent: 2 },
-  'perf/memory-analyze': { requestsPerMinute: 5, maxConcurrent: 1 },
-  'perf/query-optimize': { requestsPerMinute: 30, maxConcurrent: 3 },
-  'perf/bundle-optimize': { requestsPerMinute: 10, maxConcurrent: 2 },
-  'perf/config-optimize': { requestsPerMinute: 5, maxConcurrent: 1 }
-};
+import { Optimizer } from '@claude-flow/plugin-perf-optimizer';
+
+const optimizer = new Optimizer();
+
+// Get recommendations
+const recommendations = await optimizer.recommend('./src', {
+  maxComplexity: 'medium',
+  safeOnly: true
+});
+
+// Apply optimization
+const result = await optimizer.apply(recommendations[0]);
+
+// Measure impact
+const benchmark = await optimizer.benchmark(
+  () => myFunction(),
+  { iterations: 100, warmup: 10 }
+);
 ```
 
-## Dependencies
+### Memory Analysis
 
-- `ruvector-sparse-inference-wasm` - Efficient sparse performance trace processing
-- `ruvector-gnn-wasm` - Dependency chain analysis and critical path detection
-- `micro-hnsw-wasm` - Similar performance pattern matching
-- `ruvector-fpga-transformer-wasm` - Fast transformer inference for trace analysis
-- `sona` - Learning optimal configurations from historical data
+```typescript
+import { MemoryAnalyzer } from '@claude-flow/plugin-perf-optimizer';
 
-## Supported Formats
+const analyzer = new MemoryAnalyzer();
 
-| Category | Formats |
-|----------|---------|
-| Tracing | OpenTelemetry, Jaeger, Zipkin, Chrome DevTools |
-| Profiling | Chrome CPU Profile, Node.js Profile, pprof |
-| Memory | Chrome Heap Snapshot, Node.js Heap |
-| Bundles | Webpack Stats, Vite Stats, Rollup |
+// Take heap snapshot
+const snapshot = await analyzer.takeHeapSnapshot();
 
-## Related Plugins
+// Analyze for leaks
+const leaks = await analyzer.detectLeaks({
+  baseline: snapshot,
+  afterOperation: async () => { /* run suspect code */ }
+});
 
-| Plugin | Description | Use Case |
-|--------|-------------|----------|
-| [@claude-flow/plugin-code-intelligence](../code-intelligence) | Code analysis | Identify code causing performance issues |
-| [@claude-flow/plugin-test-intelligence](../test-intelligence) | Test optimization | Performance regression test selection |
-| [@claude-flow/plugin-financial-risk](../financial-risk) | Risk analysis | Trading system latency optimization |
+// Allocation profiling
+const allocation = await analyzer.profileAllocations(async () => {
+  await myFunction();
+});
+```
 
-## License
+### Bundle Analysis
 
-MIT License
+```typescript
+import { BundleAnalyzer } from '@claude-flow/plugin-perf-optimizer';
 
-Copyright (c) 2026 Claude Flow
+const bundleAnalyzer = new BundleAnalyzer();
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+const report = await bundleAnalyzer.analyze('./dist');
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+// Largest modules
+console.log(report.largestModules);
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+// Tree-shaking opportunities
+console.log(report.unusedExports);
+
+// Duplicate dependencies
+console.log(report.duplicates);
+```
+
+### Continuous Monitoring
+
+```typescript
+import { PerformanceMonitor } from '@claude-flow/plugin-perf-optimizer';
+
+const monitor = new PerformanceMonitor();
+
+// Start monitoring
+monitor.start({
+  metrics: ['cpu', 'memory', 'event-loop', 'gc'],
+  interval: 5000
+});
+
+// Get current metrics
+const metrics = monitor.getMetrics();
+
+// Check for regressions
+const regression = await monitor.checkRegression('cpu-usage', {
+  baseline: previousMetrics,
+  threshold: 1.1  // 10% increase
+});
+
+// Stop monitoring
+monitor.stop();
+```
+
+### Auto-Optimization
+
+```typescript
+import { AutoOptimizer } from '@claude-flow/plugin-perf-optimizer';
+
+const optimizer = new AutoOptimizer();
+
+// Auto-detect and apply safe optimizations
+const result = await optimizer.optimize('./src', {
+  autoApply: true,
+  safeOnly: true,
+  maxChanges: 5
+});
+
+console.log(`Applied ${result.applied.length} optimizations`);
+for (const opt of result.applied) {
+  console.log(`  ${opt.description}: ${opt.before} → ${opt.after} (${opt.improvement}%)`);
+}
+```
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Installation
+
+```bash
+npx claude-flow@v3alpha plugins install @claude-flow/plugin-perf-optimizer
+```
+
+### Quick Commands
+
+```bash
+# Profile a function
+npx claude-flow@v3alpha performance profile --target "src/core/processor.ts"
+
+# Run benchmarks
+npx claude-flow@v3alpha performance benchmark --suite all
+
+# Get optimization suggestions
+npx claude-flow@v3alpha performance optimize --target "./src"
+```
+
+### Related Packages
+
+- [@claude-flow/plugin-code-intelligence](../code-intelligence) - Code analysis for optimization hints
+- [ruvector-upstream](../ruvector-upstream) - WASM acceleration dependencies
+
+### License
+
+MIT
+
+---
+
+## 🚀 快速开始
+
+```typescript
+import { PerfOptimizerPlugin } from '@claude-flow/plugin-perf-optimizer';
+
+const plugin = new PerfOptimizerPlugin();
+await plugin.initialize();
+
+// Profile + recommend
+const profile = await plugin.profile('./src/core/');
+const recommendations = await plugin.recommend(profile);
+
+// Apply top recommendation
+await plugin.apply(recommendations[0]);
+```
+
+---
+
+## ⚙️ 技术栈
+
+- TypeScript
+- Node.js
+- RuVector WASM (Sparse Inference, FPGA Transformer)
+- CPU/Memory profiling APIs

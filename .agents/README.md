@@ -1,8 +1,41 @@
+---
+title: ".agents — Agent Configuration & Skills"
+tags: ["agents", "codex", "skills", "configuration"]
+category: "infrastructure/config"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # .agents Directory
 
 This directory contains agent configuration and skills for OpenAI Codex CLI.
 
-## Structure
+---
+
+## 💡 概述
+
+「待补充」
+
+---
+
+## ⚡ 功能
+
+- **Configuration**: `config.toml` controls model selection, approval policies, sandbox modes, MCP server connections, and skills configuration
+- **Skills**: Invoked via `$skill-name` syntax with YAML frontmatter metadata, trigger/skip conditions, commands and examples
+
+---
+
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
 
 ```
 .agents/
@@ -15,24 +48,28 @@ This directory contains agent configuration and skills for OpenAI Codex CLI.
   README.md       # This file
 ```
 
-## Configuration
+---
 
-The `config.toml` file controls:
-- Model selection
-- Approval policies
-- Sandbox modes
-- MCP server connections
-- Skills configuration
+## 📁 目录
 
-## Skills
+「待补充」
 
-Skills are invoked using `$skill-name` syntax. Each skill has:
-- YAML frontmatter with metadata
-- Trigger and skip conditions
-- Commands and examples
+---
 
-## Documentation
+## 🔗 资源
 
 - Main instructions: `AGENTS.md` (project root)
 - Local overrides: `.codex/AGENTS.override.md` (gitignored)
 - Claude Flow: https://github.com/ruvnet/claude-flow
+
+---
+
+## 🚀 快速开始
+
+「待补充」
+
+---
+
+## ⚙️ 技术栈
+
+「待补充」

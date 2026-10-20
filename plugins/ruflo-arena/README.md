@@ -1,26 +1,42 @@
+---
+title: "ruflo-arena"
+tags: ["arena", "tournament", "game-theory", "co-evolution", "ruliology", "competitive"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-arena
 
-Competitive ruliology for Ruflo swarms — **arenas**, **tournaments**, and **adaptive
+## 💡 概述
+
+Competitive ruliology for Ruflo swarms -- **arenas**, **tournaments**, and **adaptive
 co-evolution** of program strategies. Implements the first executable slice of Ruflo
 ADR-147/148/150, following Stephen Wolfram's
 [*Games Between Programs: The Ruliology of Competition*](https://writings.stephenwolfram.com/2026/06/games-between-programs-the-ruliology-of-competition/).
 
 Strategies are **programs** (deterministic finite-state machines reading opponent history).
 They compete under payoff games; tournaments produce Wolfram's **competitive array**; hill-climb
-and **mutual co-evolution** discover winners empirically — because, per computational
+and **mutual co-evolution** discover winners empirically -- because, per computational
 irreducibility, you have to *run* the competition to find out.
 
-## Install & test
+## ⚡ 功能
+
+### Install & test
 
 ```bash
 cd plugins/ruflo-arena
-npm install        # light — runtime dep is just zod
+npm install        # light -- runtime dep is just zod
 npm run build      # tsc -> dist/
 npm test           # vitest (engine + MCP tools + persistence)
 npm run lint       # eslint (typescript-eslint)
 ```
 
-## CLI
+### CLI
 
 ```bash
 node dist/cli.js demo                                   # tournament + evolution + co-evolution
@@ -31,10 +47,10 @@ node dist/cli.js coevolve --game pd --generations 400 --seed 7
 ```
 
 Sample PD ranking (mean-vs-field): `grim ≈ 2.99`, `always-defect ≈ 2.76`, `tit-for-tat ≈ 2.50`,
-… `always-cooperate ≈ 1.88`. The evolution run climbs from a random FSM (~2.78) to ~3.00 with
+... `always-cooperate ≈ 1.88`. The evolution run climbs from a random FSM (~2.78) to ~3.00 with
 the characteristic plateau→breakthrough fitness curve.
 
-## MCP tools (`ruflo-arena/mcp-tools`)
+### MCP tools (`ruflo-arena/mcp-tools`)
 
 | Tool | Purpose |
 |------|---------|
@@ -47,14 +63,14 @@ the characteristic plateau→breakthrough fitness curve.
 All return `{ success, result | error }` and validate inputs with Zod. See
 [`commands/arena.md`](commands/arena.md) and [`docs/adrs/0001-arena-contract.md`](docs/adrs/0001-arena-contract.md).
 
-## Persistence
+### Persistence
 
 Full run artifacts are written to `.ruflo/arena/<runId>.json` (exact replay). Each tool result
 also carries an `agentdb` payload so the command layer can store a searchable summary via
-`mcp__plugin_ruflo-core_ruflo__memory_store` (namespace `arena`) — the local stand-in for the RuVector data
+`mcp__plugin_ruflo-core_ruflo__memory_store` (namespace `arena`) -- the local stand-in for the RuVector data
 layer (ADR-196/197), enabling queries like *"tournaments where grim dominated"*.
 
-## Scope
+### Scope
 
 v1 is intentionally Ruflo-only and core-untouched:
 
@@ -62,9 +78,19 @@ v1 is intentionally Ruflo-only and core-untouched:
   co-evolution, file/AgentDB persistence, MCP tools + CLI.
 - **Out (tracked elsewhere):** LLM-agent strategies + distillation (ADR-151), execution
   sandboxing/resource governance (ADR-153), dashboard UI (ADR-149/154), and the full RuVector
-  data/intelligence layer (ADR-196–198, ADR-200).
+  data/intelligence layer (ADR-196-198, ADR-200).
 
-## Architecture
+---
+
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
+
+### Architecture
 
 ```
 src/
@@ -77,7 +103,7 @@ src/
   cli.ts       human-facing CLI
 ```
 
-## As a mod
+### As a mod
 
 Arena also ships as a function-hook mod (ADR-445 pattern; hooks in `hooks/`, loaded with the plugin). No network, no process, no model call.
 
@@ -86,3 +112,35 @@ Arena also ships as a function-hook mod (ADR-445 pattern; hooks in `hooks/`, loa
 - **Status file**: `.claude-flow/arena-mod/status.json` (`version`, `updatedMs`, counters), written at session start; the console reads it.
 
 Test: `claude plugin validate plugins/ruflo-arena`, `claude plugin test plugins/ruflo-arena` (its vitest suites are `*.spec.ts`, so the kit collects only `tests/mod.test.ts`), and `bash plugins/ruflo-arena/scripts/smoke.sh`.
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+```bash
+cd plugins/ruflo-arena
+npm install
+npm run build
+node dist/cli.js demo
+```
+
+---
+
+## ⚙️ 技术栈
+
+- TypeScript + Zod
+- Vitest
+- MCP tools
+- AgentDB persistence

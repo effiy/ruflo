@@ -1,8 +1,28 @@
+---
+title: ".harness — MetaHarness Lifecycle Directory"
+tags: ["metaharness", "harness", "governance", "manifest", "witness", "mcp-policy"]
+category: "infrastructure/meta"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # .harness/ — ruflo's MetaHarness lifecycle directory
 
 This directory holds the files that `harness <subcommand>` from `metaharness` reads to assess ruflo's governance posture. See [ADR-150](../v3/docs/adr/ADR-150-metaharness-integration-surfaces.md) for context.
 
-## Contents
+---
+
+## 💡 概述
+
+The `.harness/` directory enables MetaHarness to evaluate ruflo's governance and security posture through MCP policy enforcement, manifest signing, and optional witness attestation.
+
+---
+
+## ⚡ 功能
 
 | File | Purpose | Iter |
 |---|---|---|
@@ -10,7 +30,21 @@ This directory holds the files that `harness <subcommand>` from `metaharness` re
 | `manifest.json` | Hand-authored harness identity manifest: hosts + sha256 fingerprints of the security-relevant files (mcp-policy + .claude/settings). Required input for `harness sign` and for OIA-manifest's `mcpPolicyPath` field. | 32 |
 | `witness.json` | **NOT YET CREATED.** Ed25519-signed Merkle-style witness over the manifest. Would push OIA governance from "full / mcp-policy.json (witness missing)" to "full / mcp-policy.json + witness ADR-011". See below. | — |
 
-## Witness — what's needed to ship it
+---
+
+## 📊 指标
+
+Current state (option 3) gives ruflo:
+- L7 governance alignment: **full** (per `harness oia-manifest`)
+- threat-model worst severity: **info / clean**
+- mcp-scan: **0 actionable findings**
+- The implementation note: `"mcp-policy.json (witness missing)"`
+
+---
+
+## 🏛️ 设计
+
+### Witness — what's needed to ship it
 
 `harness sign .` produces a witness from `.harness/manifest.json` BUT requires `WITNESS_SIGNING_KEY` (64-char hex Ed25519 private key) in the environment. Ruflo's existing `brain-signing-key` in GCP Secret Manager is in a different format (89 chars, not hex) and can't be reused.
 
@@ -22,15 +56,25 @@ To enable witness signing, one of:
 
 3. **Skip the witness** and accept the "partial witness" note in the OIA manifest. The threat-model and mcp-scan are already CLEAN without it; the witness only signs the manifest, it doesn't itself add new security controls.
 
-Current state (option 3) gives ruflo:
-- ✓ L7 governance alignment: **full** (per `harness oia-manifest`)
-- ✓ threat-model worst severity: **info / clean**
-- ✓ mcp-scan: **0 actionable findings**
-- The implementation note: `"mcp-policy.json (witness missing)"`
-
 The witness is genuinely optional unless an external party needs to verify the manifest hasn't been tampered with. For ruflo's internal use it's nice-to-have polish.
 
-## Verifying ruflo's current posture
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+- [ADR-150](../v3/docs/adr/ADR-150-metaharness-integration-surfaces.md) — decision + implementation notes
+
+---
+
+## 🚀 快速开始
+
+### Verifying ruflo's current posture
 
 ```bash
 # Full threat report
@@ -48,7 +92,7 @@ npx ruflo metaharness mcp-scan
 npx ruflo metaharness oia-audit --dry-run
 ```
 
-## Updating mcp-policy.json
+### Updating mcp-policy.json
 
 If you change `mcp-policy.json`, regenerate the manifest's sha256 entry:
 
@@ -66,3 +110,12 @@ console.log('Manifest updated.');
 ```
 
 Smoke step 17t (in `plugins/ruflo-metaharness/scripts/smoke.sh`) locks the policy invariants. If you change the policy in a way that violates `defaultDeny:true / auditLog:true / requireApprovalForDangerous:true` or removes the `toolTimeoutMs`/`maxToolCallsPerTurn` positive-number requirements, CI will fail.
+
+---
+
+## ⚙️ 技术栈
+
+- MetaHarness (`metaharness` npm package)
+- Ed25519 signatures
+- SHA-256 fingerprinting
+- JSON manifest format

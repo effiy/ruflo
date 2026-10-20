@@ -1,24 +1,38 @@
+---
+title: "ruflo-sparc"
+tags: ["sparc", "methodology", "specification", "architecture", "quality-gates", "orchestration"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-sparc
+
+## 💡 概述
 
 SPARC methodology -- Specification, Pseudocode, Architecture, Refinement, Completion phases with quality gates between each phase.
 
-## Overview
-
 Drives features through a rigorous five-phase development lifecycle. Each phase has a quality gate that must pass before advancing. The orchestrator spawns specialized agents per phase (ruflo-core:researcher, ruflo-goals:goal-planner, ruflo-swarm:architect, ruflo-core:coder, ruflo-testgen:tester, ruflo-core:reviewer) and stores all artifacts and gate results in memory for traceability.
 
-## Installation
+## ⚡ 功能
+
+### Installation
 
 ```bash
 claude --plugin-dir plugins/ruflo-sparc
 ```
 
-## Agents
+### Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
 | `sparc-orchestrator` | sonnet | Orchestrate 5-phase SPARC lifecycle, enforce gate checks, spawn phase-specific agents, track state in memory |
 
-## Skills
+### Skills
 
 | Skill | Usage | Description |
 |-------|-------|-------------|
@@ -26,7 +40,7 @@ claude --plugin-dir plugins/ruflo-sparc
 | `sparc-implement` | `/ruflo-sparc:sparc-implement` | Run the Architecture and Implementation phases -- design modules, write pseudocode, implement, test |
 | `sparc-refine` | `/ruflo-sparc:sparc-refine` | Run Refinement and Completion -- review code, improve coverage, validate against spec, generate docs |
 
-## Commands (5 subcommands)
+### Commands (5 subcommands)
 
 ```bash
 /ruflo-sparc:ruflo-sparc init <feature>         # Initialize a new SPARC workflow
@@ -36,7 +50,7 @@ claude --plugin-dir plugins/ruflo-sparc
 /ruflo-sparc:ruflo-sparc report                 # Generate full SPARC methodology report with traceability matrix
 ```
 
-## The 5 Phases
+### The 5 Phases
 
 | Phase | Name | Gate Criteria | Spawned Agent |
 |-------|------|--------------|---------------|
@@ -46,7 +60,11 @@ claude --plugin-dir plugins/ruflo-sparc
 | 4 | Refinement | All ACs have passing tests, review approved, coverage >= 80% | `coder` + `tester` |
 | 5 | Completion | All tests green, docs complete, deployment checklist verified | `reviewer` |
 
-## Memory Namespaces
+---
+
+## 📊 指标
+
+### Memory Namespaces
 
 | Namespace | Purpose |
 |-----------|---------|
@@ -55,12 +73,16 @@ claude --plugin-dir plugins/ruflo-sparc
 | `sparc-gates` | Gate check results and history |
 | `patterns` | Learned SPARC execution patterns |
 
-## Compatibility
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
 - **Verification:** `bash plugins/ruflo-sparc/scripts/smoke.sh` is an offline structure and documentation check (manifest, commands, skills, agent and command-name references). It does not call any MCP tool or run a SPARC workflow, so a pass does not prove the workflow state machine works.
 
-## Phase-to-plugin alignment
+---
+
+## 🏛️ 设计
+
+### Phase-to-plugin alignment
 
 Each SPARC phase has a canonical handoff plugin that owns its deeper tooling:
 
@@ -74,7 +96,7 @@ Each SPARC phase has a canonical handoff plugin that owns its deeper tooling:
 
 This plugin orchestrates the lifecycle; sibling plugins do the deep work per phase.
 
-## Namespace coordination
+### Namespace coordination
 
 This plugin owns three AgentDB namespaces, all kebab-case compliant per [ruflo-agentdb ADR-0001 §"Namespace convention"](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md):
 
@@ -84,33 +106,13 @@ This plugin owns three AgentDB namespaces, all kebab-case compliant per [ruflo-a
 | `sparc-phases` | Phase artifacts (specs, pseudocode, ADRs, reports) |
 | `sparc-gates` | Gate check results and history |
 
-Additionally, the shared `patterns` (plural) namespace is consumed (not owned) for cross-feature SPARC pattern learning — note the pluralization (different from the singular `pattern` ReasoningBank target). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
+Additionally, the shared `patterns` (plural) namespace is consumed (not owned) for cross-feature SPARC pattern learning -- note the pluralization (different from the singular `pattern` ReasoningBank target). Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
-## Verification
-
-```bash
-bash plugins/ruflo-sparc/scripts/smoke.sh
-# Expected: "11 passed, 0 failed"
-```
-
-## Architecture Decisions
+### Architecture Decisions
 
 - [`ADR-0001` — ruflo-sparc plugin contract (phase-to-plugin alignment, namespace coordination, smoke as contract)](./docs/adrs/0001-sparc-contract.md)
 
-## Related Plugins
-
-- `ruflo-agentdb` — namespace convention owner; backing store for sparc-state/-phases/-gates
-- `ruflo-goals` — Specification phase deep-research
-- `ruflo-adr` -- Architecture decisions recorded as ADRs in Phase 3
-- `ruflo-ddd` -- Architecture phase uses DDD bounded context patterns
-- `ruflo-jujutsu` -- Refinement phase diff analysis
-- `ruflo-docs` -- Completion phase documentation generation
-
-## License
-
-MIT
-
-## As a mod
+### As a mod
 
 This plugin also loads as a function-hook mod (ADR-445 pattern, `hooks/hooks.json` → `register.ts`). No network, no process spawn, no model call.
 
@@ -121,7 +123,7 @@ This plugin also loads as a function-hook mod (ADR-445 pattern, `hooks/hooks.jso
 
 Test it: `claude plugin validate plugins/ruflo-sparc`, `claude plugin test plugins/ruflo-sparc`, `bash plugins/ruflo-sparc/scripts/smoke.sh`.
 
-## Native Codex hooks
+### Native Codex hooks
 
 The separate `.codex-plugin/plugin.json` selects `hooks/codex-hooks.json`, replacing
 the Claude-only module entry for Codex. Claude's manifest and `register.ts` remain
@@ -157,3 +159,51 @@ Its explicit native plugin install replaces the cached root atomically even at t
 same version. An owned projection must therefore refresh its upstream source
 generation and explicitly reinstall it; refreshing a marketplace catalog alone
 is not installation proof. No foreign cache entry should be edited in place.
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Verification
+
+```bash
+bash plugins/ruflo-sparc/scripts/smoke.sh
+# Expected: "11 passed, 0 failed"
+```
+
+### Related Plugins
+
+- `ruflo-agentdb` -- namespace convention owner; backing store for sparc-state/-phases/-gates
+- `ruflo-goals` -- Specification phase deep-research
+- `ruflo-adr` -- Architecture decisions recorded as ADRs in Phase 3
+- `ruflo-ddd` -- Architecture phase uses DDD bounded context patterns
+- `ruflo-jujutsu` -- Refinement phase diff analysis
+- `ruflo-docs` -- Completion phase documentation generation
+
+### License
+
+MIT
+
+---
+
+## 🚀 快速开始
+
+```bash
+claude --plugin-dir plugins/ruflo-sparc
+/ruflo-sparc:ruflo-sparc init <feature>
+```
+
+---
+
+## ⚙️ 技术栈
+
+- Claude Code plugins
+- AgentDB (memory namespaces)
+- ruflo-core agents
+- Codex native hooks

@@ -1,16 +1,34 @@
+---
+title: "Coherence Engine Domain"
+tags: ["ddd", "coherence-engine", "prime-radiant", "sheaf-cohomology", "spectral-analysis", "causal-inference", "validation"]
+category: "docs/ddd"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: "internal"
+type: "index"
+status: "stable"
+lifecycle: "active"
+---
+
 # Coherence Engine Domain
 
-## Overview
+---
+
+## 💡 概述
 
 The Coherence Engine domain provides mathematical AI interpretability capabilities for Claude Flow V3 through the `prime-radiant` plugin. It enables rigorous coherence validation, spectral stability analysis, and causal reasoning using advanced mathematical frameworks including Sheaf Cohomology, Spectral Graph Theory, and Do-Calculus.
 
-## Strategic Design
+---
 
-### Domain Vision
+## ⚡ 功能
+
+### Strategic Design
+
+#### Domain Vision
 
 > Ensure mathematical coherence and stability across all AI operations through rigorous validation gates that prevent contradictions, detect hallucinations, and verify multi-agent consensus.
 
-### Core Subdomains
+#### Core Subdomains
 
 ```
 Coherence Engine Domain
@@ -22,7 +40,7 @@ Coherence Engine Domain
 └── Type Theory (Generic)             # HoTT proofs and verification
 ```
 
-### Subdomain Classification
+#### Subdomain Classification
 
 | Subdomain | Type | Complexity | Business Value |
 |-----------|------|------------|----------------|
@@ -33,7 +51,39 @@ Coherence Engine Domain
 | Topology Analysis | Supporting | High | Medium |
 | Type Theory | Generic | High | Low |
 
-## Context Map
+---
+
+## 📊 指标
+
+### Engine Inventory
+
+#### Total: 6 Mathematical Engines
+
+| Engine | Purpose | Performance |
+|--------|---------|-------------|
+| CohomologyEngine | Sheaf Laplacian coherence | <5ms per check |
+| SpectralEngine | Eigenvalue stability | <20ms for 100x100 |
+| CausalEngine | Do-calculus inference | <10ms per query |
+| QuantumEngine | Persistent homology | <50ms per computation |
+| CategoryEngine | Functor/morphism ops | <5ms per operation |
+| HottEngine | Type theory proofs | <10ms per verification |
+
+### Memory Namespaces
+
+All Coherence Engine data is stored under the `pr/` namespace prefix:
+
+| Namespace | Purpose | Description |
+|-----------|---------|-------------|
+| `pr/coherence-checks` | Validation history | Records of coherence validations |
+| `pr/stability-metrics` | Stability data | Swarm stability measurements |
+| `pr/causal-models` | Causal graphs | Stored causal relationship models |
+| `pr/topology-features` | Topological data | Computed topological features |
+
+---
+
+## 🏛️ 设计
+
+### Context Map
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -97,9 +147,9 @@ Coherence Engine Domain
 | Causal Inference | Security | Conformist | Attack pattern analysis |
 | Topology Analysis | Memory | Customer-Supplier | Vector cluster analysis |
 
-## Bounded Contexts
+### Bounded Contexts
 
-### 1. Coherence Validation Context
+#### 1. Coherence Validation Context
 
 **Responsibility**: Detect contradictions using Sheaf Laplacian energy
 
@@ -126,7 +176,7 @@ validate(entry: MemoryEntry, context: MemoryEntry[]): CoherenceValidation
 validateBatch(entries: MemoryEntry[]): CoherenceValidation[]
 ```
 
-### 2. Spectral Analysis Context
+#### 2. Spectral Analysis Context
 
 **Responsibility**: Analyze stability using spectral graph theory
 
@@ -152,7 +202,7 @@ analyzeSpectral(adjacencyMatrix: Float32Array): SpectralResult
 detectClusters(adjacencyMatrix: Float32Array): ClusterResult
 ```
 
-### 3. Causal Inference Context
+#### 3. Causal Inference Context
 
 **Responsibility**: Do-calculus based causal reasoning
 
@@ -180,7 +230,7 @@ identifyConfounders(treatment: string, outcome: string, graph: CausalGraph): str
 findBackdoorPaths(treatment: string, outcome: string, graph: CausalGraph): string[][]
 ```
 
-### 4. Consensus Verification Context
+#### 4. Consensus Verification Context
 
 **Responsibility**: Mathematical validation of multi-agent agreement
 
@@ -206,7 +256,7 @@ checkVoteCoherence(votes: Vote[]): CoherenceResult
 analyzeAgreement(agentStates: AgentState[]): AgreementAnalysis
 ```
 
-### 5. Topology Analysis Context
+#### 5. Topology Analysis Context
 
 **Responsibility**: Quantum topology for structural analysis
 
@@ -233,7 +283,7 @@ computePersistenceDiagram(points: Float32Array[]): [number, number][]
 countHomologyClasses(points: Float32Array[], dimension: number): number
 ```
 
-### 6. Type Theory Context
+#### 6. Type Theory Context
 
 **Responsibility**: Homotopy Type Theory proofs and verification
 
@@ -259,53 +309,54 @@ inferType(term: string): string
 normalize(term: string): string
 ```
 
-## Engine Inventory
+### Integration Points
 
-### Total: 6 Mathematical Engines
-
-| Engine | Purpose | Performance |
-|--------|---------|-------------|
-| CohomologyEngine | Sheaf Laplacian coherence | <5ms per check |
-| SpectralEngine | Eigenvalue stability | <20ms for 100x100 |
-| CausalEngine | Do-calculus inference | <10ms per query |
-| QuantumEngine | Persistent homology | <50ms per computation |
-| CategoryEngine | Functor/morphism ops | <5ms per operation |
-| HottEngine | Type theory proofs | <10ms per verification |
-
-## Memory Namespaces
-
-All Coherence Engine data is stored under the `pr/` namespace prefix:
-
-| Namespace | Purpose | Description |
-|-----------|---------|-------------|
-| `pr/coherence-checks` | Validation history | Records of coherence validations |
-| `pr/stability-metrics` | Stability data | Swarm stability measurements |
-| `pr/causal-models` | Causal graphs | Stored causal relationship models |
-| `pr/topology-features` | Topological data | Computed topological features |
-
-## Integration Points
-
-### Memory Domain
+#### Memory Domain
 - **Hook**: `pre-memory-store` - Coherence gate before storage
 - **Service**: `CoherentMemoryService` - Extended memory with coherence
 
-### Hive-Mind Domain
+#### Hive-Mind Domain
 - **Hook**: `pre-consensus` - Consensus coherence validation
 - **Hook**: `post-swarm-task` - Stability analysis after tasks
 - **Service**: `CoherentHiveMind` - Extended hive-mind with verification
 
-### Security Domain
+#### Security Domain
 - **Hook**: `pre-rag-retrieval` - Hallucination prevention
 - **Integration**: Input validity checking via coherence
 
-### AIDefence Domain
+#### AIDefence Domain
 - **Extension**: Coherence-based threat detection
 - **Integration**: Mathematical attack pattern analysis
 
-## Related Documentation
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
 
 - [ADR-031: Prime Radiant Integration](../../implementation/adrs/ADR-031-prime-radiant-integration.md)
 - [Domain Model](./domain-model.md)
 - [Integration Points](./integration-points.md)
 - [ADR-006: Unified Memory Service](../../implementation/adrs/ADR-006-UNIFIED-MEMORY.md)
 - [ADR-022: AIDefence Integration](../../implementation/adrs/ADR-022-aidefence-integration.md)
+
+---
+
+## 🚀 快速开始
+
+「待补充」
+
+---
+
+## ⚙️ 技术栈
+
+- Sheaf Cohomology
+- Spectral Graph Theory
+- Do-Calculus (Causal Inference)
+- Persistent Homology
+- Homotopy Type Theory (HoTT)
+- Prime Radiant Plugin

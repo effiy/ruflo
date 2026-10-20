@@ -1,3 +1,15 @@
+---
+title: "Watermark - LLM Text Watermarking"
+tags: ["watermark", "WASM", "SynthID", "LLM", "AI-content", "EU-AI-Act", "detection"]
+category: "@claude-flow/watermark"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # @claude-flow/watermark
 
 SynthID-Text-style **LLM text watermarking** (generation + detection) as a
@@ -13,37 +25,17 @@ Backed by the Rust crate [`ruflo-watermark`](https://github.com/ruvnet/ruflo/tre
 > The legitimate way to produce un-marked output of your own model is not to
 > apply the mark (or to regenerate) — see the crate's `unmarked.rs`.
 
-## Install
+---
 
-```bash
-npm install @claude-flow/watermark
-```
+## 💡 概述
 
-## Use
+「待补充」
 
-The module is model-agnostic: at each step you pass the model's candidate token
-ids and their probabilities (typically a top-k slice); the watermarker picks
-which candidate to emit.
+---
 
-```js
-const { Watermarker, detect } = require('@claude-flow/watermark');
+## ⚡ 功能
 
-const key = '8F3A91C7';                 // secret key material (carries no user info)
-
-// Generate a watermarked sequence.
-const wm = new Watermarker({ key, scheme: 'gumbel' });
-const tokens = Uint32Array.from({ length: 128 }, (_, i) => i);
-const probs = new Float32Array(128).fill(1 / 128);
-const out = new Uint32Array(600);
-for (let i = 0; i < out.length; i++) out[i] = tokens[wm.step(tokens, probs)];
-wm.free();
-
-// Detect it.
-const r = detect(out, { key, scheme: 'gumbel' });
-console.log(r.zScore, r.log10P, r.isWatermarked(1e-6)); // strong, true
-```
-
-## Schemes
+### Schemes
 
 | `scheme` | Property |
 |---|---|
@@ -51,7 +43,7 @@ console.log(r.zScore, r.log10P, r.isWatermarked(1e-6)); // strong, true
 | `tournament` | SynthID-Text tournament (Nature 2024) — strong, mildly distortionary; strength grows with `layers`. |
 | `tournament_nd` | Tournament with continuous g + masking — **key-averaged non-distortionary** (measured < 0.3% drift). |
 
-## API
+### API
 
 - `new Watermarker({ key, scheme?, contextWidth?, layers? })` → `.step(tokens, probs)`, `.free()`
 - `detect(tokens, { key, scheme?, contextWidth?, layers? })` → `Detection`
@@ -63,7 +55,7 @@ console.log(r.zScore, r.log10P, r.isWatermarked(1e-6)); // strong, true
 key sees nothing. Confidence grows with the number of low-stakes token choices,
 so short or low-entropy (factual/code) text carries little to no mark.
 
-## Browser / Deno / bundler
+### Browser / Deno / bundler
 
 The `@claude-flow/watermark/web` entry is an ESM build. Instantiate the WASM once
 with `await init()`, then use the same API. In a browser, `init()` with no
@@ -88,10 +80,74 @@ console.log(detect(out, { key: '8F3A91C7', scheme: 'gumbel' }).isWatermarked(1e-
 The `.` entry is the Node (CommonJS) build shown earlier; the `/web` entry is for
 browser / Deno / bundlers.
 
-## Scope
+### Scope
 
 Bindings are generated from the Rust crate with `npm run build:wasm`
 (`wasm-pack`, both `nodejs` and `web` targets). The crate exposes more than this
 WASM surface — the Bayesian/Higher-Criticism detectors, the robustness-evaluation
 harness, the Darwin/flywheel detector tuner, and the authorized un-marked-
 generation governance path are Rust-only for now.
+
+---
+
+## 📊 指标
+
+「待补充」
+
+---
+
+## 🏛️ 设计
+
+「待补充」
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+「待补充」
+
+---
+
+## 🚀 快速开始
+
+### Install
+
+```bash
+npm install @claude-flow/watermark
+```
+
+### Use
+
+The module is model-agnostic: at each step you pass the model's candidate token
+ids and their probabilities (typically a top-k slice); the watermarker picks
+which candidate to emit.
+
+```js
+const { Watermarker, detect } = require('@claude-flow/watermark');
+
+const key = '8F3A91C7';                 // secret key material (carries no user info)
+
+// Generate a watermarked sequence.
+const wm = new Watermarker({ key, scheme: 'gumbel' });
+const tokens = Uint32Array.from({ length: 128 }, (_, i) => i);
+const probs = new Float32Array(128).fill(1 / 128);
+const out = new Uint32Array(600);
+for (let i = 0; i < out.length; i++) out[i] = tokens[wm.step(tokens, probs)];
+wm.free();
+
+// Detect it.
+const r = detect(out, { key, scheme: 'gumbel' });
+console.log(r.zScore, r.log10P, r.isWatermarked(1e-6)); // strong, true
+```
+
+---
+
+## ⚙️ 技术栈
+
+「待补充」

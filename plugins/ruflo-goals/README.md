@@ -1,15 +1,22 @@
+---
+title: "ruflo-goals"
+tags: ["goals", "planning", "deep-research", "horizon-tracking", "goap", "dossier"]
+category: "plugins"
+created: "2024-01-01"
+updated: "2026-10-20"
+source: 'internal'
+type: 'index'
+status: 'stable'
+lifecycle: 'active'
+---
+
 # ruflo-goals
+
+## 💡 概述
 
 Long-horizon goal planning, deep research orchestration, and adaptive replanning.
 
-## Install
-
-```
-/plugin marketplace add ruvnet/ruflo
-/plugin install ruflo-goals@ruflo
-```
-
-## Features
+## ⚡ 功能
 
 - **Goal planning**: GOAP-based action planning with precondition analysis and cost optimization
 - **Deep research**: Multi-source research orchestration (web, memory, codebase, patterns)
@@ -17,11 +24,11 @@ Long-horizon goal planning, deep research orchestration, and adaptive replanning
 - **Research synthesis**: Evidence-graded reports with contradiction resolution
 - **Dossier investigation**: Recursive parallel fan-out across all ruflo sources for seed-driven investigation (ADR-099)
 
-## Commands
+### Commands
 
 - `/goals` -- List active horizons, check progress, view research
 
-## Skills
+### Skills
 
 - `deep-research` -- Orchestrate multi-phase research campaigns
 - `goal-plan` -- Create and execute GOAP action plans
@@ -29,14 +36,14 @@ Long-horizon goal planning, deep research orchestration, and adaptive replanning
 - `research-synthesize` -- Synthesize findings into structured reports
 - `dossier-collect` -- Recursive parallel investigation building a graph-structured dossier on a seed entity
 
-## Agents
+### Agents
 
 - `goal-planner` -- GOAP specialist with A* planning and trajectory learning
 - `deep-researcher` -- Multi-source research with evidence grading (linear, question-driven)
 - `horizon-tracker` -- Cross-session objective tracking with drift detection
 - `dossier-investigator` -- Recursive parallel multi-source investigator (seed-driven, graph output)
 
-## Selection guide
+### Selection guide
 
 | You have | Use |
 |---|---|
@@ -45,18 +52,26 @@ Long-horizon goal planning, deep research orchestration, and adaptive replanning
 | A multi-step objective | `goal-planner` / `goal-plan` |
 | A long-running objective | `horizon-tracker` / `horizon-track` |
 
-## Compatibility
+---
+
+## 📊 指标
+
+### Compatibility
 
 - **CLI:** pinned to `@claude-flow/cli` v3.6 major+minor.
 - **Verification:** `bash plugins/ruflo-goals/scripts/smoke.sh` is the contract.
 
-## Namespace coordination
+---
+
+## 🏛️ 设计
+
+### Namespace coordination
 
 This plugin uses six AgentDB namespaces. They predate the namespace convention from [ruflo-agentdb ADR-0001](../ruflo-agentdb/docs/adrs/0001-agentdb-optimization.md). [ADR-0001](./docs/adrs/0001-goals-contract.md) documents the legacy-vs-canonical mapping and the forward path:
 
 | Legacy (current) | Canonical (forward) | Status |
 |------------------|---------------------|--------|
-| `adr` | `adr-patterns` (owned by ruflo-adr) | Defer to canonical owner — don't write here from this plugin |
+| `adr` | `adr-patterns` (owned by ruflo-adr) | Defer to canonical owner -- don't write here from this plugin |
 | `dossier` | `dossier` | Documented base-name exception (cf. `federation`) |
 | `research` | `goals-research` | Legacy reads + new writes pending data-portability ADR |
 | `research-sources` | `goals-research-sources` | Legacy reads + new writes pending |
@@ -67,7 +82,7 @@ This plugin uses six AgentDB namespaces. They predate the namespace convention f
 
 Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadowed.
 
-## Deep research: cap, screening, record (ADR-438)
+### Deep research: cap, screening, record (ADR-438)
 
 `/ruflo-goals:deep-research "<topic>" --cap-usd 2 --depth standard` (or the `deep-researcher` agent):
 
@@ -79,9 +94,9 @@ Reserved namespaces (`pattern`, `claude-memories`, `default`) MUST NOT be shadow
 
 Works with no console installed. Contract: [ADR-438](../../v3/docs/adr/ADR-438-research-integration-contract.md).
 
-## Dossier-investigator (ADR-099)
+### Dossier-investigator (ADR-099)
 
-The `dossier-investigator` agent + `dossier-collect` skill implement [ADR-099](../../v3/docs/adr/ADR-099-dossier-investigator-recursive-parallel-research.md) — recursive parallel multi-source investigation that fans out across web, memory, knowledge-graph, codebase, and ADR index, building a graph-structured dossier with budget caps, de-duplication, and provenance per claim.
+The `dossier-investigator` agent + `dossier-collect` skill implement [ADR-099](../../v3/docs/adr/ADR-099-dossier-investigator-recursive-parallel-research.md) -- recursive parallel multi-source investigation that fans out across web, memory, knowledge-graph, codebase, and ADR index, building a graph-structured dossier with budget caps, de-duplication, and provenance per claim.
 
 Key invariants per ADR-099:
 - **Seed-driven** (entity, not question)
@@ -89,14 +104,7 @@ Key invariants per ADR-099:
 - **Budget caps** (hop-count, token, time)
 - **Provenance per claim** (every fact carries source attribution)
 
-## Verification
-
-```bash
-bash plugins/ruflo-goals/scripts/smoke.sh
-# Expected: "16 passed, 0 failed"
-```
-
-## As a mod (0.4.3)
+### As a mod (0.4.3)
 
 A function-hook mod ships beside the skills (ADR-445 pattern). Needs a Claude Code with mods (2.1.287+); older builds ignore it. No network, no process spawning: it only tightens calls to this plugin's own tools and reads through tools already connected.
 
@@ -104,15 +112,57 @@ A function-hook mod ships beside the skills (ADR-445 pattern). Needs a Claude Co
 |---|---|---|
 | **Write guard** | on | Refuses a write to the goals, horizons, research or dossier namespaces (`memory_store`, `agentdb_*-store`, `hooks_intelligence_pattern-store`) or a `task_create` that holds a key, token or password. |
 | **Dossier ID screen** | on | Refuses a dossier or research note that holds a government ID number (SSN shape). |
-| **`/goals-mod`** | — | `status`, `scan <text>`, `horizons` (reads the horizons namespace through the connected memory tool); answered locally, no model call. |
-| **Status file** | — | `.claude-flow/goals-mod/status.json` (`version`, `updatedMs`, mode flags and counters); written at session start and when a counter changes. |
+| **`/goals-mod`** | -- | `status`, `scan <text>`, `horizons` (reads the horizons namespace through the connected memory tool); answered locally, no model call. |
+| **Status file** | -- | `.claude-flow/goals-mod/status.json` (`version`, `updatedMs`, mode flags and counters); written at session start and when a counter changes. |
 
-Options (`userConfig`): `guard` on\|off, `personal` on\|off. Refusals never echo the value they matched.
+Options (`userConfig`): `guard` on|off, `personal` on|off. Refusals never echo the value they matched.
 
 ```bash
 claude plugin test plugins/ruflo-goals      # 10 tests
 ```
 
-## Architecture Decisions
+### Architecture Decisions
 
-- [`ADR-0001` — ruflo-goals plugin contract (legacy-vs-canonical namespaces, GOAP/dossier workflow contract)](./docs/adrs/0001-goals-contract.md)
+- [`ADR-0001` -- ruflo-goals plugin contract (legacy-vs-canonical namespaces, GOAP/dossier workflow contract)](./docs/adrs/0001-goals-contract.md)
+
+---
+
+## 📁 目录
+
+「待补充」
+
+---
+
+## 🔗 资源
+
+### Verification
+
+```bash
+bash plugins/ruflo-goals/scripts/smoke.sh
+# Expected: "16 passed, 0 failed"
+```
+
+### Install
+
+```
+/plugin marketplace add ruvnet/ruflo
+/plugin install ruflo-goals@ruflo
+```
+
+---
+
+## 🚀 快速开始
+
+```
+/plugin install ruflo-goals@ruflo
+/goals
+```
+
+---
+
+## ⚙️ 技术栈
+
+- GOAP planning
+- AgentDB namespaces
+- AIDefence screening
+- Claude Code function hooks
